@@ -1,22 +1,23 @@
 'use client'
 
-import { LatLng } from "leaflet";
 import { Building } from "./api/berega";
-import BuildingMarker from "./BuildingMarker";
-import Map from "./Map";
 import Card from "./Card";
 import { average } from "./utils";
+import dynamic from "next/dynamic";
+
+const Map = dynamic(() => import('./Map'), { ssr: false })
+const BuildingMarker = dynamic(() => import('./BuildingMarker'), { ssr: false })
 
 export default function Content({ buildings }:
   { buildings: Building[] }) {
   return <div className="root-container">
     <Map
-      center={new LatLng(average(buildings.map(x => x.lat)), average(buildings.map(x => x.lng)))}
+      center={[average(buildings.map(x => x.lat)), average(buildings.map(x => x.lng))]}
       zoom={6}
     >
       {
         buildings
-          .map(x => <BuildingMarker position={new LatLng(x.lat, x.lng)} color={x.color} />)
+          .map(x => <BuildingMarker key={x.page} position={[x.lat, x.lng]} color={x.color} />)
       }
     </Map>
     <div className="cards-container">
@@ -24,6 +25,7 @@ export default function Content({ buildings }:
         buildings
           .map(
             x => <Card
+              key={x.page}
               image={x.image}
               title={x.title}
               description={x.shortDescription}
@@ -37,6 +39,6 @@ export default function Content({ buildings }:
         page=""
       />
     </div>
-  </div>
+  </div >
 
 }
