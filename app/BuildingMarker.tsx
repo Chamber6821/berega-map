@@ -1,8 +1,8 @@
 import L, { LatLngExpression } from "leaflet";
 import { Marker } from "react-leaflet";
 
-export default function BuildingMarker({ position, color, children }:
-  { position: LatLngExpression, color: string, children: any }) {
+export default function BuildingMarker({ position, color, children = undefined }:
+  { position: LatLngExpression, color: string, children?: any }) {
   return <Marker
     position={position}
     icon={L.icon({
