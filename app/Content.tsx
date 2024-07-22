@@ -2,11 +2,8 @@
 
 import { Building } from "./api/berega";
 import Card from "./Card";
+import { BuildingMarker, Map } from "./map";
 import { average } from "./utils";
-import dynamic from "next/dynamic";
-
-const Map = dynamic(() => import('./Map'), { ssr: false })
-const BuildingMarker = dynamic(() => import('./BuildingMarker'), { ssr: false })
 
 export default function Content({ buildings }:
   { buildings: Building[] }) {
