@@ -106,3 +106,19 @@ p {
   font-weight: 700;
   color: rgb(0, 114, 61);
 }
+
+.cluster-icon {
+  background-image: url('https://img.icons8.com/ios-filled/100/439639/100-percents.png');
+  background-size: contain;
+  position: relative;
+}
+
+.cluster-icon p {
+  display: block;
+  color: white;
+  inline-size: min-content;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
