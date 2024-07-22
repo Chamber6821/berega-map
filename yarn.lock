@@ -2313,6 +2313,13 @@ react-leaflet-cluster@^2.1.0:
   dependencies:
     leaflet.markercluster "^1.5.3"
 
+react-leaflet-custom-control@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/react-leaflet-custom-control/-/react-leaflet-custom-control-1.4.0.tgz#3f3a644c26bdedd10a44e57671d6958c6ff0a2ad"
+  integrity sha512-E5sM7avHdFApzXTW7GvdPbhgBonu3j0lr1/DzZWz9OMzGbnSTkYPhE0VIYHAyOBvUoZU/TWjtkyVPS68GyeDiw==
+  dependencies:
+    react-leaflet "^4.2.1"
+
 react-leaflet@^4.2.1:
   version "4.2.1"
   resolved "https://registry.yarnpkg.com/react-leaflet/-/react-leaflet-4.2.1.tgz#c300e9eccaf15cb40757552e181200aa10b94780"

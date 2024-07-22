@@ -122,3 +122,16 @@ p {
   top: 50%;
   transform: translate(-50%, -50%);
 }
+
+.map-button {
+  background-color: #439639;
+  margin: 10px;
+  padding: 12px 16px;
+  border-radius: 100px;
+  border-color: #0000;
+  cursor: pointer;
+}
+
+.map-button p {
+  color: white;
+}

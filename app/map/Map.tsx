@@ -4,6 +4,8 @@ import L, { LatLngExpression } from "leaflet";
 import { MapContainer, TileLayer } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import SelectionArea from "./SelectionArea";
+import { useState } from "react";
+import Control from "react-leaflet-custom-control";
 
 const iconForCluster = (cluster: any) => L.divIcon({
   html: `<p>${cluster.getChildCount()}</p>`,
@@ -12,7 +14,12 @@ const iconForCluster = (cluster: any) => L.divIcon({
 })
 
 export default function Map({ center, zoom, children }: { center: LatLngExpression, zoom: number, children: any }) {
-  return <MapContainer center={center} zoom={zoom} scrollWheelZoom={true} dragging={false}>
+  const [drawMode, setDrawMode] = useState(false)
+  return <MapContainer
+    center={center}
+    zoom={zoom}
+    scrollWheelZoom={true}
+  >
     <TileLayer
       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
     />
@@ -22,6 +29,19 @@ export default function Map({ center, zoom, children }: { center: LatLngExpressi
     >
       {children}
     </MarkerClusterGroup>
-    <SelectionArea />
-  </MapContainer>
+    <SelectionArea drawing={drawMode} />
+    <Control prepend position="topright">
+      {
+        drawMode
+          ?
+          <button className="map-button" onClick={() => setDrawMode(false)}>
+            <p>Закончить выделение</p>
+          </button>
+          :
+          <button className="map-button" onClick={() => setDrawMode(true)}>
+            <p>Выделить область</p>
+          </button>
+      }
+    </Control>
+  </MapContainer >
 }

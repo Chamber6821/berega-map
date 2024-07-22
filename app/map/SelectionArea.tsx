@@ -12,13 +12,16 @@ export const useSelectionArea = create<SelectionAreaType>((set) => ({
   set: (points) => set({ polygon: points })
 }))
 
-export default function SelectionArea() {
+export default function SelectionArea({ drawing }: { drawing: boolean }) {
   const selectionArea = useSelectionArea()
   const [points, setPoints] = useState<[number, number][]>([])
   const [drawMode, setDrawMode] = useState(false)
-  useMapEvents({
+  const map = useMapEvents({
     mousedown() {
-      setDrawMode(true)
+      if (drawing) {
+        map.dragging.disable()
+        setDrawMode(drawing)
+      }
     },
     mousemove(e) {
       if (drawMode) {
@@ -26,9 +29,12 @@ export default function SelectionArea() {
       }
     },
     mouseup() {
-      setDrawMode(false)
-      setPoints([])
-      selectionArea.set(points)
+      if (drawMode) {
+        setDrawMode(false)
+        setPoints([])
+        selectionArea.set(points)
+        map.dragging.enable()
+      }
     }
   })
   return <>
