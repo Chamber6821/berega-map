@@ -7,6 +7,7 @@ const Overlay = styled.div`
   height: 100dvh;
   background-color: #09090924;
   z-index: 2000;
+  overflow-x: scroll;
 `
 
 const Paper = styled.div`
