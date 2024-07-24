@@ -12,11 +12,11 @@ import FiltersHeader from "./filters/FiltersHeader";
 export default function Content({ buildings }:
   { buildings: Building[] }) {
   const [popupBuilding, setPopupBuilding] = useState<Building | null>(null)
-  const [showFiltersPopup, setShoFiltersPopup] = useState(false)
+  const [showFiltersPopup, setShowFiltersPopup] = useState(false)
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
-      <FiltersHeader onOpenFilters={() => setShoFiltersPopup(true)} />
-      {showFiltersPopup && <FiltersPopup onClose={() => setShoFiltersPopup(false)} />}
+      <FiltersHeader onOpenFilters={() => setShowFiltersPopup(true)} />
+      {showFiltersPopup && <FiltersPopup onClose={() => setShowFiltersPopup(false)} />}
       <div className="root-container">
         <Map
           center={[average(buildings.map(x => x.lat)), average(buildings.map(x => x.lng))]}
