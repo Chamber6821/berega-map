@@ -3,6 +3,8 @@ export const logIt = <T>(prefix: string, x: T): T => {
   return x
 }
 
+export const range = (n: number) => Array.from({ length: n }, (_, i) => i)
+
 export const average = (numbers: number[]) => numbers.reduce((a, b) => a + b) / numbers.length
 
 // https://stackoverflow.com/a/29915728

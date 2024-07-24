@@ -1,4 +1,4 @@
-import { logIt } from "../utils";
+import { range } from "../utils";
 
 type EntityType = "developer" | "features" | "residentialcomplex" | "secondhome"
 export type Building = {
@@ -14,8 +14,6 @@ export type Building = {
   page: string,
   color: string
 }
-
-const range = (n: number) => Array.from({ length: n }, (_, i) => i)
 
 const jsonFrom = async (url: RequestInfo | URL) => await (await fetch(url)).json();
 
