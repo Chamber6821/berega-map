@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { useState } from "react";
+import { useDetectClickOutside } from "react-detect-click-outside";
 
 const Overlay = styled.div`
   position: fixed;
@@ -86,14 +87,17 @@ export type Filters = {
 }
 
 export default function FiltersPopup({ onClose }: { onClose?: (filters: Filters) => void }) {
+  const ref = useDetectClickOutside({
+    onTriggered: () => onClose && onClose({
+      floorFrom, floorTo,
+      areaFrom, areaTo,
+    })
+  })
   const [floorFrom, floorTo, FloorInputGroup] = useRangeInputGroup()
   const [areaFrom, areaTo, AreaInputGroup] = useRangeInputGroup()
   return (
-    <Overlay onClick={() => onClose && onClose({
-      floorFrom, floorTo,
-      areaFrom, areaTo,
-    })}>
-      <Paper>
+    <Overlay>
+      <Paper ref={ref}>
         <h1>Все фильтры</h1>
         <FiltersContainer>
           <Filter name="Этаж">{FloorInputGroup}</Filter>
