@@ -11,6 +11,7 @@ import FiltersPopup from "./filters/FiltersPopup";
 export default function Content({ buildings }:
   { buildings: Building[] }) {
   const [popupBuilding, setPopupBuilding] = useState<Building | null>(null)
+  const [showFiltersPopup, setShoFiltersPopup] = useState(true)
   return <div className="root-container">
     <Map
       center={[average(buildings.map(x => x.lat)), average(buildings.map(x => x.lng))]}
@@ -28,7 +29,7 @@ export default function Content({ buildings }:
     </Map>
     <Cards buildings={buildings} />
     {popupBuilding && <Popup building={popupBuilding} onClose={() => setPopupBuilding(null)} />}
-    <FiltersPopup />
+    {showFiltersPopup && <FiltersPopup onClose={() => setShoFiltersPopup(false)} />}
   </div >
 
 }

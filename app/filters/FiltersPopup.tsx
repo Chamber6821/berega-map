@@ -1,8 +1,5 @@
-import { create } from "zustand";
 import styled from "styled-components";
 import { useState } from "react";
-
-export const useFilters = create((set) => { })
 
 const Overlay = styled.div`
   position: fixed;
@@ -80,27 +77,26 @@ const useRangeInputGroup = (): [number | undefined, number | undefined, React.Re
   return [from, to, group]
 }
 
-export default function FiltersPopup() {
+export type Filters = {
+  floorFrom?: number,
+  floorTo?: number,
+  areaFrom?: number,
+  areaTo?: number,
+}
+
+export default function FiltersPopup({ onClose }: { onClose?: (filters: Filters) => void }) {
   const [floorFrom, floorTo, FloorInputGroup] = useRangeInputGroup()
+  const [areaFrom, areaTo, AreaInputGroup] = useRangeInputGroup()
   return (
-    <Overlay>
+    <Overlay onClick={() => onClose && onClose({
+      floorFrom, floorTo,
+      areaFrom, areaTo,
+    })}>
       <Paper>
+        <h1>Все фильтры</h1>
         <FiltersContainer>
-          <Filter name="Фильтр">
-            <InputGroup>
-              <Input placeholder="От" />
-              <Input placeholder="До" />
-              <ResetButton>Сбросить</ResetButton>
-            </InputGroup>
-          </Filter>
-          <Filter name="Фильтрaskdjbakjdsjdsnkdnkjsdnakjds">
-            <InputGroup>
-              <Input placeholder="От" />
-              <Input placeholder="До" />
-              <ResetButton>Сбросить</ResetButton>
-            </InputGroup>
-          </Filter>
           <Filter name="Этаж">{FloorInputGroup}</Filter>
+          <Filter name="Площадь">{AreaInputGroup}</Filter>
         </FiltersContainer>
       </Paper>
     </Overlay>
