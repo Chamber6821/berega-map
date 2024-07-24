@@ -12,7 +12,8 @@ export type Building = {
   address: string,
   image: string,
   page: string,
-  color: string
+  color: string,
+  created: Date,
 }
 
 const jsonFrom = async (url: RequestInfo | URL) => await (await fetch(url)).json();
@@ -82,7 +83,8 @@ export async function fetchResidentionalComplexes(): Promise<Building[]> {
       address: x.address?.address || "Нет адреса",
       image: x.pictures?.[0] ? `https:${x.pictures?.[0]}` : undefined,
       page: `https://berega.team/residential_complex/${x._id}`,
-      color: "#395296"
+      color: "#395296",
+      created: new Date(x['Created Date'])
     };
   });
 }
@@ -108,7 +110,8 @@ export async function fetchSecondHomes(): Promise<Building[]> {
     address: x.address?.address || "Нет адреса",
     image: x.pictures?.[0] ? `https:${x.pictures?.[0]}` : undefined,
     page: `https://berega.team/second_home/${x._id}`,
-    color: "#439639"
+    color: "#439639",
+    created: new Date(x['Created Date'])
   }));
 }
 

@@ -55,3 +55,5 @@ export const gradient = (colorFrom: Color, colorTo: Color) => (progress: number)
   b: colorFrom.b * (1 - progress) + colorTo.b * progress,
 })
 
+export const clamp = (x: number, min: number, max: number) => Math.max(min, Math.min(x, max))
+
