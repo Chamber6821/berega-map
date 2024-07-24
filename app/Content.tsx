@@ -6,6 +6,7 @@ import Cards from "./Cards";
 import { BuildingMarker, Map } from "./map";
 import Popup from "./Popup";
 import { average } from "./utils";
+import FiltersPopup from "./filters/FiltersPopup";
 
 export default function Content({ buildings }:
   { buildings: Building[] }) {
@@ -27,6 +28,7 @@ export default function Content({ buildings }:
     </Map>
     <Cards buildings={buildings} />
     {popupBuilding && <Popup building={popupBuilding} onClose={() => setPopupBuilding(null)} />}
+    <FiltersPopup />
   </div >
 
 }
