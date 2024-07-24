@@ -26,3 +26,32 @@ export const inside = (point: [number, number], polygon: [number, number][]) => 
   return inside;
 }
 
+export type Color = {
+  r: number,
+  g: number,
+  b: number,
+}
+
+export const colorFromHex = (hex: string): Color => {
+  const trimmed = hex.replaceAll('#', '')
+  return {
+    r: parseInt(trimmed.substring(0, 2), 16),
+    g: parseInt(trimmed.substring(2, 4), 16),
+    b: parseInt(trimmed.substring(4, 6), 16),
+  }
+}
+
+export const colorToHex = (color: Color) => {
+  const r = Math.floor(color.r)
+  const g = Math.floor(color.g)
+  const b = Math.floor(color.b)
+  return (1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1)
+}
+
+export const gradient = (colorFrom: Color, colorTo: Color) => (progress: number) =>
+({
+  r: colorFrom.r * (1 - progress) + colorTo.r * progress,
+  g: colorFrom.g * (1 - progress) + colorTo.g * progress,
+  b: colorFrom.b * (1 - progress) + colorTo.b * progress,
+})
+
