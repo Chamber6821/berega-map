@@ -29,6 +29,7 @@ p {
   display: flex;
   width: 100dvw;
   height: 100dvh;
+  position: relative;
 }
 
 .cards-container {
