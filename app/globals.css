@@ -135,3 +135,44 @@ p {
 .map-button p {
   color: white;
 }
+
+.popup-container {
+  --border-radius: 12px;
+  background-color: white;
+  width: 400px;
+  margin: 10px;
+  border-radius: var(--border-radius);
+  border-top-right-radius: 0;
+  position: absolute;
+  top: 74px;
+  z-index: 1100;
+
+  .popup {
+    position: relative;
+
+    .close {
+      position: absolute;
+      right: 0;
+      top: 0;
+      transform: translateX(100%);
+      width: 40px;
+      height: 40px;
+      background-color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-top-right-radius: 8px;
+      border-bottom-right-radius: 8px;
+    }
+
+    .content {
+      padding: 16px 8px 8px 16px;
+
+      .image {
+        width: 100%;
+        height: 250px;
+        border-radius: var(--border-radius);
+      }
+    }
+  }
+}
