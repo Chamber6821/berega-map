@@ -6,6 +6,7 @@ import MarkerClusterGroup from "react-leaflet-cluster";
 import SelectionArea from "./SelectionArea";
 import { useState } from "react";
 import Control from "react-leaflet-custom-control";
+import "leaflet/dist/leaflet.css"
 
 const iconForCluster = (cluster: any) => L.divIcon({
   html: `<p>${cluster.getChildCount()}</p>`,
