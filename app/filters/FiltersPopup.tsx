@@ -133,15 +133,14 @@ export default function FiltersPopup({ onClose }: { onClose?: (filters: Filters)
   const [areaFrom, areaTo, AreaInputGroup] = useRangeInputGroup()
   const [types, TypesInputGroup] = useVariantInputGroup(['A', 'B', 'C'])
   const [showAllFilters, setShowAllFilters] = useState(false)
-  const ref = useDetectClickOutside({
-    onTriggered: () => {
-      setShowAllFilters(false)
-      onClose && onClose({
-        floorFrom, floorTo,
-        areaFrom, areaTo,
-      })
-    }
-  })
+  const handleClose = () => {
+    setShowAllFilters(false)
+    onClose && onClose({
+      floorFrom, floorTo,
+      areaFrom, areaTo,
+    })
+  }
+  const ref = useDetectClickOutside({ onTriggered: handleClose })
   return (
     <Overlay>
       <Paper ref={ref}>
