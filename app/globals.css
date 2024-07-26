@@ -25,6 +25,11 @@ p {
   display: none;
 }
 
+.marker {
+  border: 1px solid white;
+  border-radius: 50%;
+}
+
 .root-container {
   display: flex;
   width: 100dvw;

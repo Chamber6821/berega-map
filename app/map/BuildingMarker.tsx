@@ -10,7 +10,8 @@ export default function BuildingMarker({ position, color, children = undefined, 
     icon={L.icon({
       iconUrl: `https://img.icons8.com/ios-filled/100/${color.replace("#", "")}/100-percents.png`,
       iconSize: L.point(14, 14),
-      iconAnchor: L.point(7, 7)
+      iconAnchor: L.point(7, 7),
+      className: 'marker',
     })}
     eventHandlers={{
       click: onClick
