@@ -30,7 +30,7 @@ export default function Content({ buildings }:
   const [popupBuilding, setPopupBuilding] = useState<Building | null>(null)
   const [showFiltersPopup, setShowFiltersPopup] = useState(false)
   const [bounds, setBounds] = useState<Bounds>()
-  const grad = gradient(colorFromHex('#595f58'), colorFromHex('#00ff33'))
+  const grad = gradient(colorFromHex('#808080'), colorFromHex('#009c1a'))
   const now = new Date().getTime()
   const timeBound = monthAgo().getTime()
   const delta = now - timeBound
