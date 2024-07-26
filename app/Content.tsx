@@ -31,20 +31,20 @@ export default function Content({ buildings }:
         <Map
           center={[average(buildings.map(x => x.lat)), average(buildings.map(x => x.lng))]}
           zoom={6}
-        >
-          {
-            buildings.map(x =>
-              <BuildingMarker
-                key={x.page}
-                position={[x.lat, x.lng]}
-                color={colorToHex(grad(logIt('clamped', clamp(logIt('not clamped', (now - x.created.getTime()) / delta), 0, 1))))}
-                onClick={() => setPopupBuilding(x)}
-              />)
-          }
-        </Map>
+          buildings={buildings.map(x => ({ ...x, color: colorToHex(grad(logIt('clamped', clamp(logIt('not clamped', (now - x.created.getTime()) / delta), 0, 1)))) }))}
+        />
+        {/* { */}
+        {/*   buildings.map(x => */}
+        {/*     <BuildingMarker */}
+        {/*       key={x.page} */}
+        {/*       position={[x.lat, x.lng]} */}
+        {/*       color={colorToHex(grad(logIt('clamped', clamp(logIt('not clamped', (now - x.created.getTime()) / delta), 0, 1))))} */}
+        {/*       onClick={() => setPopupBuilding(x)} */}
+        {/*     />) */}
+        {/* } */}
         <Cards buildings={buildings} />
         {popupBuilding && <Popup building={popupBuilding} onClose={() => setPopupBuilding(null)} />}
       </div >
-    </div>
+    </div >
   )
 }

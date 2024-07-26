@@ -16,13 +16,9 @@ p {
   margin: 0px;
 }
 
-.leaflet-container {
+.map {
   flex: 50%;
   height: 100%;
-}
-
-.leaflet-control-attribution {
-  display: none;
 }
 
 .root-container {
