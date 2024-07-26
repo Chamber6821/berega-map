@@ -88,7 +88,7 @@ const useInput = <T,>({ type, placeholder = '', validator = x => x as T }:
 
 const FiltersContainer = ({ children }: { children: any }) => <table><tbody>{children}</tbody></table>
 
-const useRangeInputGroup = (): [number | undefined, number | undefined, React.ReactElement] => {
+const useRangeInput = (): [number | undefined, number | undefined, React.ReactElement] => {
   const validator = (x: string) => x === "" ? undefined : Math.max(0, +x)
   const [from, setFrom, FromInput] = useInput<number>({ type: 'number', placeholder: "От", validator })
   const [to, setTo, ToInput] = useInput<number>({ type: 'number', placeholder: "До", validator })
@@ -106,7 +106,7 @@ const useRangeInputGroup = (): [number | undefined, number | undefined, React.Re
   return [from, to, group]
 }
 
-const useVariantInputGroup = <T extends string,>(variants: T[]): [T[], React.ReactElement] => {
+const useVariantInput = <T extends string,>(variants: T[]): [T[], React.ReactElement] => {
   const [selected, setSelected] = useState<T[]>([])
   const group =
     <InputGroup>
@@ -160,13 +160,13 @@ export type Filters = {
 }
 
 export default function FiltersPopup({ onClose }: { onClose?: (filters: Filters) => void }) {
-  const [types, TypesInput] = useVariantInputGroup(['Квартира', 'Дом', 'Земельный участок', 'Коммерческая недвижимость', 'Жилой дом', 'Апарт-отель', 'Таунхаус', 'Коттедж'])
-  const [priceFrom, priceTo, PriceInput] = useRangeInputGroup()
+  const [types, TypesInput] = useVariantInput(['Квартира', 'Дом', 'Земельный участок', 'Коммерческая недвижимость', 'Жилой дом', 'Апарт-отель', 'Таунхаус', 'Коттедж'])
+  const [priceFrom, priceTo, PriceInput] = useRangeInput()
   const [country, CountryInput] = useInputText()
   const [city, CityInput] = useInputText()
-  const [floorFrom, floorTo, FloorInput] = useRangeInputGroup()
-  const [frame, FrameInput] = useVariantInputGroup(['Черный каркас', 'Белый каркас', 'С ремонтом', 'Под ключ'])
-  const [areaFrom, areaTo, AreaInput] = useRangeInputGroup()
+  const [floorFrom, floorTo, FloorInput] = useRangeInput()
+  const [frame, FrameInput] = useVariantInput(['Черный каркас', 'Белый каркас', 'С ремонтом', 'Под ключ'])
+  const [areaFrom, areaTo, AreaInput] = useRangeInput()
   const [showAllFilters, setShowAllFilters] = useState(false)
   const handleClose = () => {
     setShowAllFilters(false)
