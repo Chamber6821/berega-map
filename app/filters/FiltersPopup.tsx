@@ -154,10 +154,12 @@ const useInputText = (): [string | undefined, React.ReactElement] => {
 
 export type Filters = {
   types: string[],
+  rooms: string[],
   priceFrom?: number,
   priceTo?: number,
   country?: string,
   city?: string,
+  status?: string[],
   floorFrom?: number,
   floorTo?: number,
   frame: string[],
@@ -166,10 +168,12 @@ export type Filters = {
 }
 
 export default function FiltersPopup({ onClose }: { onClose?: (filters: Filters) => void }) {
-  const [types, TypesInput] = useVariantInput(['Квартира', 'Дом', 'Земельный участок', 'Коммерческая недвижимость', 'Жилой дом', 'Апарт-отель', 'Таунхаус', 'Коттедж'])
+  const [types, TypesInput] = useVariantInput(['Квартира', 'Дом', 'Земельный участок'])
+  const [rooms, RoomsInput] = useVariantInput(['Студия', '1', '2', '3', '4', '5+'])
   const [priceFrom, priceTo, PriceInput] = useRangeInput()
   const [country, CountryInput] = useInputText()
   const [city, CityInput] = useInputText()
+  const [status, StatusInput] = useVariantInput(['Новостройка', 'Вторичное жилье', 'Переуступка'])
   const [floorFrom, floorTo, FloorInput] = useRangeInput()
   const [frame, FrameInput] = useVariantInput(['Черный каркас', 'Белый каркас', 'С ремонтом', 'Под ключ'])
   const [areaFrom, areaTo, AreaInput] = useRangeInput()
@@ -178,8 +182,10 @@ export default function FiltersPopup({ onClose }: { onClose?: (filters: Filters)
     setShowAllFilters(false)
     onClose && onClose({
       types,
+      rooms,
       priceFrom, priceTo,
       country, city,
+      status,
       floorFrom, floorTo,
       frame,
       areaFrom, areaTo,
@@ -195,6 +201,7 @@ export default function FiltersPopup({ onClose }: { onClose?: (filters: Filters)
         <h1>Фильтры</h1>
         <FiltersContainer>
           <Filter name="Тип">{TypesInput}</Filter>
+          <Filter name="Кол-во комнат">{RoomsInput}</Filter>
           <Filter name="Цена">{PriceInput}</Filter>
           <Filter name="Страна">{CountryInput}</Filter>
           <Filter name="Город">{CityInput}</Filter>
@@ -205,6 +212,7 @@ export default function FiltersPopup({ onClose }: { onClose?: (filters: Filters)
         {showAllFilters && <>
           <HorizontalLine />
           <FiltersContainer>
+            <Filter name="Статус">{StatusInput}</Filter>
             <Filter name="Этаж">{FloorInput}</Filter>
             <Filter name="Ремонт">{FrameInput}</Filter>
             <Filter name="Площадь">{AreaInput}</Filter>
