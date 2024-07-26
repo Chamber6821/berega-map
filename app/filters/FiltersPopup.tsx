@@ -76,7 +76,7 @@ const useInput = <T,>({ type, placeholder, validator }:
 const FiltersContainer = ({ children }: { children: any }) => <table><tbody>{children}</tbody></table>
 
 const useRangeInputGroup = (): [number | undefined, number | undefined, React.ReactElement] => {
-  const validator = (x: string) => x === "" ? undefined : +x
+  const validator = (x: string) => x === "" ? undefined : Math.max(0, +x)
   const [from, setFrom, FromInput] = useInput<number>({ type: 'number', placeholder: "От", validator })
   const [to, setTo, ToInput] = useInput<number>({ type: 'number', placeholder: "До", validator })
   const group =
