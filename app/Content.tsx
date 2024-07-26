@@ -37,8 +37,8 @@ export default function Content({ buildings }:
   return (
     <div className="root-container">
       <Map
-        center={[average(buildings.map(x => x.lat)), average(buildings.map(x => x.lng))]}
-        zoom={6}
+        center={[41.65, 41.65]}
+        zoom={12}
         onBoundsChanged={setBounds}
       >
         {
