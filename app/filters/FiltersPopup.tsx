@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { ReactElement, useState } from "react";
 import { useDetectClickOutside } from "react-detect-click-outside";
+import { CloseOutline } from "react-ionicons";
 
 const Overlay = styled.div`
   position: fixed;
@@ -17,6 +18,7 @@ const Paper = styled.div`
   padding: 20px;
   background-color: white;
   border-radius: 16px;
+  position: relative;
 `
 
 const Input = styled.input`
@@ -46,6 +48,14 @@ const VariantButton = styled.button`
 const PressedVariantButton = styled.button`
   color: #7f7f7f;
   border: 2px solid #7f7f7f;
+`
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translateX(100%);
+  scale: 1.5;
 `
 
 const HorizontalLine = styled.div`
@@ -173,6 +183,9 @@ export default function FiltersPopup({ onClose }: { onClose?: (filters: Filters)
   return (
     <Overlay>
       <Paper ref={ref}>
+        <CloseButton onClick={handleClose}>
+          <CloseOutline color={"#EEF5F8"} />
+        </CloseButton>
         <h1>Фильтры</h1>
         <FiltersContainer>
           <Filter name="Тип">{TypesInput}</Filter>
