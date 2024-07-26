@@ -140,8 +140,9 @@ const useVariantInput = <T extends string,>(variants: T[]): [T[], React.ReactEle
   return [selected, group]
 }
 
-const useInputText = (): [string | undefined, React.ReactElement] => {
+const useInputText = (): [string, React.ReactElement] => {
   const [text, setText, input] = useInput<string>({ type: 'text' })
+  if (text === undefined) setText('')
   const group =
     <InputGroup>
       {input}
@@ -149,7 +150,7 @@ const useInputText = (): [string | undefined, React.ReactElement] => {
         Сбросить
       </ResetButton>
     </InputGroup>
-  return [text, group]
+  return [text || '', group]
 }
 
 export type Filters = {
