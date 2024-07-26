@@ -111,6 +111,15 @@ const useVariantInput = <T extends string,>(variants: T[]): [T[], React.ReactEle
   const group =
     <InputGroup>
       {
+        selected.length === 0
+          ? <PressedVariantButton>
+            Не важно
+          </PressedVariantButton>
+          : <VariantButton onClick={() => setSelected([])}>
+            Не важно
+          </VariantButton>
+      }
+      {
         variants.map(x =>
           selected.includes(x)
             ? <PressedVariantButton
@@ -127,10 +136,7 @@ const useVariantInput = <T extends string,>(variants: T[]): [T[], React.ReactEle
             </VariantButton>
         )
       }
-      <ResetButton onClick={() => setSelected([])} >
-        Сбросить
-      </ResetButton>
-    </InputGroup >
+    </InputGroup>
   return [selected, group]
 }
 
