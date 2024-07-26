@@ -8,6 +8,7 @@ import Popup from "./Popup";
 import { average, clamp, colorFromHex, colorToHex, gradient, logIt } from "./utils";
 import FiltersPopup from "./filters/FiltersPopup";
 import FiltersHeader from "./filters/FiltersHeader";
+import { Bounds } from "./map/Map";
 
 const monthAgo = () => {
   const now = new Date()
@@ -19,6 +20,7 @@ export default function Content({ buildings }:
   { buildings: Building[] }) {
   const [popupBuilding, setPopupBuilding] = useState<Building | null>(null)
   const [showFiltersPopup, setShowFiltersPopup] = useState(false)
+  const [bounds, setBounds] = useState<Bounds>()
   const grad = gradient(colorFromHex('#595f58'), colorFromHex('#00ff33'))
   const now = new Date().getTime()
   const timeBound = monthAgo().getTime()
@@ -31,6 +33,7 @@ export default function Content({ buildings }:
         <Map
           center={[average(buildings.map(x => x.lat)), average(buildings.map(x => x.lng))]}
           zoom={6}
+          onBoundsChanged={setBounds}
         >
           {
             buildings.map(x =>
@@ -42,7 +45,7 @@ export default function Content({ buildings }:
               />)
           }
         </Map>
-        <Cards buildings={buildings} />
+        <Cards buildings={buildings.filter(x => bounds === undefined || bounds.contains([x.lat, x.lng]))} />
         {popupBuilding && <Popup building={popupBuilding} onClose={() => setPopupBuilding(null)} />}
       </div >
     </div>
