@@ -46,7 +46,7 @@ export default function Content({ buildings }:
             <BuildingMarker
               key={x.page}
               position={[x.lat, x.lng]}
-              color={colorToHex(grad(logIt('clamped', clamp(logIt('not clamped', (now - x.created.getTime()) / delta), 0, 1))))}
+              color={colorToHex(grad(clamp((now - x.created.getTime() / delta), 0, 1)))}
               onClick={() => setPopupBuilding(x)}
             />)
         }
