@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useState } from "react";
+import { ReactElement, useState } from "react";
 import { useDetectClickOutside } from "react-detect-click-outside";
 
 const Overlay = styled.div`
@@ -39,10 +39,13 @@ const ResetButton = styled.button`
 
 const AllFiltersButton = styled.button``
 
-const VariantButton = styled.button``
+const VariantButton = styled.button`
+  border: 2px solid;
+`
 
 const PressedVariantButton = styled.button`
   color: #7f7f7f;
+  border: 2px solid #7f7f7f;
 `
 
 const HorizontalLine = styled.div`
@@ -59,8 +62,8 @@ const Filter = ({ name, children }: { name: string, children: any }) =>
     <td>{children}</td>
   </tr>
 
-const useInput = <T,>({ type, placeholder, validator }:
-  { type: React.HTMLInputTypeAttribute, placeholder: string, validator: (value: string) => T | undefined }):
+const useInput = <T,>({ type, placeholder = '', validator = x => x as T }:
+  { type: React.HTMLInputTypeAttribute, placeholder?: string, validator?: (value: string) => T | undefined }):
   [T | undefined, (x: T | undefined) => void, React.ReactElement] => {
   const [value, setValue] = useState<T>()
   const input =
@@ -121,22 +124,48 @@ const useVariantInputGroup = <T extends string,>(variants: T[]): [T[], React.Rea
   return [selected, group]
 }
 
+const useInputText = (): [string | undefined, React.ReactElement] => {
+  const [text, setText, input] = useInput<string>({ type: 'text' })
+  const group =
+    <InputGroup>
+      {input}
+      <ResetButton onClick={() => setText(undefined)}>
+        Сбросить
+      </ResetButton>
+    </InputGroup>
+  return [text, group]
+}
+
 export type Filters = {
+  types: string[],
+  priceFrom?: number,
+  priceTo?: number,
+  country?: string,
+  city?: string,
   floorFrom?: number,
   floorTo?: number,
+  frame: string[],
   areaFrom?: number,
   areaTo?: number,
 }
 
 export default function FiltersPopup({ onClose }: { onClose?: (filters: Filters) => void }) {
-  const [floorFrom, floorTo, FloorInputGroup] = useRangeInputGroup()
-  const [areaFrom, areaTo, AreaInputGroup] = useRangeInputGroup()
-  const [types, TypesInputGroup] = useVariantInputGroup(['A', 'B', 'C'])
+  const [types, TypesInput] = useVariantInputGroup(['Квартира', 'Дом', 'Земельный участок', 'Коммерческая недвижимость', 'Жилой дом', 'Апарт-отель', 'Таунхаус', 'Коттедж'])
+  const [priceFrom, priceTo, PriceInput] = useRangeInputGroup()
+  const [country, CountryInput] = useInputText()
+  const [city, CityInput] = useInputText()
+  const [floorFrom, floorTo, FloorInput] = useRangeInputGroup()
+  const [frame, FrameInput] = useVariantInputGroup(['Черный каркас', 'Белый каркас', 'С ремонтом', 'Под ключ'])
+  const [areaFrom, areaTo, AreaInput] = useRangeInputGroup()
   const [showAllFilters, setShowAllFilters] = useState(false)
   const handleClose = () => {
     setShowAllFilters(false)
     onClose && onClose({
+      types,
+      priceFrom, priceTo,
+      country, city,
       floorFrom, floorTo,
+      frame,
       areaFrom, areaTo,
     })
   }
@@ -146,8 +175,10 @@ export default function FiltersPopup({ onClose }: { onClose?: (filters: Filters)
       <Paper ref={ref}>
         <h1>Фильтры</h1>
         <FiltersContainer>
-          <Filter name="Этаж">{FloorInputGroup}</Filter>
-          <Filter name="Площадь">{AreaInputGroup}</Filter>
+          <Filter name="Тип">{TypesInput}</Filter>
+          <Filter name="Цена">{PriceInput}</Filter>
+          <Filter name="Страна">{CountryInput}</Filter>
+          <Filter name="Город">{CityInput}</Filter>
         </FiltersContainer>
         <AllFiltersButton onClick={() => setShowAllFilters(!showAllFilters)}>
           Все фильтры
@@ -155,8 +186,9 @@ export default function FiltersPopup({ onClose }: { onClose?: (filters: Filters)
         {showAllFilters && <>
           <HorizontalLine />
           <FiltersContainer>
-            <Filter name="Этаж">{FloorInputGroup}</Filter>
-            <Filter name="Type">{TypesInputGroup}</Filter>
+            <Filter name="Этаж">{FloorInput}</Filter>
+            <Filter name="Ремонт">{FrameInput}</Filter>
+            <Filter name="Площадь">{AreaInput}</Filter>
           </FiltersContainer>
         </>}
       </Paper>
