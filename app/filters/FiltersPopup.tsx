@@ -37,6 +37,20 @@ const ResetButton = styled.button`
   margin-left: 16px;
 `
 
+const AllFiltersButton = styled.button``
+
+const VariantButton = styled.button``
+
+const PressedVariantButton = styled.button`
+  color: #7f7f7f;
+`
+
+const HorizontalLine = styled.div`
+  width: 100%;
+  height: 2px;
+  background-color: #EEF5F8;
+`
+
 const Filter = ({ name, children }: { name: string, children: any }) =>
   <tr>
     <td style={{ paddingRight: '20px' }}>
@@ -79,6 +93,34 @@ const useRangeInputGroup = (): [number | undefined, number | undefined, React.Re
   return [from, to, group]
 }
 
+const useVariantInputGroup = <T extends string,>(variants: T[]): [T[], React.ReactElement] => {
+  const [selected, setSelected] = useState<T[]>([])
+  const group =
+    <InputGroup>
+      {
+        variants.map(x =>
+          selected.includes(x)
+            ? <PressedVariantButton
+              key={x}
+              onClick={() => setSelected(selected.filter(y => y !== x))}
+            >
+              {x}
+            </PressedVariantButton>
+            : <VariantButton
+              key={x}
+              onClick={() => setSelected([...selected, x])}
+            >
+              {x}
+            </VariantButton>
+        )
+      }
+      <ResetButton onClick={() => setSelected([])} >
+        Сбросить
+      </ResetButton>
+    </InputGroup >
+  return [selected, group]
+}
+
 export type Filters = {
   floorFrom?: number,
   floorTo?: number,
@@ -87,22 +129,37 @@ export type Filters = {
 }
 
 export default function FiltersPopup({ onClose }: { onClose?: (filters: Filters) => void }) {
-  const ref = useDetectClickOutside({
-    onTriggered: () => onClose && onClose({
-      floorFrom, floorTo,
-      areaFrom, areaTo,
-    })
-  })
   const [floorFrom, floorTo, FloorInputGroup] = useRangeInputGroup()
   const [areaFrom, areaTo, AreaInputGroup] = useRangeInputGroup()
+  const [types, TypesInputGroup] = useVariantInputGroup(['A', 'B', 'C'])
+  const [showAllFilters, setShowAllFilters] = useState(false)
+  const ref = useDetectClickOutside({
+    onTriggered: () => {
+      setShowAllFilters(false)
+      onClose && onClose({
+        floorFrom, floorTo,
+        areaFrom, areaTo,
+      })
+    }
+  })
   return (
     <Overlay>
       <Paper ref={ref}>
-        <h1>Все фильтры</h1>
+        <h1>Фильтры</h1>
         <FiltersContainer>
           <Filter name="Этаж">{FloorInputGroup}</Filter>
           <Filter name="Площадь">{AreaInputGroup}</Filter>
         </FiltersContainer>
+        <AllFiltersButton onClick={() => setShowAllFilters(!showAllFilters)}>
+          Все фильтры
+        </AllFiltersButton>
+        {showAllFilters && <>
+          <HorizontalLine />
+          <FiltersContainer>
+            <Filter name="Этаж">{FloorInputGroup}</Filter>
+            <Filter name="Type">{TypesInputGroup}</Filter>
+          </FiltersContainer>
+        </>}
       </Paper>
     </Overlay>
   )
