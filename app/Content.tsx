@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { Building } from "./api/berega";
 import Cards from "./Cards";
-import { BuildingMarker, Map } from "./map";
+import { Map } from "./map";
 import Popup from "./Popup";
-import { average, clamp, colorFromHex, colorToHex, gradient, logIt } from "./utils";
+import { clamp, colorFromHex, colorToHex, gradient } from "./utils";
 import FiltersPopup from "./filters/FiltersPopup";
 import { Bounds } from "./map/Map";
 import styled from "styled-components";
@@ -39,18 +39,9 @@ export default function Content({ buildings }:
       <Map
         center={[41.65, 41.65]}
         zoom={12}
+        buildings={buildings.map(x => ({ ...x, color: colorToHex(grad(clamp((now - x.created.getTime()) / delta, 0, 1))) }))}
         onBoundsChanged={setBounds}
-      >
-        {
-          buildings.map(x =>
-            <BuildingMarker
-              key={x.page}
-              position={[x.lat, x.lng]}
-              color={colorToHex(grad(clamp((now - x.created.getTime() / delta), 0, 1)))}
-              onClick={() => setPopupBuilding(x)}
-            />)
-        }
-      </Map>
+      />
       <Cards buildings={buildings.filter(x => bounds === undefined || bounds.contains([x.lat, x.lng]))} />
       <ShowFiltersButton onClick={() => setShowFiltersPopup(!showFiltersPopup)}>
         <FilterOutline />
@@ -58,6 +49,6 @@ export default function Content({ buildings }:
       </ShowFiltersButton>
       {popupBuilding && <Popup building={popupBuilding} onClose={() => setPopupBuilding(null)} />}
       {showFiltersPopup && <FiltersPopup onClose={() => setShowFiltersPopup(false)} />}
-    </div >
+    </div>
   )
 }

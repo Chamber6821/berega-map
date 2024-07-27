@@ -57,3 +57,9 @@ export const gradient = (colorFrom: Color, colorTo: Color) => (progress: number)
 
 export const clamp = (x: number, min: number, max: number) => Math.max(min, Math.min(x, max))
 
+export const createElement = (html: string) => {
+  const element = document.createElement('div')
+  element.innerHTML = html
+  return element
+}
+
