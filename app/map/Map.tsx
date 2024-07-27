@@ -23,7 +23,7 @@ export const useMap = create<{
   setSelectedArea: (selectedArea) => set({ selectedArea }),
 }))
 
-export default function Map({ center, zoom, buildings }: { center: [number, number], zoom: number, buildings: Building[] }) {
+export default function Map({ center, zoom, buildings, onMarkerClick }: { center: [number, number], zoom: number, buildings: Building[], onMarkerClick?: (buildign: Building) => void }) {
   const mapState = useMap()
   const mapContainer = useRef<HTMLDivElement>(null)
   const mapRef = useRef<mapboxgl.Map>()
@@ -88,7 +88,9 @@ export default function Map({ center, zoom, buildings }: { center: [number, numb
         className: 'marker'
       })
         .setLngLat([x.lng, x.lat])
-        .addTo(mapRef.current as MapboxMap))
+        .addTo(mapRef.current as MapboxMap)
+        .getElement().addEventListener('click', () => onMarkerClick && onMarkerClick(x))
+    )
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return <div className="map" ref={mapContainer}></div>

@@ -42,6 +42,7 @@ export default function Content({ buildings }:
         center={[41.65, 41.65]}
         zoom={12}
         buildings={buildings.map(x => ({ ...x, color: colorToHex(grad(clamp((now - x.created.getTime()) / delta, 0, 1))) }))}
+        onMarkerClick={x => setPopupBuilding(x)}
       />
       <Cards buildings={
         buildings
