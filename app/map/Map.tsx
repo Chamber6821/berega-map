@@ -7,6 +7,7 @@ import { createElement } from "../utils";
 import mapbox, { GeoJSONSource, LngLat, Map as MapboxMap, Marker, NavigationControl } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css';
 import Polygon from "./Polygon";
+import Polyline from "./Polyline";
 
 // const iconForCluster = (cluster: any) => L.divIcon({
 //   html: `<p>${cluster.getChildCount()}</p>`,
