@@ -10,10 +10,21 @@ import Polygon from "./Polygon";
 import Polyline from "./Polyline";
 import ButtonControl from "./ButtonControl";
 import { LngLatBounds } from "@maptiler/sdk";
+import { create } from "zustand";
 
 export type Bounds = LngLatBounds
 
-export default function Map({ center, zoom, buildings, onBoundsChanged }: { center: [number, number], zoom: number, buildings: Building[], onBoundsChanged: (bounds: LngLatBounds) => void }) {
+export const useMap = create<{
+  bounds?: Bounds, selectedArea?: Polygon
+  setBounds: (bounds?: Bounds) => void,
+  setSelectedArea: (selectedArea?: Polygon) => void
+}>(set => ({
+  setBounds: (bounds) => set({ bounds }),
+  setSelectedArea: (selectedArea) => set({ selectedArea }),
+}))
+
+export default function Map({ center, zoom, buildings }: { center: [number, number], zoom: number, buildings: Building[] }) {
+  const mapState = useMap()
   const mapContainer = useRef<HTMLDivElement>(null)
   const mapRef = useRef<mapboxgl.Map>()
 
@@ -48,6 +59,7 @@ export default function Map({ center, zoom, buildings, onBoundsChanged }: { cent
       }), 'top-right')
       .on('mousedown', () => {
         if (!draw) return
+        mapState.setSelectedArea(undefined)
         polygon.path = []
         polygon.hide()
         polyline.path = []
@@ -66,7 +78,9 @@ export default function Map({ center, zoom, buildings, onBoundsChanged }: { cent
         polygon.path = polyline.path
         polyline.hide()
         polygon.show()
+        mapState.setSelectedArea(polygon)
       })
+      .on('moveend', () => mapState.setBounds(map.getBounds() || undefined))
 
     buildings.map(x =>
       new Marker({

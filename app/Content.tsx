@@ -7,9 +7,10 @@ import { Map } from "./map";
 import Popup from "./Popup";
 import { clamp, colorFromHex, colorToHex, gradient } from "./utils";
 import FiltersPopup from "./filters/FiltersPopup";
-import { Bounds } from "./map/Map";
+import { Bounds, useMap } from "./map/Map";
 import styled from "styled-components";
 import { FilterOutline } from "react-ionicons";
+import { LngLat } from "mapbox-gl";
 
 const ShowFiltersButton = styled.button`
   display: flex;
@@ -29,7 +30,8 @@ export default function Content({ buildings }:
   { buildings: Building[] }) {
   const [popupBuilding, setPopupBuilding] = useState<Building | null>(null)
   const [showFiltersPopup, setShowFiltersPopup] = useState(false)
-  const [bounds, setBounds] = useState<Bounds>()
+  const bounds = useMap(x => x.bounds)
+  const selectedArea = useMap(x => x.selectedArea)
   const grad = gradient(colorFromHex('#808080'), colorFromHex('#009c1a'))
   const now = new Date().getTime()
   const timeBound = monthAgo().getTime()
@@ -40,9 +42,13 @@ export default function Content({ buildings }:
         center={[41.65, 41.65]}
         zoom={12}
         buildings={buildings.map(x => ({ ...x, color: colorToHex(grad(clamp((now - x.created.getTime()) / delta, 0, 1))) }))}
-        onBoundsChanged={setBounds}
       />
-      <Cards buildings={buildings.filter(x => bounds === undefined || bounds.contains([x.lat, x.lng]))} />
+      <Cards buildings={
+        buildings
+          .filter(x => bounds === undefined || bounds.contains(x))
+          .filter(x => selectedArea === undefined || selectedArea.contains(new LngLat(x.lng, x.lat)))
+      }
+      />
       <ShowFiltersButton onClick={() => setShowFiltersPopup(!showFiltersPopup)}>
         <FilterOutline />
         Фильтры
