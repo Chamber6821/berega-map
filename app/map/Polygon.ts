@@ -22,8 +22,7 @@ export default class Polygon {
     },
     path: LngLat[] = []
   ) {
-    map.on('style.load', () => {
-      console.log('polygon loaded')
+    map.once('style.load', () => {
       map.addSource(id, {
         type: 'geojson',
         data: this.geoJson
@@ -32,7 +31,10 @@ export default class Polygon {
         id: this.lineLayerId(),
         type: 'line',
         source: id,
-        layout: {},
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round'
+        },
         paint: {
           'line-color': colors.borderColor,
           'line-width': colors.borderWidth
