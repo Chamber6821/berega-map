@@ -84,7 +84,8 @@ export default function Map({ center, zoom, buildings }: { center: [number, numb
 
     buildings.map(x =>
       new Marker({
-        element: createElement(`<img width="20px" src="https://img.icons8.com/ios-filled/100/${x.color.replace("#", "")}/100-percents.png"/>`),
+        element: createElement(`<img width="14px" src="https://img.icons8.com/ios-filled/100/${x.color.replace("#", "")}/100-percents.png"/>`),
+        className: 'marker'
       })
         .setLngLat([x.lng, x.lat])
         .addTo(mapRef.current as MapboxMap))
