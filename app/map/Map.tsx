@@ -54,12 +54,15 @@ export default function Map({ center, zoom, buildings, onMarkerClick }: { center
       .addControl(new ButtonControl({
         innerHtml: '<img style="margin: 4px" width=21 height=21 src="https://img.icons8.com/glyph-neue/64/polygon.png"/>',
         on: {
-          click: () => draw = !draw
+          click: () => {
+            draw = !draw
+            mapState.setSelectedArea(undefined)
+            polygon.hide()
+          }
         }
       }), 'top-right')
       .on('mousedown', () => {
         if (!draw) return
-        mapState.setSelectedArea(undefined)
         polygon.path = []
         polygon.hide()
         polyline.path = []
