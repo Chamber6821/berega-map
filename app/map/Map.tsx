@@ -1,74 +1,82 @@
 'use client'
 
-import L from "leaflet";
-import { MapContainer, TileLayer } from "react-leaflet";
-import MarkerClusterGroup from "react-leaflet-cluster";
-import SelectionArea from "./SelectionArea";
 import { useEffect, useRef, useState } from "react";
-import Control from "react-leaflet-custom-control";
-import * as maptiler from "@maptiler/sdk"
-import "@maptiler/sdk/dist/maptiler-sdk.css"
 import { Building } from "../api/berega";
 import { createElement } from "../utils";
 
-const iconForCluster = (cluster: any) => L.divIcon({
-  html: `<p>${cluster.getChildCount()}</p>`,
-  className: 'cluster-icon',
-  iconSize: L.point(30, 30)
-})
+import mapbox, { GeoJSONSource, LngLat, Map as MapboxMap, Marker, NavigationControl } from 'mapbox-gl'
+import 'mapbox-gl/dist/mapbox-gl.css';
+import Polygon from "./Polygon";
+
+// const iconForCluster = (cluster: any) => L.divIcon({
+//   html: `<p>${cluster.getChildCount()}</p>`,
+//   className: 'cluster-icon',
+//   iconSize: L.point(30, 30)
+// })
+
+const isGeoJsonSource = (x: mapboxgl.Source): x is mapboxgl.GeoJSONSource => x.type == 'geojson'
 
 export default function Map({ center, zoom, buildings }: { center: [number, number], zoom: number, buildings: Building[] }) {
   const [drawMode, setDrawMode] = useState(false)
   const mapContainer = useRef<HTMLDivElement>(null)
-  const map = useRef<maptiler.Map>()
+  const mapRef = useRef<mapboxgl.Map>()
 
   useEffect(() => {
-    if (map.current) return
-    maptiler.config.apiKey = "uL0rwqFI3ByfHOEQrTJP"
-
-    map.current = new maptiler.Map({
+    mapbox.accessToken = "pk.eyJ1IjoiY2hhbWJlcjY4MjEiLCJhIjoiY2xyZjY4MDBrMDF0bjJrbzU0djA2bnJueCJ9.sTgEkqcR0I_Yqjl0CTOQvA"
+    mapRef.current = new MapboxMap({
       container: mapContainer.current as HTMLDivElement,
-      style: 'streets-v2',
-      center: center,
+      center: [center[1], center[0]],
       zoom: zoom,
-      terrain: true,
+    })
+    const map = mapRef.current as MapboxMap
+    const polygon = new Polygon(map, 'polygon', {
+      borderColor: '#FF5000',
+      borderWidth: 2,
+      fillColor: '#0080FF',
+      fillOpacity: 0.8
     })
 
+    map
+      .addControl(new NavigationControl({ visualizePitch: true }))
+      .on('mousemove', e => polygon.path = [...polygon.path, e.lngLat])
+      .on('mouseover', () => polygon.show())
+      .on('mouseout', () => polygon.hide())
+
     buildings.map(x =>
-      new maptiler.Marker({
-        element: createElement(`<img width="20px" src="https://img.icons8.com/ios-filled/100/${x.color.replace("#", "")}/100-percents.png"/>`)
+      new Marker({
+        element: createElement(`<img width="20px" src="https://img.icons8.com/ios-filled/100/${x.color.replace("#", "")}/100-percents.png"/>`),
       })
         .setLngLat([x.lng, x.lat])
-        .addTo(map.current as maptiler.Map))
-  })
+        .addTo(mapRef.current as MapboxMap))
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return <div className="map" ref={mapContainer}></div>
-  return <MapContainer
-    center={center}
-    zoom={zoom}
-    scrollWheelZoom={true}
-  >
-    <TileLayer
-      url="https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=uL0rwqFI3ByfHOEQrTJP"
-    />
-    <MarkerClusterGroup
-      iconCreateFunction={iconForCluster}
-      maxClusterRadius={40}
-    >
-    </MarkerClusterGroup>
-    <SelectionArea drawing={drawMode} />
-    <Control prepend position="topright">
-      {
-        drawMode
-          ?
-          <button className="map-button" onClick={() => setDrawMode(false)}>
-            <p>Закончить выделение</p>
-          </button>
-          :
-          <button className="map-button" onClick={() => setDrawMode(true)}>
-            <p>Выделить область</p>
-          </button>
-      }
-    </Control>
-  </MapContainer >
+  // return <MapContainer
+  //   center={center}
+  //   zoom={zoom}
+  //   scrollWheelZoom={true}
+  // >
+  //   <TileLayer
+  //     url="https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=uL0rwqFI3ByfHOEQrTJP"
+  //   />
+  //   <MarkerClusterGroup
+  //     iconCreateFunction={iconForCluster}
+  //     maxClusterRadius={40}
+  //   >
+  //   </MarkerClusterGroup>
+  //   <SelectionArea drawing={drawMode} />
+  //   <Control prepend position="topright">
+  //     {
+  //       drawMode
+  //         ?
+  //         <button className="map-button" onClick={() => setDrawMode(false)}>
+  //           <p>Закончить выделение</p>
+  //         </button>
+  //         :
+  //         <button className="map-button" onClick={() => setDrawMode(true)}>
+  //           <p>Выделить область</p>
+  //         </button>
+  //     }
+  //   </Control>
+  // </MapContainer >
 }

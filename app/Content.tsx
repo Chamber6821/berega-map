@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { Building } from "./api/berega";
 import Cards from "./Cards";
-import { BuildingMarker, Map } from "./map";
+import { Map } from "./map";
 import Popup from "./Popup";
-import { average, clamp, colorFromHex, colorToHex, gradient, logIt } from "./utils";
+import { average, clamp, colorFromHex, colorToHex, gradient } from "./utils";
 import FiltersPopup from "./filters/FiltersPopup";
 import FiltersHeader from "./filters/FiltersHeader";
 
@@ -31,17 +31,8 @@ export default function Content({ buildings }:
         <Map
           center={[average(buildings.map(x => x.lat)), average(buildings.map(x => x.lng))]}
           zoom={6}
-          buildings={buildings.map(x => ({ ...x, color: colorToHex(grad(logIt('clamped', clamp(logIt('not clamped', (now - x.created.getTime()) / delta), 0, 1)))) }))}
+          buildings={buildings.map(x => ({ ...x, color: colorToHex(grad(clamp((now - x.created.getTime()) / delta, 0, 1))) }))}
         />
-        {/* { */}
-        {/*   buildings.map(x => */}
-        {/*     <BuildingMarker */}
-        {/*       key={x.page} */}
-        {/*       position={[x.lat, x.lng]} */}
-        {/*       color={colorToHex(grad(logIt('clamped', clamp(logIt('not clamped', (now - x.created.getTime()) / delta), 0, 1))))} */}
-        {/*       onClick={() => setPopupBuilding(x)} */}
-        {/*     />) */}
-        {/* } */}
         <Cards buildings={buildings} />
         {popupBuilding && <Popup building={popupBuilding} onClose={() => setPopupBuilding(null)} />}
       </div >
