@@ -115,6 +115,12 @@ p {
   position: relative;
 }
 
+.filter__first{
+    background: #EEF5F8 !important;
+    padding: 15px;
+    border-radius: 12px;
+}
+
 .cluster-icon p {
   display: block;
   color: white;

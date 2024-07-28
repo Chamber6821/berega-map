@@ -9,7 +9,6 @@ const Overlay = styled.div`
   height: 100dvh;
   background-color: #09090924;
   z-index: 2000;
-  overflow-x: scroll;
 `
 
 const Paper = styled.div`
@@ -17,10 +16,10 @@ const Paper = styled.div`
   margin: 20px auto 20px;
   padding: 20px;
   background-color: white;
-  border-radius: 16px;
   position: relative;
+  border-radius: 12px;
+  border-top-right-radius: 0;
 `
-
 const Input = styled.input`
   border: 2px solid #EEF5F8;
   border-radius: 8px;
@@ -31,41 +30,79 @@ const InputGroup = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  flex-wrap: wrap;
   gap: 4px;
 `
 
 const ResetButton = styled.button`
-  color: rgba(12, 18, 12, 1);
-  margin-left: 16px;
+    margin: 0px 0px 0px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgb(73, 73, 73);
+    opacity: 0.2;
+    cursor: pointer;
 `
 
-const AllFiltersButton = styled.button``
+const AllFiltersButton = styled.button`
+  display: flex;
+  justify-content: centre;
+  align-items: center;
+  color: #fff;
+  height: 40px;
+  padding: 0 10px;
+  background: rgb(0, 156, 26);
+  border-radius: 8px;
+  margin: 0 auto;
+`
 
 const VariantButton = styled.button`
-  border: 2px solid;
+    background-color: rgb(255, 255, 255);
+    overflow: visible;
+    border-style: solid;
+    border-width: 2px;
+    border-color: rgb(238, 245, 248);
+    border-radius: 8px;
+    padding: 0px 8px;
+    cursor: pointer;
+    align-self: center;
+    width: max-content;
+    height: 33px;
+    font-weight: 500px
 `
 
 const PressedVariantButton = styled.button`
-  color: #7f7f7f;
-  border: 2px solid #7f7f7f;
+  color: rgba(0, 156, 26, 1);
+  background-color: rgb(255, 255, 255);
+    overflow: visible;
+    border-style: solid;
+    border-width: 2px;
+    border-color: rgb(238, 245, 248);
+    border-radius: 8px;
+    padding: 0px 8px;
+    cursor: pointer;
+    align-self: center;
+    width: max-content;
+    height: 33px;
+    font-weight: 500px
 `
 
 const CloseButton = styled.button`
-  position: absolute;
-  top: 0;
-  right: 0;
-  transform: translateX(100%);
-  scale: 1.5;
-`
-
-const HorizontalLine = styled.div`
-  width: 100%;
-  height: 2px;
-  background-color: #EEF5F8;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transform: translateX(100%);
+    width: 40px;
+    height: 40px;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
 `
 
 const Filter = ({ name, children }: { name: string, children: any }) =>
-  <tr>
+  <tr className="filter__line">
     <td style={{ paddingRight: '20px' }}>
       <h2 style={{ textAlign: 'end' }}>{name}</h2>
     </td>
@@ -197,21 +234,19 @@ export default function FiltersPopup({ onClose }: { onClose?: (filters: Filters)
     <Overlay>
       <Paper ref={ref}>
         <CloseButton onClick={handleClose}>
-          <CloseOutline color={"#EEF5F8"} />
+          <CloseOutline color={"#050b0d"} />
         </CloseButton>
         <h1>Фильтры</h1>
+        <div className="filter__first">
         <FiltersContainer>
+          <Filter name="Выбор страны">{CountryInput}</Filter>
+          <Filter name="Выбор города">{CityInput}</Filter>
           <Filter name="Тип">{TypesInput}</Filter>
           <Filter name="Кол-во комнат">{RoomsInput}</Filter>
           <Filter name="Цена">{PriceInput}</Filter>
-          <Filter name="Страна">{CountryInput}</Filter>
-          <Filter name="Город">{CityInput}</Filter>
         </FiltersContainer>
-        <AllFiltersButton onClick={() => setShowAllFilters(!showAllFilters)}>
-          Все фильтры
-        </AllFiltersButton>
+        </div>
         {showAllFilters && <>
-          <HorizontalLine />
           <FiltersContainer>
             <Filter name="Статус">{StatusInput}</Filter>
             <Filter name="Этаж">{FloorInput}</Filter>
@@ -219,6 +254,9 @@ export default function FiltersPopup({ onClose }: { onClose?: (filters: Filters)
             <Filter name="Площадь">{AreaInput}</Filter>
           </FiltersContainer>
         </>}
+        <AllFiltersButton onClick={() => setShowAllFilters(!showAllFilters)}>
+          Все фильтры
+        </AllFiltersButton>
       </Paper>
     </Overlay>
   )
