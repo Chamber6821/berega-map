@@ -5,7 +5,7 @@ export default class ButtonControl implements IControl {
   constructor(private options: {
     innerHtml: string,
     on?: {
-      click?: () => void
+      click?: (this: HTMLDivElement, ev: MouseEvent) => void
     }
   }) { }
 
