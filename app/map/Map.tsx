@@ -4,12 +4,11 @@ import { useEffect, useRef } from "react";
 import { Building } from "../api/berega";
 import { createElement } from "../utils";
 
-import mapbox, { Map as MapboxMap, Marker, NavigationControl } from 'mapbox-gl'
+import mapbox, { LngLatBounds, Map as MapboxMap, MapMouseEvent, MapTouchEvent, Marker, NavigationControl } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css';
 import Polygon from "./Polygon";
 import Polyline from "./Polyline";
 import ButtonControl from "./ButtonControl";
-import { LngLatBounds } from "@maptiler/sdk";
 import { create } from "zustand";
 
 export type Bounds = LngLatBounds
@@ -49,6 +48,31 @@ export default function Map({ center, zoom, buildings, onMarkerClick }: { center
 
     let draw = false
     let drawing = false
+    const drawingStart = () => {
+      console.log('DOWN!')
+      if (!draw) return
+      polygon.path = []
+      polygon.hide()
+      polyline.path = []
+      polyline.show()
+      map.dragPan.disable()
+      drawing = true
+    }
+    const drawingMove = (e: MapMouseEvent | MapTouchEvent) => {
+      console.log('MOVE!')
+      if (drawing) polyline.path = [...polyline.path, e.lngLat]
+    }
+    const drawingEnd = () => {
+      console.log('UP!')
+      if (!draw) return
+      drawing = false
+      draw = false
+      map.dragPan.enable()
+      polygon.path = polyline.path
+      polyline.hide()
+      polygon.show()
+      mapState.setSelectedArea(polygon)
+    }
     map
       .addControl(new NavigationControl({ visualizePitch: true }))
       .addControl(new ButtonControl({
@@ -61,28 +85,12 @@ export default function Map({ center, zoom, buildings, onMarkerClick }: { center
           }
         }
       }), 'top-right')
-      .on('mousedown', () => {
-        if (!draw) return
-        polygon.path = []
-        polygon.hide()
-        polyline.path = []
-        polyline.show()
-        map.dragPan.disable()
-        drawing = true
-      })
-      .on('mousemove', e => {
-        if (drawing) polyline.path = [...polyline.path, e.lngLat]
-      })
-      .on('mouseup', () => {
-        if (!draw) return
-        drawing = false
-        draw = false
-        map.dragPan.enable()
-        polygon.path = polyline.path
-        polyline.hide()
-        polygon.show()
-        mapState.setSelectedArea(polygon)
-      })
+      .on('mousedown', drawingStart)
+      .on('mousemove', drawingMove)
+      .on('mouseup', drawingEnd)
+      .on('touchstart', drawingStart)
+      .on('touchmove', drawingMove)
+      .on('touchend', drawingEnd)
       .on('moveend', () => mapState.setBounds(map.getBounds() || undefined))
 
     buildings.map(x =>
