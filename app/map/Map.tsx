@@ -49,7 +49,6 @@ export default function Map({ center, zoom, buildings, onMarkerClick }: { center
     let draw = false
     let drawing = false
     const drawingStart = () => {
-      console.log('DOWN!')
       if (!draw) return
       polygon.path = []
       polygon.hide()
@@ -59,11 +58,9 @@ export default function Map({ center, zoom, buildings, onMarkerClick }: { center
       drawing = true
     }
     const drawingMove = (e: MapMouseEvent | MapTouchEvent) => {
-      console.log('MOVE!')
       if (drawing) polyline.path = [...polyline.path, e.lngLat]
     }
     const drawingEnd = () => {
-      console.log('UP!')
       if (!draw) return
       drawing = false
       draw = false
