@@ -270,27 +270,27 @@ export default function FiltersPopup({ onClose }: { onClose?: (filters: Filters)
         </CloseButton>
         <h1 className="filter__title">Фильтры</h1>
         <div className="filter__table filter__first">
-        <FiltersContainer>
-          <Filter name="Выбор страны">{CountryInput}</Filter>
-          <Filter name="Выбор города">{CityInput}</Filter>
-          <Filter name="Тип">{TypesInput}</Filter>
-          <Filter name="Кол-во комнат">{RoomsInput}</Filter>
-          <Filter name="Цена">{PriceInput}</Filter>
-        </FiltersContainer>
-        </div>
-        {showAllFilters && <>
-        <h2 className="filter__title filter__title-more">Дополнительные фильтры</h2>
-        <div className="filter__table">
           <FiltersContainer>
-            <Filter name="Статус">{StatusInput}</Filter>
-            <Filter name="Этаж">{FloorInput}</Filter>
-            <Filter name="Ремонт">{FrameInput}</Filter>
-            <Filter name="Площадь">{AreaInput}</Filter>
+            <Filter name="Выбор страны">{CountryInput}</Filter>
+            <Filter name="Выбор города">{CityInput}</Filter>
+            <Filter name="Тип">{TypesInput}</Filter>
+            <Filter name="Кол-во комнат">{RoomsInput}</Filter>
+            <Filter name="Цена">{PriceInput}</Filter>
           </FiltersContainer>
         </div>
+        {showAllFilters && <>
+          <h2 className="filter__title filter__title-more">Дополнительные фильтры</h2>
+          <div className="filter__table">
+            <FiltersContainer>
+              <Filter name="Статус">{StatusInput}</Filter>
+              <Filter name="Этаж">{FloorInput}</Filter>
+              <Filter name="Ремонт">{FrameInput}</Filter>
+              <Filter name="Площадь">{AreaInput}</Filter>
+            </FiltersContainer>
+          </div>
         </>}
         <AllFiltersButton onClick={() => setShowAllFilters(!showAllFilters)}>
-          Все фильтры
+          {showAllFilters ? 'Скрыть фильтры' : 'Все фильтры'}
         </AllFiltersButton>
       </Paper>
     </Overlay>
