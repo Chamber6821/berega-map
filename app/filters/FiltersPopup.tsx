@@ -277,6 +277,7 @@ export default function FiltersPopup({ onClose }: { onClose?: (filters: Filters)
         <AllFiltersButton onClick={() => setShowAllFilters(!showAllFilters)}>
           {showAllFilters ? 'Скрыть фильтры' : 'Все фильтры'}
         </AllFiltersButton>
+        <PrimaryButton style={{ marginLeft: 0 }} onClick={handleClose}>Показать результаты</PrimaryButton>
       </Paper>
     </Overlay>
   )
