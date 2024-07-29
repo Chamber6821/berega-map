@@ -7,7 +7,8 @@ const Overlay = styled.div`
   position: fixed;
   width: 100dvw;
   height: 100dvh;
-  background-color: #09090924;
+  background-color: rgba(128, 128, 128, 0.4);
+  overflow-y: auto;
   z-index: 2000;
 `
 
@@ -19,11 +20,32 @@ const Paper = styled.div`
   position: relative;
   border-radius: 12px;
   border-top-right-radius: 0;
+
+  @media(max-width: 720px){
+    border-top-right-radius: 12px;
+    width: 95%;
+    padding: 20px 15px;
+  }
 `
 const Input = styled.input`
   border: 2px solid #EEF5F8;
   border-radius: 8px;
   padding: 10px;
+  max-height: 33px;
+  max-width: 110px;
+  outline: none;
+
+  &:focus{
+  border: 2px solid #009C1A;
+  box-shadow: 0px 5px 10px 2px rgba(0, 156, 26, 0.2);
+  }
+
+  &::placeholder{
+  color: #666666;
+  opacity: 0.7;
+  font-size: 12px;
+  font-weight: 600;
+}
 `
 
 const InputGroup = styled.div`
@@ -45,14 +67,20 @@ const ResetButton = styled.button`
 
 const AllFiltersButton = styled.button`
   display: flex;
-  justify-content: centre;
   align-items: center;
   color: #fff;
   height: 40px;
   padding: 0 10px;
   background: rgb(0, 156, 26);
   border-radius: 8px;
-  margin: 0 auto;
+  margin: 20px auto 0;
+  transition: .2s background-color;
+
+  @media(hover: hover){
+    &:hover{
+    background-color: rgb(171, 207, 177);
+    }
+  }
 `
 
 const VariantButton = styled.button`
@@ -67,7 +95,7 @@ const VariantButton = styled.button`
     align-self: center;
     width: max-content;
     height: 33px;
-    font-weight: 500px
+    font-weight: 500;
 `
 
 const PressedVariantButton = styled.button`
@@ -83,7 +111,7 @@ const PressedVariantButton = styled.button`
     align-self: center;
     width: max-content;
     height: 33px;
-    font-weight: 500px
+    font-weight: 600;
 `
 
 const CloseButton = styled.button`
@@ -99,12 +127,16 @@ const CloseButton = styled.button`
     align-items: center;
     border-top-right-radius: 8px;
     border-bottom-right-radius: 8px;
+
+    @media(max-width: 720px){
+    right: 41px
+    }
 `
 
 const Filter = ({ name, children }: { name: string, children: any }) =>
   <tr className="filter__line">
     <td style={{ paddingRight: '20px' }}>
-      <h2 style={{ textAlign: 'end' }}>{name}</h2>
+      <h2>{name}</h2>
     </td>
     <td>{children}</td>
   </tr>
@@ -236,8 +268,8 @@ export default function FiltersPopup({ onClose }: { onClose?: (filters: Filters)
         <CloseButton onClick={handleClose}>
           <CloseOutline color={"#050b0d"} />
         </CloseButton>
-        <h1>Фильтры</h1>
-        <div className="filter__first">
+        <h1 className="filter__title">Фильтры</h1>
+        <div className="filter__table filter__first">
         <FiltersContainer>
           <Filter name="Выбор страны">{CountryInput}</Filter>
           <Filter name="Выбор города">{CityInput}</Filter>
@@ -247,12 +279,15 @@ export default function FiltersPopup({ onClose }: { onClose?: (filters: Filters)
         </FiltersContainer>
         </div>
         {showAllFilters && <>
+        <h2 className="filter__title filter__title-more">Дополнительные фильтры</h2>
+        <div className="filter__table">
           <FiltersContainer>
             <Filter name="Статус">{StatusInput}</Filter>
             <Filter name="Этаж">{FloorInput}</Filter>
             <Filter name="Ремонт">{FrameInput}</Filter>
             <Filter name="Площадь">{AreaInput}</Filter>
           </FiltersContainer>
+        </div>
         </>}
         <AllFiltersButton onClick={() => setShowAllFilters(!showAllFilters)}>
           Все фильтры

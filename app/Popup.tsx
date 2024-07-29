@@ -19,9 +19,10 @@ export default function Popup({ building, onClose }: { building: Building, onClo
           height={250}
           objectFit="contain"
         />
+        <div className="content__wrraper">
         <h1 style={{ marginTop: '10px' }}>{building.title}</h1>
         <p style={{ marginBottom: '10px' }}>{building.address}</p>
-        <div className="flex-column">
+        <div className="popup__description flex-column">
           {
             building.description.map(x =>
               <div key={x[0] + x[1]} className="group">
@@ -29,6 +30,7 @@ export default function Popup({ building, onClose }: { building: Building, onClo
                 <p className="price">{x[1]}</p>
               </div>)
           }
+        </div>
         </div>
       </div>
     </div>

@@ -21,7 +21,7 @@ const ShowFiltersButton = styled.button`
   background: #fff;
   border-radius: 8px;
   top: 10px;
-  left: 50px;
+  left: 10px;
   z-index: 2000;
 `
 
