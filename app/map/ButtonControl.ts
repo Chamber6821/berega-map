@@ -10,11 +10,8 @@ export default class ButtonControl implements IControl {
   }) { }
 
   onAdd(map: Map) {
-    const element = createElement(`
-<button class="mapboxgl-ctrl mapboxgl-ctrl-group">
-${this.options.innerHtml}
-</button>
-`)
+    const element = createElement(`<button>${this.options.innerHtml}</button>`)
+    element.classList.add("mapboxgl-ctrl", "mapboxgl-ctrl-group")
     const clickHandler = this.options?.on?.click
     clickHandler && element.addEventListener('click', clickHandler)
     return element
