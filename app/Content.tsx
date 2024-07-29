@@ -14,9 +14,14 @@ import { LngLat } from "mapbox-gl";
 
 const ShowFiltersButton = styled.button`
   display: flex;
+  align-items: center;
   position: absolute;
+  height: 40px;
+  padding: 0 10px;
+  background: #fff;
+  border-radius: 8px;
   top: 10px;
-  left: 50px;
+  left: 10px;
   z-index: 2000;
 `
 

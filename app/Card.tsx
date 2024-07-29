@@ -16,11 +16,11 @@ export default function Card({ image, title, description, page }:
         <div style={{ scale: 1.4 }}>
           <HeartOutline
             cssClasses="not-liked"
-            color="#e94e51"
+            color="#fff"
             aria-label="Favorite" />
           <Heart
             cssClasses="liked"
-            color="#e94e51"
+            color="#009c1a"
             aria-label="Favorite" />
         </div>
       </button>

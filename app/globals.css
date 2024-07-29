@@ -2,11 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
-h1 {
+body{
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+.filter__title {
   font-size: 16px;
   font-weight: 600;
-  color: rgba(26, 28, 30, 1);
+  color: #009C1A;
   margin: 0px;
+  padding: 0 0 20px 0;
+}
+
+.filter__title-more{
+  padding: 20px 0 0 0;
 }
 
 p {
@@ -40,8 +56,21 @@ p {
   grid-template-columns: 1fr 1fr;
   grid-auto-rows: min-content;
   gap: 20px;
-  margin-left: 24px;
-  min-width: 620px;
+  min-width: 640px;
+  margin: 10px 0 0 10px;
+  padding: 0 10px 0 0;
+}
+
+.cards-container::-webkit-scrollbar {
+  width: 8px;
+  background-color: #DCDCDC;
+  border-radius: 50px;
+}
+
+.cards-container::-webkit-scrollbar-thumb {
+  background-color: #009C1A;
+  width: 8px;
+  border-radius: 50px;
 }
 
 .building {
@@ -98,6 +127,40 @@ p {
   gap: 8px;
 }
 
+.filter__line {
+  display: block;
+}
+
+.filter__line {
+  margin: 10px 0 0 0;
+}
+
+.filter__line h2 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #494949;
+  width: 150px;
+  text-align: end;
+}
+
+.popup__description{
+  max-height: 80px;
+  padding: 0 10px 0 0;
+  overflow-y: scroll;
+}
+
+.popup__description::-webkit-scrollbar {
+  width: 4px;
+  background-color: #DCDCDC;
+  border-radius: 50px;
+}
+
+.popup__description::-webkit-scrollbar-thumb {
+  background-color: #009C1A;
+  width: 4px;
+  border-radius: 50px;
+}
+
 .flex-column .group {
   display: flex;
   flex-direction: row;
@@ -113,6 +176,15 @@ p {
   background-image: url('https://img.icons8.com/ios-filled/100/439639/100-percents.png');
   background-size: contain;
   position: relative;
+}
+
+.filter__table {
+  padding: 20px 0;
+}
+
+.filter__first {
+  background: #EEF5F8;
+  border-radius: 12px;
 }
 
 .cluster-icon p {
@@ -146,8 +218,8 @@ p {
   border-radius: var(--border-radius);
   border-top-right-radius: 0;
   position: absolute;
-  top: 74px;
-  z-index: 1100;
+  top: calc(50% - 209px);
+  z-index: 3000;
 
   .popup {
     position: relative;
@@ -168,13 +240,98 @@ p {
     }
 
     .content {
-      padding: 16px 8px 8px 16px;
+      padding: 16px;
 
       .image {
         width: 100%;
-        height: 250px;
+        height: revert-layer;
         border-radius: var(--border-radius);
       }
+    }
+  }
+}
+
+@media(max-width: 1150px){
+  .cards-container{
+    min-width: 320px;
+    grid-template-columns: 1fr;
+  }
+  .popup-container{
+    width: 330px;
+  }
+  .filter__line h2{
+    width: 120px;
+  }
+}
+
+@media (max-width: 720px) {
+  .cards-container{
+    display: none !important;
+  }
+
+  .cards-container{
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 10px 10px 0;
+    background-color: #fff;
+    z-index: 9999;
+    height: auto;
+    min-width: 280px;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    a{
+      width: fit-content;
+    }
+  }
+  .filter__line{
+    display: flex;
+    align-items: flex-start;
+  }
+  .filter__line h2{
+    width: 60px;
+    font-size: 14px;
+  }
+  .filter__table{
+    padding: 20px 15px;
+    font-size: 14px;
+  }
+  .popup-container{
+    position: absolute;
+    width: auto;
+    top: unset;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    border-top-right-radius: 12px;
+
+    .popup{
+      .content{
+        display: flex;
+        flex-direction: column;
+        .image{
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          height: 350px;
+        }
+        .content__wrraper{
+          display: flex;
+          flex-direction: column;
+          width: 100%;
+        }
+      }
+    }
+
+    .close{
+      left: -40px;
     }
   }
 }
