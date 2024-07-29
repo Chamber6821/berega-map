@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { ReactElement, useState } from "react";
 import { useDetectClickOutside } from "react-detect-click-outside";
 import { CloseOutline } from "react-ionicons";
+import PrimaryButton from "../components/PrimaryButton";
 
 const Overlay = styled.div`
   position: fixed;
@@ -65,23 +66,7 @@ const ResetButton = styled.button`
     cursor: pointer;
 `
 
-const AllFiltersButton = styled.button`
-  display: flex;
-  align-items: center;
-  color: #fff;
-  height: 40px;
-  padding: 0 10px;
-  background: rgb(0, 156, 26);
-  border-radius: 8px;
-  margin: 20px auto 0;
-  transition: .2s background-color;
-
-  @media(hover: hover){
-    &:hover{
-    background-color: rgb(171, 207, 177);
-    }
-  }
-`
+const AllFiltersButton = PrimaryButton
 
 const VariantButton = styled.button`
     background-color: rgb(255, 255, 255);
