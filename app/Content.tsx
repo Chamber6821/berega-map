@@ -33,7 +33,8 @@ const monthAgo = () => {
 
 export default function Content({ buildings }:
   { buildings: Building[] }) {
-  const [popupBuilding, setPopupBuilding] = useState<Building | null>(null)
+  const popupBuilding = useMap(x => x.selectedBuilding)
+  const setPopupBuilding = useMap(x => x.setSelectedBuilding)
   const [showFiltersPopup, setShowFiltersPopup] = useState(false)
   const bounds = useMap(x => x.bounds)
   const selectedArea = useMap(x => x.selectedArea)
@@ -47,7 +48,6 @@ export default function Content({ buildings }:
         center={[41.65, 41.65]}
         zoom={12}
         buildings={buildings.map(x => ({ ...x, color: colorToHex(grad(clamp((now - x.created.getTime()) / delta, 0, 1))) }))}
-        onMarkerClick={x => setPopupBuilding(x)}
       />
       <Cards buildings={
         buildings
@@ -59,7 +59,7 @@ export default function Content({ buildings }:
         <FilterOutline />
         Фильтры
       </ShowFiltersButton>
-      {popupBuilding && <Popup building={popupBuilding} onClose={() => setPopupBuilding(null)} />}
+      {popupBuilding && <Popup building={popupBuilding} onClose={() => setPopupBuilding(undefined)} />}
       {showFiltersPopup && <FiltersPopup onClose={() => setShowFiltersPopup(false)} />}
     </div>
   )

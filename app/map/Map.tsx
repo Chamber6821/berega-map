@@ -2,9 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { Building } from "../api/berega";
-import { createElement } from "../utils";
 
-import mapbox, { LngLatBounds, Map as MapboxMap, MapMouseEvent, MapTouchEvent, Marker, NavigationControl } from 'mapbox-gl'
+import mapbox, { GeoJSONSource, LngLatBounds, Map as MapboxMap, MapMouseEvent, MapTouchEvent, Marker, NavigationControl } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css';
 import Polygon from "./Polygon";
 import Polyline from "./Polyline";
@@ -14,15 +13,18 @@ import { create } from "zustand";
 export type Bounds = LngLatBounds
 
 export const useMap = create<{
-  bounds?: Bounds, selectedArea?: Polygon
+  bounds?: Bounds, selectedArea?: Polygon,
+  selectedBuilding?: Building
   setBounds: (bounds?: Bounds) => void,
   setSelectedArea: (selectedArea?: Polygon) => void
+  setSelectedBuilding: (building: Building | undefined) => void
 }>(set => ({
   setBounds: (bounds) => set({ bounds }),
   setSelectedArea: (selectedArea) => set({ selectedArea }),
+  setSelectedBuilding: (building) => set({ selectedBuilding: building })
 }))
 
-export default function Map({ center, zoom, buildings, onMarkerClick }: { center: [number, number], zoom: number, buildings: Building[], onMarkerClick?: (buildign: Building) => void }) {
+export default function Map({ center, zoom, buildings }: { center: [number, number], zoom: number, buildings: Building[] }) {
   const mapState = useMap()
   const mapContainer = useRef<HTMLDivElement>(null)
   const mapRef = useRef<mapboxgl.Map>()
@@ -116,16 +118,102 @@ export default function Map({ center, zoom, buildings, onMarkerClick }: { center
       .on('touchend', drawingEnd)
       .on('moveend', () => mapState.setBounds(map.getBounds() || undefined))
 
-    buildings.map(x =>
-      new Marker({
-        element: createElement(`<img width="14px" src="https://img.icons8.com/ios-filled/100/${x.color.replace("#", "")}/100-percents.png"/>`),
-        className: 'marker'
+    type Marker = {
+      color: string,
+      originIndex: number,
+    }
+    const geoJsonMarkers: GeoJSON.FeatureCollection<GeoJSON.Point, Marker> = {
+      'type': 'FeatureCollection',
+      'features': buildings.map(
+        (x, i) => ({
+          'type': 'Feature',
+          'geometry': {
+            'type': 'Point',
+            'coordinates': [x.lng, x.lat]
+          },
+          'properties': {
+            'color': x.color,
+            'originIndex': i
+          }
+        })
+      )
+    }
+
+    map.once('style.load', () => {
+      map.addSource('markers', {
+        type: 'geojson',
+        data: geoJsonMarkers
       })
-        .setLngLat([x.lng, x.lat])
-        .addTo(mapRef.current as MapboxMap)
-        .getElement().addEventListener('click', () => onMarkerClick && onMarkerClick(x))
-    )
+      map.addLayer({
+        id: 'markers',
+        type: 'circle',
+        source: 'markers',
+        paint: {
+          'circle-color': ['get', 'color'],
+          'circle-radius': 7,
+          'circle-stroke-width': 1,
+          'circle-stroke-color': '#fff'
+        }
+      })
+      map.addSource('selected-marker', {
+        type: 'geojson',
+        data: {
+          'type': 'FeatureCollection',
+          'features': []
+        }
+      })
+      map.addLayer({
+        id: 'selected-marker',
+        type: 'circle',
+        source: 'selected-marker',
+        paint: {
+          'circle-color': ['get', 'color'],
+          'circle-radius': 7,
+          'circle-stroke-width': 1,
+          'circle-stroke-color': '#fff'
+        }
+      })
+      map.moveLayer('markers', 'selected-marker')
+      map.on('click', 'markers', (e) => {
+        const marker = e.features?.[0]?.properties as Marker | undefined
+        marker && mapState.setSelectedBuilding(buildings[marker.originIndex])
+      })
+    })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !map.isStyleLoaded()) return
+    const selectedMarker = map.getSource<GeoJSONSource>('selected-marker')
+    if (!selectedMarker) return
+    const building = mapState.selectedBuilding
+    if (building) {
+      console.log('select building', building)
+      selectedMarker.setData({
+        'type': 'FeatureCollection',
+        'features': [
+          {
+            'type': 'Feature',
+            'geometry': {
+              'type': 'Point',
+              'coordinates': [building.lng, building.lat]
+            },
+            'properties': {
+              'color': '#ff8000'
+            }
+          }
+        ]
+      })
+    } else {
+      console.log('deselect building')
+      selectedMarker.setData({
+        'type': 'FeatureCollection',
+        'features': []
+      })
+    }
+    console.log(map.getSource<GeoJSONSource>('selected-marker')?._data)
+  }, [mapState.selectedBuilding])
+
 
   return <div className="map" ref={mapContainer}></div>
 }
