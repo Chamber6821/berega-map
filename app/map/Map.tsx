@@ -9,6 +9,7 @@ import Polygon from "./Polygon";
 import Polyline from "./Polyline";
 import ButtonControl from "./ButtonControl";
 import { create } from "zustand";
+import ViewButtonControl from "./ViewButtonControl";
 
 export type Bounds = LngLatBounds
 
@@ -84,32 +85,15 @@ export default function Map({ center, zoom, buildings }: { center: [number, numb
           }
         }
       }), 'top-right')
-      .addControl(new ButtonControl({
-        innerHtml: '3D',
-        on: {
-          click: function() {
-            const button = this.children.item(0) as HTMLButtonElement
-            switch (button.textContent) {
-              case '2D': {
-                button.textContent = '3D'
-                map.flyTo({
-                  pitch: 0,
-                  zoom: zoom
-                })
-                break;
-              }
-              case '3D': {
-                button.textContent = '2D'
-                map.flyTo({
-                  pitch: 80,
-                  zoom: 16
-                })
-                break;
-              }
-            }
-          }
-        }
-      }), 'top-right')
+      .addControl(
+        new ViewButtonControl(map, {
+          pitch: 0,
+          zoom: zoom
+        }, {
+          pitch: 80,
+          zoom: 16
+        }),
+        'top-right')
       .on('mousedown', drawingStart)
       .on('mousemove', drawingMove)
       .on('mouseup', drawingEnd)
