@@ -47,7 +47,10 @@ export default function Map({ center, zoom, buildings }: { center: [number, numb
         break
       }
       case 'draw': {
-        mapRef.current?.dragPan?.disable()
+        if (mapRef.current) {
+          mapRef.current.dragPan.disable()
+          mapRef.current.getCanvas().style.cursor = 'crosshair'
+        }
         polygonRef.current?.hide()
         if (polylineRef.current) {
           polylineRef.current.path = []
@@ -66,7 +69,10 @@ export default function Map({ center, zoom, buildings }: { center: [number, numb
         polygonRef.current?.show()
         polylineRef.current?.hide()
         setSelectedArea(polygonRef.current)
-        mapRef.current?.dragPan?.enable()
+        if (mapRef.current) {
+          mapRef.current.dragPan.enable()
+          mapRef.current.getCanvas().style.cursor = ''
+        }
         break
       }
     }
@@ -192,6 +198,9 @@ export default function Map({ center, zoom, buildings }: { center: [number, numb
         const marker = e.features?.[0]?.properties as Marker | undefined
         marker && mapState.setSelectedBuilding(buildings[marker.originIndex])
       })
+      map
+        .on('mouseenter', 'markers', () => ['view', 'filtered'].includes(modeRef.current) && (map.getCanvas().style.cursor = 'pointer'))
+        .on('mouseleave', 'markers', () => ['view', 'filtered'].includes(modeRef.current) && (map.getCanvas().style.cursor = ''))
     })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
