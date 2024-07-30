@@ -45,7 +45,7 @@ export const colorToHex = (color: Color) => {
   const r = Math.floor(color.r)
   const g = Math.floor(color.g)
   const b = Math.floor(color.b)
-  return (1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1)
+  return '#' + (1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1)
 }
 
 export const gradient = (colorFrom: Color, colorTo: Color) => (progress: number) =>
