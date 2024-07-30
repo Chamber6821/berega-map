@@ -23,6 +23,13 @@ const ShowFiltersButton = styled.button`
   top: 10px;
   left: 10px;
   z-index: 2000;
+  transition: background 0.2s;
+
+  @media(hover: hover){
+  &:hover{
+      background: #f0f1f5;
+     }
+  }
 `
 
 const monthAgo = () => {
@@ -49,12 +56,14 @@ export default function Content({ buildings }:
         zoom={12}
         buildings={buildings.map(x => ({ ...x, color: colorToHex(grad(clamp((now - x.created.getTime()) / delta, 0, 1))) }))}
       />
+      <div className="cards__wrapper">
       <Cards buildings={
         buildings
           .filter(x => bounds === undefined || bounds.contains(x))
           .filter(x => selectedArea === undefined || selectedArea.contains(new LngLat(x.lng, x.lat)))
       }
       />
+      </div>
       <ShowFiltersButton onClick={() => setShowFiltersPopup(!showFiltersPopup)}>
         <FilterOutline />
         Фильтры

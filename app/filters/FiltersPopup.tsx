@@ -10,7 +10,7 @@ const Overlay = styled.div`
   height: 100dvh;
   background-color: rgba(128, 128, 128, 0.4);
   overflow-y: auto;
-  z-index: 2000;
+  z-index: 5000;
 `
 
 const Paper = styled.div`
