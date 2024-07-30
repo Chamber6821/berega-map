@@ -329,3 +329,7 @@ p {
     }
   }
 }
+
+.button-pressed {
+  background: #b0b0b0 !important;
+}

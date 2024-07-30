@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Building } from "../api/berega";
 
-import mapbox, { GeoJSONSource, LngLatBounds, Map as MapboxMap, MapMouseEvent, MapTouchEvent, Marker, NavigationControl } from 'mapbox-gl'
+import mapbox, { GeoJSONSource, LngLatBounds, Map as MapboxMap, MapMouseEvent, MapTouchEvent, NavigationControl } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css';
 import Polygon from "./Polygon";
 import Polyline from "./Polyline";
@@ -27,8 +27,50 @@ export const useMap = create<{
 
 export default function Map({ center, zoom, buildings }: { center: [number, number], zoom: number, buildings: Building[] }) {
   const mapState = useMap()
+  const setSelectedArea = useMap(x => x.setSelectedArea)
   const mapContainer = useRef<HTMLDivElement>(null)
   const mapRef = useRef<mapboxgl.Map>()
+  const polygonRef = useRef<Polygon>()
+  const polylineRef = useRef<Polyline>()
+  const drawingButtonRef = useRef<HTMLElement>()
+  const [mode, setMode] = useState<'loading' | 'view' | 'draw' | 'drawing' | 'filtered'>('loading')
+  const modeRef = useRef(mode)
+
+  useEffect(() => {
+    modeRef.current = mode
+    switch (mode) {
+      case 'view': {
+        polygonRef.current?.hide()
+        polylineRef.current?.hide()
+        drawingButtonRef.current?.classList.remove('button-pressed')
+        setSelectedArea(undefined)
+        break
+      }
+      case 'draw': {
+        mapRef.current?.dragPan?.disable()
+        polygonRef.current?.hide()
+        if (polylineRef.current) {
+          polylineRef.current.path = []
+          polylineRef.current.show()
+        }
+        drawingButtonRef.current?.classList.add('button-pressed')
+        break
+      }
+      case 'drawing': {
+        // nothing
+        break;
+      }
+      case 'filtered': {
+        if (polygonRef.current && polylineRef.current)
+          polygonRef.current.path = polylineRef.current.path
+        polygonRef.current?.show()
+        polylineRef.current?.hide()
+        setSelectedArea(polygonRef.current)
+        mapRef.current?.dragPan?.enable()
+        break
+      }
+    }
+  }, [mode, setSelectedArea])
 
   useEffect(() => {
     mapbox.accessToken = "pk.eyJ1IjoiY2hhbWJlcjY4MjEiLCJhIjoiY2xyZjY4MDBrMDF0bjJrbzU0djA2bnJueCJ9.sTgEkqcR0I_Yqjl0CTOQvA"
@@ -37,51 +79,38 @@ export default function Map({ center, zoom, buildings }: { center: [number, numb
       center: [center[1], center[0]],
       zoom: zoom,
     })
-    const map = mapRef.current as MapboxMap
-    const polygon = new Polygon(map, 'polygon', {
+    polygonRef.current = new Polygon(mapRef.current, 'polygon', {
       borderColor: '#439639',
       borderWidth: 4,
       fillColor: '#439639',
       fillOpacity: 0.3
     })
-    const polyline = new Polyline(map, 'polyline', {
+    polylineRef.current = new Polyline(mapRef.current, 'polyline', {
       color: '#439639',
       width: 4
     })
 
-    let draw = false
-    let drawing = false
-    const drawingStart = () => {
-      if (!draw) return
-      polygon.path = []
-      polygon.hide()
-      polyline.path = []
-      polyline.show()
-      map.dragPan.disable()
-      drawing = true
-    }
-    const drawingMove = (e: MapMouseEvent | MapTouchEvent) => {
-      if (drawing) polyline.path = [...polyline.path, e.lngLat]
-    }
-    const drawingEnd = () => {
-      if (!draw) return
-      drawing = false
-      draw = false
-      map.dragPan.enable()
-      polygon.path = polyline.path
-      polyline.hide()
-      polygon.show()
-      mapState.setSelectedArea(polygon)
-    }
+    const map = mapRef.current
+    const polyline = polylineRef.current
+
+    const drawingStart = () => (modeRef.current == 'draw') && setMode('drawing')
+    const drawingMove = (e: MapMouseEvent | MapTouchEvent) =>
+      (modeRef.current == 'drawing') && (polyline.path = [...polyline.path, e.lngLat])
+    const drawingEnd = () => (modeRef.current == 'drawing') && setMode('filtered')
     map
       .addControl(new NavigationControl({ visualizePitch: true }))
       .addControl(new ButtonControl({
         innerHtml: '<img style="margin: 4px" width=21 height=21 src="https://img.icons8.com/glyph-neue/64/polygon.png"/>',
+        ref: drawingButtonRef,
         on: {
           click: () => {
-            draw = !draw
-            mapState.setSelectedArea(undefined)
-            polygon.hide()
+            setMode({
+              'loading': 'loading',
+              'view': 'draw',
+              'draw': 'view',
+              'drawing': 'filtered',
+              'filtered': 'view'
+            }[modeRef.current] as 'view' | 'draw' | 'drawing' | 'filtered')
           }
         }
       }), 'top-right')
@@ -101,6 +130,7 @@ export default function Map({ center, zoom, buildings }: { center: [number, numb
       .on('touchmove', drawingMove)
       .on('touchend', drawingEnd)
       .on('moveend', () => mapState.setBounds(map.getBounds() || undefined))
+      .once('style.load', () => setMode('view'))
 
     type Marker = {
       color: string,
