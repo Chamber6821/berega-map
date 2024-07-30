@@ -33,7 +33,9 @@ export default function Popup({ building, onClose }: { building: Building, onClo
             }
           </div>
         </div>
+        <div className="popup__btn">
         <PrimaryButton onClick={() => window.open(building.page, '_blank')}>Подробнее</PrimaryButton>
+        </div>
       </div>
     </div>
   </div>
