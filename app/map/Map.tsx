@@ -10,6 +10,7 @@ import Polyline from "./Polyline";
 import ButtonControl from "./ButtonControl";
 import { create } from "zustand";
 import ViewButtonControl from "./ViewButtonControl";
+import { clamp, colorFromHex, colorToHex, gradient } from "../utils";
 
 export type Bounds = LngLatBounds
 
@@ -24,6 +25,18 @@ export const useMap = create<{
   setSelectedArea: (selectedArea) => set({ selectedArea }),
   setSelectedBuilding: (building) => set({ selectedBuilding: building })
 }))
+
+const monthAgo = () => {
+  const now = new Date()
+  now.setMonth(now.getMonth() - 1)
+  return now
+}
+
+const grad = gradient(colorFromHex('#808080'), colorFromHex('#009c1a'))
+const now = new Date().getTime()
+const timeBound = monthAgo().getTime()
+const delta = now - timeBound
+const colored = (x: Building) => colorToHex(grad(clamp((now - x.created.getTime()) / delta, 0, 1)))
 
 export default function Map({ center, zoom, buildings }: { center: [number, number], zoom: number, buildings: Building[] }) {
   const mapState = useMap()
@@ -149,10 +162,10 @@ export default function Map({ center, zoom, buildings }: { center: [number, numb
           'type': 'Feature',
           'geometry': {
             'type': 'Point',
-            'coordinates': [x.lng, x.lat]
+            'coordinates': [x.location.lng, x.location.lat]
           },
           'properties': {
-            'color': x.color,
+            'color': colored(x),
             'originIndex': i
           }
         })
@@ -219,7 +232,7 @@ export default function Map({ center, zoom, buildings }: { center: [number, numb
             'type': 'Feature',
             'geometry': {
               'type': 'Point',
-              'coordinates': [building.lng, building.lat]
+              'coordinates': [building.location.lng, building.location.lat]
             },
             'properties': {
               'color': '#ff8000'

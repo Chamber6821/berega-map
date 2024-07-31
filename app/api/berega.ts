@@ -1,18 +1,24 @@
 import { range } from "../utils";
 
+type DescriptionLine = [string] | [string, string]
 type EntityType = "developer" | "features" | "residentialcomplex" | "secondhome"
 export type Building = {
   title: string,
-  shortDescription: [string, string],
-  description: [string, string][],
   tag: string,
-  price: string,
-  lat: number,
-  lng: number,
-  address: string,
-  image: string,
+  image: string | undefined,
+  shortDescription: DescriptionLine,
+  description: DescriptionLine[],
+  price: number,
+  area: number,
+  type: string,
+  floor: number,
+  frame: string,
+  location: {
+    lat: number,
+    lng: number,
+    address: string
+  }
   page: string,
-  color: string,
   created: Date,
 }
 
@@ -64,26 +70,32 @@ export async function fetchResidentionalComplexes(): Promise<Building[]> {
   ]);
   const developerMap = idMap(developers);
   const featureMap = idMap(features);
-  return complexes.map((x: any) => {
-    const apartmentsInfo = [
+  return complexes.map((x: any): Building => {
+    const apartmentsInfo: DescriptionLine = [
       `${x.apartments?.length || 0} апартаментов`,
       `от ${price(x.price_from)}`,
     ];
     return {
       title: x.name,
+      tag: featureMap?.[x.features?.[0]]?.name || "",
+      image: x.pictures?.[0] ? `https:${x.pictures?.[0]}` : undefined,
       shortDescription: apartmentsInfo,
       description: [
         apartmentsInfo,
         [`Дата сдачи • ${x["due_date (OS)"] || "Не известно"}`],
         [`Застройщик • ${developerMap[x["Developer"]]?.name || "Не известен"}`],
       ],
-      tag: featureMap?.[x.features?.[0]]?.name || "",
-      lat: x.address?.lat || 0,
-      lng: x.address?.lng || 0,
-      address: x.address?.address || "Нет адреса",
-      image: x.pictures?.[0] ? `https:${x.pictures?.[0]}` : undefined,
+      price: x.price_from,
+      area: 0,
+      type: x.Type[0] || 'Жилой дом',
+      floor: 0,
+      frame: 'С ремонтом',
+      location: {
+        lat: x.address?.lat || 0,
+        lng: x.address?.lng || 0,
+        address: x.address?.address || "Нет адреса"
+      },
       page: `https://berega.team/residential_complex/${x._id}`,
-      color: "#395296",
       created: new Date(x['Created Date'])
     };
   });
@@ -95,22 +107,27 @@ export async function fetchSecondHomes(): Promise<Building[]> {
     fullListOfType("features"),
   ]);
   const featureMap = idMap(features);
-  return homes.map((x: any) => ({
+  return homes.map((x: any): Building => ({
     title: x.name,
+    tag: featureMap?.[x.Features?.[0]]?.name || "",
+    image: x.pictures?.[0] ? `https:${x.pictures?.[0]}` : undefined,
     shortDescription: ["Цена", price(x.price)],
     description: [
       ["Цена", price(x.price)],
       ["Цена за м²", price(x.price_per_meter || 0)],
       [`${x.floor} этаж, ${x.total_area} м²`],
     ],
-    tag: featureMap?.[x.Features?.[0]]?.name || "",
-    price: price(x.price),
-    lat: x.address?.lat || 0,
-    lng: x.address?.lng || 0,
-    address: x.address?.address || "Нет адреса",
-    image: x.pictures?.[0] ? `https:${x.pictures?.[0]}` : undefined,
+    price: x.price,
+    area: x.total_area,
+    type: x.Type,
+    floor: x.floor,
+    frame: x['frame (OS)'],
+    location: {
+      lat: x.address?.lat || 0,
+      lng: x.address?.lng || 0,
+      address: x.address?.address || "Нет адреса"
+    },
     page: `https://berega.team/second_home/${x._id}`,
-    color: "#439639",
     created: new Date(x['Created Date'])
   }));
 }
