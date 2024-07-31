@@ -208,19 +208,24 @@ const useInputText = (): [string, React.ReactElement] => {
 }
 
 export type Filters = {
-  types: string[],
-  rooms: string[],
-  priceFrom?: number,
-  priceTo?: number,
+  types?: string[],
+  rooms?: string[],
+  status?: string[],
+  frame?: string[],
   country?: string,
   city?: string,
-  status?: string[],
+  priceFrom?: number,
+  priceTo?: number,
   floorFrom?: number,
   floorTo?: number,
-  frame: string[],
   areaFrom?: number,
   areaTo?: number,
 }
+
+const listOrDefault = <T, P>(elements: T[], or: P): T[] | P =>
+  elements.length === 0
+    ? or
+    : elements
 
 export default function FiltersPopup({ onClose }: { onClose?: (filters: Filters) => void }) {
   const [types, TypesInput] = useVariantInput(['Квартира', 'Дом', 'Земельный участок'])
@@ -236,13 +241,13 @@ export default function FiltersPopup({ onClose }: { onClose?: (filters: Filters)
   const handleClose = () => {
     setShowAllFilters(false)
     onClose && onClose({
-      types,
-      rooms,
-      priceFrom, priceTo,
+      types: listOrDefault(types, undefined),
+      rooms: listOrDefault(rooms, undefined),
+      status: listOrDefault(status, undefined),
+      frame: listOrDefault(frame, undefined),
       country, city,
-      status,
+      priceFrom, priceTo,
       floorFrom, floorTo,
-      frame,
       areaFrom, areaTo,
     })
   }
