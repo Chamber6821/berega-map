@@ -73,7 +73,7 @@ export async function fetchResidentionalComplexes(): Promise<Building[]> {
   return complexes.map((x: any): Building => {
     const apartmentsInfo: DescriptionLine = [
       `${x.apartments?.length || 0} апартаментов`,
-      `от ${price(x.price_from)}`,
+      `от ${price(x.price_from)} до ${price(x.price_to)}`,
     ];
     return {
       title: x.name,
@@ -82,6 +82,7 @@ export async function fetchResidentionalComplexes(): Promise<Building[]> {
       shortDescription: apartmentsInfo,
       description: [
         apartmentsInfo,
+        ['Цена за м²', `от ${price(x.price_per_meter_from)} до ${price(x.price_per_meter_to)}`],
         [`Дата сдачи • ${x["due_date (OS)"] || "Не известно"}`],
         [`Застройщик • ${developerMap[x["Developer"]]?.name || "Не известен"}`],
       ],
