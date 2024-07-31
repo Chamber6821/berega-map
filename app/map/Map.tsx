@@ -48,6 +48,8 @@ export default function Map({ center, zoom, buildings }: { center: [number, numb
   const drawingButtonRef = useRef<HTMLElement>()
   const [mode, setMode] = useState<'loading' | 'view' | 'draw' | 'drawing' | 'filtered'>('loading')
   const modeRef = useRef(mode)
+  const buildingsRef = useRef(buildings)
+  buildingsRef.current = buildings
 
   useEffect(() => {
     modeRef.current = mode
@@ -209,7 +211,7 @@ export default function Map({ center, zoom, buildings }: { center: [number, numb
       map.moveLayer('markers', 'selected-marker')
       map.on('click', 'markers', (e) => {
         const marker = e.features?.[0]?.properties as Marker | undefined
-        marker && mapState.setSelectedBuilding(buildings[marker.originIndex])
+        marker && mapState.setSelectedBuilding(buildingsRef.current[marker.originIndex])
       })
       map
         .on('mouseenter', 'markers', () => ['view', 'filtered'].includes(modeRef.current) && (map.getCanvas().style.cursor = 'pointer'))
