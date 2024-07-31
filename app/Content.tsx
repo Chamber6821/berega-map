@@ -38,6 +38,12 @@ const monthAgo = () => {
   return now
 }
 
+const grad = gradient(colorFromHex('#808080'), colorFromHex('#009c1a'))
+const now = new Date().getTime()
+const timeBound = monthAgo().getTime()
+const delta = now - timeBound
+const colored = (x: Building): Building => ({ ...x, color: colorToHex(grad(clamp((now - x.created.getTime()) / delta, 0, 1))) })
+
 export default function Content({ buildings }:
   { buildings: Building[] }) {
   const popupBuilding = useMap(x => x.selectedBuilding)
@@ -45,24 +51,20 @@ export default function Content({ buildings }:
   const [showFiltersPopup, setShowFiltersPopup] = useState(false)
   const bounds = useMap(x => x.bounds)
   const selectedArea = useMap(x => x.selectedArea)
-  const grad = gradient(colorFromHex('#808080'), colorFromHex('#009c1a'))
-  const now = new Date().getTime()
-  const timeBound = monthAgo().getTime()
-  const delta = now - timeBound
   return (
     <div className="root-container">
       <Map
         center={[41.65, 41.65]}
         zoom={12}
-        buildings={buildings.map(x => ({ ...x, color: colorToHex(grad(clamp((now - x.created.getTime()) / delta, 0, 1))) }))}
+        buildings={buildings.map(colored)}
       />
       <div className="cards__wrapper">
-      <Cards buildings={
-        buildings
-          .filter(x => bounds === undefined || bounds.contains(x))
-          .filter(x => selectedArea === undefined || selectedArea.contains(new LngLat(x.lng, x.lat)))
-      }
-      />
+        <Cards buildings={
+          buildings
+            .filter(x => bounds === undefined || bounds.contains(x))
+            .filter(x => selectedArea === undefined || selectedArea.contains(new LngLat(x.lng, x.lat)))
+        }
+        />
       </div>
       <ShowFiltersButton onClick={() => setShowFiltersPopup(!showFiltersPopup)}>
         <FilterOutline />
