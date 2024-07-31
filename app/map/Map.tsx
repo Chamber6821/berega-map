@@ -250,6 +250,28 @@ export default function Map({ center, zoom, buildings }: { center: [number, numb
     console.log(map.getSource<GeoJSONSource>('selected-marker')?._data)
   }, [mapState.selectedBuilding])
 
+  useEffect(() => {
+    console.log('UPDATE MARKERS!')
+    if (!mapRef.current) return
+    const map = mapRef.current
+    map.getSource<GeoJSONSource>('markers')?.setData({
+      'type': 'FeatureCollection',
+      'features': buildings.map(
+        (x, i) => ({
+          'type': 'Feature',
+          'geometry': {
+            'type': 'Point',
+            'coordinates': [x.location.lng, x.location.lat]
+          },
+          'properties': {
+            'color': colored(x),
+            'originIndex': i
+          }
+        })
+      )
+    })
+  }, [buildings.length])
+
 
   return <div className="map" ref={mapContainer}></div>
 }
