@@ -94,7 +94,7 @@ export async function fetchResidentionalComplexes(): Promise<Building[]> {
       location: {
         lat: x.address?.lat || 0,
         lng: x.address?.lng || 0,
-        address: x.address?.address || "Нет адреса"
+        address: `${x.address?.address || "Нет адреса"} (${x.address?.lat || 0}, ${x.address?.lng || 0})`
       },
       page: `https://berega.team/residential_complex/${x._id}`,
       created: new Date(x['Created Date'])
