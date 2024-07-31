@@ -8,9 +8,9 @@ export default function Cards({ buildings }: { buildings: Building[] }) {
         .map(
           x => <Card
             key={x.page}
-            image={x.image}
+            image={x.image || ''}
             title={x.title}
-            description={x.shortDescription}
+            description={x.shortDescription.length === 1 ? [x.shortDescription[0], ''] : x.shortDescription}
             page={x.page}
           />)
     }
