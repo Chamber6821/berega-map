@@ -261,10 +261,10 @@ export default function FiltersPopup({ visible, onClose }: { visible: boolean, o
         <h1 className="filter__title">Фильтры</h1>
         <div className="filter__table filter__first">
           <FiltersContainer>
-            <Filter name="Выбор страны">{CountryInput}</Filter>
-            <Filter name="Выбор города">{CityInput}</Filter>
+            {/* <Filter name="Выбор страны">{CountryInput}</Filter> */}
+            {/* <Filter name="Выбор города">{CityInput}</Filter> */}
             <Filter name="Тип">{TypesInput}</Filter>
-            <Filter name="Кол-во комнат">{RoomsInput}</Filter>
+            {/* <Filter name="Кол-во комнат">{RoomsInput}</Filter> */}
             <Filter name="Цена">{PriceInput}</Filter>
           </FiltersContainer>
         </div>
@@ -272,7 +272,7 @@ export default function FiltersPopup({ visible, onClose }: { visible: boolean, o
           <h2 className="filter__title filter__title-more">Дополнительные фильтры</h2>
           <div className="filter__table">
             <FiltersContainer>
-              <Filter name="Статус">{StatusInput}</Filter>
+              {/* <Filter name="Статус">{StatusInput}</Filter> */}
               <Filter name="Этаж">{FloorInput}</Filter>
               <Filter name="Ремонт">{FrameInput}</Filter>
               <Filter name="Площадь">{AreaInput}</Filter>
