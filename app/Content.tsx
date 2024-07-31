@@ -74,10 +74,12 @@ export default function Content({ buildings }:
         Фильтры
       </ShowFiltersButton>
       {popupBuilding && <Popup building={popupBuilding} onClose={() => setPopupBuilding(undefined)} />}
-      {showFiltersPopup && <FiltersPopup onClose={x => {
-        setShowFiltersPopup(false)
-        setFilters(x)
-      }} />}
+      <FiltersPopup
+        visible={showFiltersPopup}
+        onClose={x => {
+          setShowFiltersPopup(false)
+          setFilters(x)
+        }} />
     </div>
   )
 }

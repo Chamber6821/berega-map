@@ -227,7 +227,7 @@ const listOrDefault = <T, P>(elements: T[], or: P): T[] | P =>
     ? or
     : elements
 
-export default function FiltersPopup({ onClose }: { onClose?: (filters: Filters) => void }) {
+export default function FiltersPopup({ visible, onClose }: { visible: boolean, onClose?: (filters: Filters) => void }) {
   const [types, TypesInput] = useVariantInput(['Квартира', 'Дом', 'Земельный участок'])
   const [rooms, RoomsInput] = useVariantInput(['Студия', '1', '2', '3', '4', '5+'])
   const [priceFrom, priceTo, PriceInput] = useRangeInput()
@@ -253,7 +253,7 @@ export default function FiltersPopup({ onClose }: { onClose?: (filters: Filters)
   }
   const ref = useDetectClickOutside({ onTriggered: handleClose })
   return (
-    <Overlay>
+    <Overlay style={visible ? {} : { display: 'none' }}>
       <Paper ref={ref}>
         <CloseButton onClick={handleClose}>
           <CloseOutline color={"#050b0d"} />
