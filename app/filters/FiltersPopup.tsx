@@ -228,7 +228,7 @@ const listOrDefault = <T, P>(elements: T[], or: P): T[] | P =>
     : elements
 
 export default function FiltersPopup({ visible, onClose }: { visible: boolean, onClose?: (filters: Filters) => void }) {
-  const [types, TypesInput] = useVariantInput(['Квартира', 'Дом', 'Земельный участок', 'Жилой дом', 'Апарт-отель', 'Таунхаус', 'Коттедж'])
+  const [types, TypesInput] = useVariantInput(['Квартира', 'Дом', 'Земельный участок', 'Коммерческая недвижимость', 'Жилой дом', 'Апарт-отель', 'Таунхаус', 'Коттедж'])
   const [rooms, RoomsInput] = useVariantInput(['Студия', '1', '2', '3', '4', '5+'])
   const [priceFrom, priceTo, PriceInput] = useRangeInput()
   const [country, CountryInput] = useInputText()
