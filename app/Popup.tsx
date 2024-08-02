@@ -14,7 +14,7 @@ export default function Popup({ building, onClose }: { building: Building, onClo
       <div className="content">
         <Image
           className="image"
-          src={building.image}
+          src={building.image || ''}
           alt={building.title}
           width={300}
           height={250}
@@ -22,7 +22,7 @@ export default function Popup({ building, onClose }: { building: Building, onClo
         />
         <div className="content__wrraper">
           <h1 style={{ marginTop: '10px' }}>{building.title}</h1>
-          <p style={{ marginBottom: '10px' }}>{building.address}</p>
+          <p style={{ marginBottom: '10px' }}>{building.location.address}</p>
           <div className="popup__description flex-column">
             {
               building.description.map(x =>
@@ -34,7 +34,7 @@ export default function Popup({ building, onClose }: { building: Building, onClo
           </div>
         </div>
         <div className="popup__btn">
-        <PrimaryButton onClick={() => window.open(building.page, '_blank')}>Подробнее</PrimaryButton>
+          <PrimaryButton onClick={() => window.open(building.page, '_blank')}>Подробнее</PrimaryButton>
         </div>
       </div>
     </div>

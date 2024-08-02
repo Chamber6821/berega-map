@@ -1,33 +1,8 @@
 import styled from "styled-components";
-import { ReactElement, useState } from "react";
-import { useDetectClickOutside } from "react-detect-click-outside";
-import { CloseOutline } from "react-ionicons";
+import { useState } from "react";
 import PrimaryButton from "../components/PrimaryButton";
+import Modal from "../components/Modal";
 
-const Overlay = styled.div`
-  position: fixed;
-  width: 100dvw;
-  height: 100dvh;
-  background-color: rgba(128, 128, 128, 0.4);
-  overflow-y: auto;
-  z-index: 5000;
-`
-
-const Paper = styled.div`
-  width: 80%;
-  margin: 20px auto 20px;
-  padding: 20px;
-  background-color: white;
-  position: relative;
-  border-radius: 12px;
-  border-top-right-radius: 0;
-
-  @media(max-width: 720px){
-    border-top-right-radius: 12px;
-    width: 95%;
-    padding: 20px 15px;
-  }
-`
 const Input = styled.input`
   border: 2px solid #EEF5F8;
   border-radius: 8px;
@@ -97,25 +72,6 @@ const PressedVariantButton = styled.button`
     width: max-content;
     height: 33px;
     font-weight: 600;
-`
-
-const CloseButton = styled.button`
-    position: absolute;
-    right: 0;
-    top: 0;
-    transform: translateX(100%);
-    width: 40px;
-    height: 40px;
-    background-color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-top-right-radius: 8px;
-    border-bottom-right-radius: 8px;
-
-    @media(max-width: 720px){
-    right: 41px
-    }
 `
 
 const Filter = ({ name, children }: { name: string, children: any }) =>
@@ -208,22 +164,27 @@ const useInputText = (): [string, React.ReactElement] => {
 }
 
 export type Filters = {
-  types: string[],
-  rooms: string[],
-  priceFrom?: number,
-  priceTo?: number,
+  types?: string[],
+  rooms?: string[],
+  status?: string[],
+  frame?: string[],
   country?: string,
   city?: string,
-  status?: string[],
+  priceFrom?: number,
+  priceTo?: number,
   floorFrom?: number,
   floorTo?: number,
-  frame: string[],
   areaFrom?: number,
   areaTo?: number,
 }
 
-export default function FiltersPopup({ onClose }: { onClose?: (filters: Filters) => void }) {
-  const [types, TypesInput] = useVariantInput(['Квартира', 'Дом', 'Земельный участок'])
+const listOrDefault = <T, P>(elements: T[], or: P): T[] | P =>
+  elements.length === 0
+    ? or
+    : elements
+
+export default function FiltersPopup({ visible, onClose }: { visible: boolean, onClose?: (filters: Filters) => void }) {
+  const [types, TypesInput] = useVariantInput(['Квартира', 'Дом', 'Земельный участок', 'Коммерческая недвижимость', 'Жилой дом', 'Апарт-отель', 'Таунхаус', 'Коттедж'])
   const [rooms, RoomsInput] = useVariantInput(['Студия', '1', '2', '3', '4', '5+'])
   const [priceFrom, priceTo, PriceInput] = useRangeInput()
   const [country, CountryInput] = useInputText()
@@ -236,49 +197,43 @@ export default function FiltersPopup({ onClose }: { onClose?: (filters: Filters)
   const handleClose = () => {
     setShowAllFilters(false)
     onClose && onClose({
-      types,
-      rooms,
-      priceFrom, priceTo,
+      types: listOrDefault(types, undefined),
+      rooms: listOrDefault(rooms, undefined),
+      status: listOrDefault(status, undefined),
+      frame: listOrDefault(frame, undefined),
       country, city,
-      status,
+      priceFrom, priceTo,
       floorFrom, floorTo,
-      frame,
       areaFrom, areaTo,
     })
   }
-  const ref = useDetectClickOutside({ onTriggered: handleClose })
   return (
-    <Overlay>
-      <Paper ref={ref}>
-        <CloseButton onClick={handleClose}>
-          <CloseOutline color={"#050b0d"} />
-        </CloseButton>
-        <h1 className="filter__title">Фильтры</h1>
-        <div className="filter__table filter__first">
+    <Modal style={visible ? {} : { display: 'none' }} onClose={handleClose}>
+      <h1 className="filter__title">Фильтры</h1>
+      <div className="filter__table filter__first">
+        <FiltersContainer>
+          {/* <Filter name="Выбор страны">{CountryInput}</Filter> */}
+          {/* <Filter name="Выбор города">{CityInput}</Filter> */}
+          <Filter name="Тип">{TypesInput}</Filter>
+          {/* <Filter name="Кол-во комнат">{RoomsInput}</Filter> */}
+          <Filter name="Цена">{PriceInput}</Filter>
+        </FiltersContainer>
+      </div>
+      {showAllFilters && <>
+        <h2 className="filter__title filter__title-more">Дополнительные фильтры</h2>
+        <div className="filter__table">
           <FiltersContainer>
-            <Filter name="Выбор страны">{CountryInput}</Filter>
-            <Filter name="Выбор города">{CityInput}</Filter>
-            <Filter name="Тип">{TypesInput}</Filter>
-            <Filter name="Кол-во комнат">{RoomsInput}</Filter>
-            <Filter name="Цена">{PriceInput}</Filter>
+            {/* <Filter name="Статус">{StatusInput}</Filter> */}
+            <Filter name="Этаж">{FloorInput}</Filter>
+            <Filter name="Ремонт">{FrameInput}</Filter>
+            <Filter name="Площадь">{AreaInput}</Filter>
           </FiltersContainer>
         </div>
-        {showAllFilters && <>
-          <h2 className="filter__title filter__title-more">Дополнительные фильтры</h2>
-          <div className="filter__table">
-            <FiltersContainer>
-              <Filter name="Статус">{StatusInput}</Filter>
-              <Filter name="Этаж">{FloorInput}</Filter>
-              <Filter name="Ремонт">{FrameInput}</Filter>
-              <Filter name="Площадь">{AreaInput}</Filter>
-            </FiltersContainer>
-          </div>
-        </>}
-        <AllFiltersButton onClick={() => setShowAllFilters(!showAllFilters)}>
-          {showAllFilters ? 'Скрыть фильтры' : 'Все фильтры'}
-        </AllFiltersButton>
-        <PrimaryButton style={{ marginLeft: 0 }} onClick={handleClose}>Показать результаты</PrimaryButton>
-      </Paper>
-    </Overlay>
+      </>}
+      <AllFiltersButton onClick={() => setShowAllFilters(!showAllFilters)}>
+        {showAllFilters ? 'Скрыть фильтры' : 'Все фильтры'}
+      </AllFiltersButton>
+      <PrimaryButton style={{ marginLeft: 0 }} onClick={handleClose}>Показать результаты</PrimaryButton>
+    </Modal>
   )
 }

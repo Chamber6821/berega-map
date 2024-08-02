@@ -5,12 +5,12 @@ import { Building } from "./api/berega";
 import Cards from "./Cards";
 import { Map } from "./map";
 import Popup from "./Popup";
-import { clamp, colorFromHex, colorToHex, gradient } from "./utils";
-import FiltersPopup from "./filters/FiltersPopup";
-import { Bounds, useMap } from "./map/Map";
+import FiltersPopup, { Filters } from "./filters/FiltersPopup";
+import { useMap } from "./map/Map";
 import styled from "styled-components";
 import { FilterOutline } from "react-ionicons";
 import { LngLat } from "mapbox-gl";
+import HelpPopup from "./HelpPopup";
 
 const ShowFiltersButton = styled.button`
   display: flex;
@@ -32,44 +32,58 @@ const ShowFiltersButton = styled.button`
   }
 `
 
-const monthAgo = () => {
-  const now = new Date()
-  now.setMonth(now.getMonth() - 1)
-  return now
-}
-
 export default function Content({ buildings }:
   { buildings: Building[] }) {
+  const [showFiltersPopup, setShowFiltersPopup] = useState(false)
+  const [showHelpPopup, setShowHelpPopup] = useState(false)
+  const [filters, setFilters] = useState<Filters>({})
   const popupBuilding = useMap(x => x.selectedBuilding)
   const setPopupBuilding = useMap(x => x.setSelectedBuilding)
-  const [showFiltersPopup, setShowFiltersPopup] = useState(false)
   const bounds = useMap(x => x.bounds)
   const selectedArea = useMap(x => x.selectedArea)
-  const grad = gradient(colorFromHex('#808080'), colorFromHex('#009c1a'))
-  const now = new Date().getTime()
-  const timeBound = monthAgo().getTime()
-  const delta = now - timeBound
+  const matchByVariants = (variants: string[] | undefined, value: string) => !variants || variants.includes(value)
+  const matchByRange = (min: number | undefined, max: number | undefined, value: number) =>
+    (min === undefined || min <= value)
+    && (max === undefined || value <= max)
+  const match = (x: Building) =>
+    matchByVariants(filters.types, x.type)
+    // && matchByVariants(filters.rooms, x.rooms)
+    // && matchByVariants(filters.status, x.status)
+    && matchByVariants(filters.frame, x.frame)
+    // && filters.country === x.country
+    // && filters.city === x.city
+    && matchByRange(filters.priceFrom, filters.priceTo, x.price)
+    && matchByRange(filters.floorFrom, filters.floorTo, x.floor)
+    && matchByRange(filters.areaFrom, filters.areaTo, x.area)
+  const matchedBuildings = buildings.filter(match)
   return (
     <div className="root-container">
       <Map
         center={[41.65, 41.65]}
         zoom={12}
-        buildings={buildings.map(x => ({ ...x, color: colorToHex(grad(clamp((now - x.created.getTime()) / delta, 0, 1))) }))}
+        buildings={matchedBuildings}
+        onClickInfo={() => setShowHelpPopup(true)}
       />
       <div className="cards__wrapper">
-      <Cards buildings={
-        buildings
-          .filter(x => bounds === undefined || bounds.contains(x))
-          .filter(x => selectedArea === undefined || selectedArea.contains(new LngLat(x.lng, x.lat)))
-      }
-      />
+        <Cards buildings={
+          matchedBuildings
+            .filter(x => bounds === undefined || bounds.contains(x.location))
+            .filter(x => selectedArea === undefined || selectedArea.contains(new LngLat(x.location.lng, x.location.lat)))
+        }
+        />
       </div>
       <ShowFiltersButton onClick={() => setShowFiltersPopup(!showFiltersPopup)}>
         <FilterOutline />
         Фильтры
       </ShowFiltersButton>
       {popupBuilding && <Popup building={popupBuilding} onClose={() => setPopupBuilding(undefined)} />}
-      {showFiltersPopup && <FiltersPopup onClose={() => setShowFiltersPopup(false)} />}
+      <FiltersPopup
+        visible={showFiltersPopup}
+        onClose={x => {
+          setShowFiltersPopup(false)
+          setFilters(x)
+        }} />
+      {showHelpPopup && <HelpPopup onClose={() => setShowHelpPopup(false)} />}
     </div>
   )
 }
