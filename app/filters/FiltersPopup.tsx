@@ -1,10 +1,7 @@
 import styled from "styled-components";
 import { useState } from "react";
-import { useDetectClickOutside } from "react-detect-click-outside";
-import { CloseOutline } from "react-ionicons";
 import PrimaryButton from "../components/PrimaryButton";
-import Overlay from "../components/Overlay";
-import Paper from "../components/Paper";
+import Modal from "../components/Modal";
 
 const Input = styled.input`
   border: 2px solid #EEF5F8;
@@ -75,25 +72,6 @@ const PressedVariantButton = styled.button`
     width: max-content;
     height: 33px;
     font-weight: 600;
-`
-
-const CloseButton = styled.button`
-    position: absolute;
-    right: 0;
-    top: 0;
-    transform: translateX(100%);
-    width: 40px;
-    height: 40px;
-    background-color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-top-right-radius: 8px;
-    border-bottom-right-radius: 8px;
-
-    @media(max-width: 720px){
-    right: 41px
-    }
 `
 
 const Filter = ({ name, children }: { name: string, children: any }) =>
@@ -229,39 +207,33 @@ export default function FiltersPopup({ visible, onClose }: { visible: boolean, o
       areaFrom, areaTo,
     })
   }
-  const ref = useDetectClickOutside({ onTriggered: handleClose })
   return (
-    <Overlay style={visible ? {} : { display: 'none' }}>
-      <Paper ref={ref}>
-        <CloseButton onClick={handleClose}>
-          <CloseOutline color={"#050b0d"} />
-        </CloseButton>
-        <h1 className="filter__title">Фильтры</h1>
-        <div className="filter__table filter__first">
+    <Modal style={visible ? {} : { display: 'none' }} onClose={handleClose}>
+      <h1 className="filter__title">Фильтры</h1>
+      <div className="filter__table filter__first">
+        <FiltersContainer>
+          {/* <Filter name="Выбор страны">{CountryInput}</Filter> */}
+          {/* <Filter name="Выбор города">{CityInput}</Filter> */}
+          <Filter name="Тип">{TypesInput}</Filter>
+          {/* <Filter name="Кол-во комнат">{RoomsInput}</Filter> */}
+          <Filter name="Цена">{PriceInput}</Filter>
+        </FiltersContainer>
+      </div>
+      {showAllFilters && <>
+        <h2 className="filter__title filter__title-more">Дополнительные фильтры</h2>
+        <div className="filter__table">
           <FiltersContainer>
-            {/* <Filter name="Выбор страны">{CountryInput}</Filter> */}
-            {/* <Filter name="Выбор города">{CityInput}</Filter> */}
-            <Filter name="Тип">{TypesInput}</Filter>
-            {/* <Filter name="Кол-во комнат">{RoomsInput}</Filter> */}
-            <Filter name="Цена">{PriceInput}</Filter>
+            {/* <Filter name="Статус">{StatusInput}</Filter> */}
+            <Filter name="Этаж">{FloorInput}</Filter>
+            <Filter name="Ремонт">{FrameInput}</Filter>
+            <Filter name="Площадь">{AreaInput}</Filter>
           </FiltersContainer>
         </div>
-        {showAllFilters && <>
-          <h2 className="filter__title filter__title-more">Дополнительные фильтры</h2>
-          <div className="filter__table">
-            <FiltersContainer>
-              {/* <Filter name="Статус">{StatusInput}</Filter> */}
-              <Filter name="Этаж">{FloorInput}</Filter>
-              <Filter name="Ремонт">{FrameInput}</Filter>
-              <Filter name="Площадь">{AreaInput}</Filter>
-            </FiltersContainer>
-          </div>
-        </>}
-        <AllFiltersButton onClick={() => setShowAllFilters(!showAllFilters)}>
-          {showAllFilters ? 'Скрыть фильтры' : 'Все фильтры'}
-        </AllFiltersButton>
-        <PrimaryButton style={{ marginLeft: 0 }} onClick={handleClose}>Показать результаты</PrimaryButton>
-      </Paper>
-    </Overlay>
+      </>}
+      <AllFiltersButton onClick={() => setShowAllFilters(!showAllFilters)}>
+        {showAllFilters ? 'Скрыть фильтры' : 'Все фильтры'}
+      </AllFiltersButton>
+      <PrimaryButton style={{ marginLeft: 0 }} onClick={handleClose}>Показать результаты</PrimaryButton>
+    </Modal>
   )
 }
