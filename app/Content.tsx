@@ -10,6 +10,7 @@ import { useMap } from "./map/Map";
 import styled from "styled-components";
 import { FilterOutline } from "react-ionicons";
 import { LngLat } from "mapbox-gl";
+import HelpPopup from "./HelpPopup";
 
 const ShowFiltersButton = styled.button`
   display: flex;
@@ -34,6 +35,7 @@ const ShowFiltersButton = styled.button`
 export default function Content({ buildings }:
   { buildings: Building[] }) {
   const [showFiltersPopup, setShowFiltersPopup] = useState(false)
+  const [showHelpPopup, setShowHelpPopup] = useState(false)
   const [filters, setFilters] = useState<Filters>({})
   const popupBuilding = useMap(x => x.selectedBuilding)
   const setPopupBuilding = useMap(x => x.setSelectedBuilding)
@@ -60,6 +62,7 @@ export default function Content({ buildings }:
         center={[41.65, 41.65]}
         zoom={12}
         buildings={matchedBuildings}
+        onClickInfo={() => setShowHelpPopup(true)}
       />
       <div className="cards__wrapper">
         <Cards buildings={
@@ -80,6 +83,7 @@ export default function Content({ buildings }:
           setShowFiltersPopup(false)
           setFilters(x)
         }} />
+      {showHelpPopup && <HelpPopup onClose={() => setShowHelpPopup(false)} />}
     </div>
   )
 }

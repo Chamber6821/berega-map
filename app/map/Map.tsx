@@ -38,7 +38,8 @@ const timeBound = monthAgo().getTime()
 const delta = now - timeBound
 const colored = (x: Building) => colorToHex(grad(clamp((now - x.created.getTime()) / delta, 0, 1)))
 
-export default function Map({ center, zoom, buildings }: { center: [number, number], zoom: number, buildings: Building[] }) {
+export default function Map({ center, zoom, buildings, onClickInfo }:
+  { center: [number, number], zoom: number, buildings: Building[], onClickInfo?: () => void }) {
   const mapState = useMap()
   const setSelectedArea = useMap(x => x.setSelectedArea)
   const mapContainer = useRef<HTMLDivElement>(null)
@@ -144,6 +145,12 @@ export default function Map({ center, zoom, buildings }: { center: [number, numb
           zoom: 16
         }),
         'top-right')
+      .addControl(new ButtonControl({
+        innerHtml: '<img style="margin: 4px" width=21 height=21 src="https://img.icons8.com/ios/50/info--v1.png"/>',
+        on: {
+          click: onClickInfo
+        }
+      }), 'top-right')
       .on('mousedown', drawingStart)
       .on('mousemove', drawingMove)
       .on('mouseup', drawingEnd)
