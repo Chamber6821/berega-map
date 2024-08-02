@@ -6,7 +6,12 @@ const nextConfig = {
         protocol: "https",
         hostname: "*.cdn.bubble.io",
         port: "",
-      }
+      },
+      {
+        protocol: "https",
+        hostname: "img.icons8.com",
+        port: "",
+      },
     ]
   }
 };
