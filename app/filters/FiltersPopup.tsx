@@ -1,33 +1,11 @@
 import styled from "styled-components";
-import { ReactElement, useState } from "react";
+import { useState } from "react";
 import { useDetectClickOutside } from "react-detect-click-outside";
 import { CloseOutline } from "react-ionicons";
 import PrimaryButton from "../components/PrimaryButton";
+import Overlay from "../components/Overlay";
+import Paper from "../components/Paper";
 
-const Overlay = styled.div`
-  position: fixed;
-  width: 100dvw;
-  height: 100dvh;
-  background-color: rgba(128, 128, 128, 0.4);
-  overflow-y: auto;
-  z-index: 5000;
-`
-
-const Paper = styled.div`
-  width: 80%;
-  margin: 20px auto 20px;
-  padding: 20px;
-  background-color: white;
-  position: relative;
-  border-radius: 12px;
-  border-top-right-radius: 0;
-
-  @media(max-width: 720px){
-    border-top-right-radius: 12px;
-    width: 95%;
-    padding: 20px 15px;
-  }
-`
 const Input = styled.input`
   border: 2px solid #EEF5F8;
   border-radius: 8px;
