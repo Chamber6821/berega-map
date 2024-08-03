@@ -11,6 +11,7 @@ import styled from "styled-components";
 import { ArrowBackCircleOutline, ArrowForwardCircleOutline, FilterOutline } from "react-ionicons";
 import { LngLat } from "mapbox-gl";
 import HelpPopup from "./HelpPopup";
+import FiltersHeader from "./filters/FiltersHeader";
 
 const ShowFiltersButton = styled.button`
   display: flex;
@@ -63,59 +64,75 @@ export default function Content({ buildings }:
   }, [selectedArea])
 
   return (
-    <div className="root-container">
-      <Map
-        center={[41.65, 41.65]}
-        zoom={12}
-        buildings={matchedBuildings}
-        onClickInfo={() => setShowHelpPopup(true)}
-      />
-      <div
-        style={{ position: 'relative' }}
-      >
-        <button
-          style={{
-            position: 'absolute',
-            left: '0',
-            top: '50%',
-            transform: 'translate(-100%, -50%)'
-          }}
-          onClick={() => setShowCards(!showCards)}
-        >
-          {
-            showCards
-              ? <ArrowForwardCircleOutline
-                color={'#00000030'}
-                height="50px"
-                width="50px"
-              />
-              : <ArrowBackCircleOutline
-                color={'#00000030'}
-                height="50px"
-                width="50px"
-              />
-          }
-        </button>
-        {showCards && <div className="cards__wrapper" >
-          <Cards buildings={
-            matchedBuildings
-              .filter(x => bounds === undefined || bounds.contains(x.location))
-              .filter(x => selectedArea === undefined || selectedArea.contains(new LngLat(x.location.lng, x.location.lat)))
-          }
-          />
-        </div>}
+    <div style={{
+      display: 'flex',
+      width: '100%',
+      height: '100%',
+      flexDirection: 'column',
+      position: 'relative',
+    }}>
+      <div>
+        <FiltersHeader />
       </div>
-      <ShowFiltersButton onClick={() => setShowFiltersPopup(!showFiltersPopup)}>
-        <FilterOutline />
-        Фильтры
-      </ShowFiltersButton>
-      {popupBuilding && <Popup building={popupBuilding} onClose={() => setPopupBuilding(undefined)} />}
+      <div
+        className="root-container"
+        style={{
+          flexShrink: 0
+        }}
+      >
+        <Map
+          center={[41.65, 41.65]}
+          zoom={12}
+          buildings={matchedBuildings}
+          onClickInfo={() => setShowHelpPopup(true)}
+        />
+        <div
+          style={{ position: 'relative' }}
+        >
+          <button
+            style={{
+              position: 'absolute',
+              left: '0',
+              top: '50%',
+              transform: 'translate(-100%, -50%)'
+            }}
+            onClick={() => setShowCards(!showCards)}
+          >
+            {
+              showCards
+                ? <ArrowForwardCircleOutline
+                  color={'#00000030'}
+                  height="50px"
+                  width="50px"
+                />
+                : <ArrowBackCircleOutline
+                  color={'#00000030'}
+                  height="50px"
+                  width="50px"
+                />
+            }
+          </button>
+          {showCards && <div className="cards__wrapper" >
+            <Cards buildings={
+              matchedBuildings
+                .filter(x => bounds === undefined || bounds.contains(x.location))
+                .filter(x => selectedArea === undefined || selectedArea.contains(new LngLat(x.location.lng, x.location.lat)))
+            }
+            />
+          </div>}
+        </div>
+        <ShowFiltersButton onClick={() => setShowFiltersPopup(!showFiltersPopup)}>
+          <FilterOutline />
+          Фильтры
+        </ShowFiltersButton>
+      </div>
       <FiltersPopup
         visible={showFiltersPopup}
         onClose={x => {
           setShowFiltersPopup(false)
           setFilters(x)
         }} />
+      {popupBuilding && <Popup building={popupBuilding} onClose={() => setPopupBuilding(undefined)} />}
       {showHelpPopup && <HelpPopup onClose={() => setShowHelpPopup(false)} />}
     </div>
   )
