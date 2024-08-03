@@ -1,16 +1,17 @@
 'use client'
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Building } from "./api/berega";
 import Cards from "./Cards";
 import { Map } from "./map";
 import Popup from "./Popup";
-import { clamp, colorFromHex, colorToHex, gradient } from "./utils";
-import FiltersPopup from "./filters/FiltersPopup";
-import { Bounds, useMap } from "./map/Map";
+import FiltersPopup, { Filters } from "./filters/FiltersPopup";
+import { useMap } from "./map/Map";
 import styled from "styled-components";
-import { FilterOutline } from "react-ionicons";
+import { ArrowBackCircleOutline, ArrowForwardCircleOutline, FilterOutline } from "react-ionicons";
 import { LngLat } from "mapbox-gl";
+import HelpPopup from "./HelpPopup";
+import FiltersHeader from "./filters/FiltersHeader";
 
 const ShowFiltersButton = styled.button`
   display: flex;
@@ -32,44 +33,107 @@ const ShowFiltersButton = styled.button`
   }
 `
 
-const monthAgo = () => {
-  const now = new Date()
-  now.setMonth(now.getMonth() - 1)
-  return now
-}
-
 export default function Content({ buildings }:
   { buildings: Building[] }) {
+  const [showFiltersPopup, setShowFiltersPopup] = useState(false)
+  const [showHelpPopup, setShowHelpPopup] = useState(false)
+  const [showCards, setShowCards] = useState(false)
+  const [filters, setFilters] = useState<Filters>({})
   const popupBuilding = useMap(x => x.selectedBuilding)
   const setPopupBuilding = useMap(x => x.setSelectedBuilding)
-  const [showFiltersPopup, setShowFiltersPopup] = useState(false)
   const bounds = useMap(x => x.bounds)
   const selectedArea = useMap(x => x.selectedArea)
-  const grad = gradient(colorFromHex('#808080'), colorFromHex('#009c1a'))
-  const now = new Date().getTime()
-  const timeBound = monthAgo().getTime()
-  const delta = now - timeBound
+  const matchByVariants = (variants: string[] | undefined, value: string) => !variants || variants.includes(value)
+  const matchByRange = (min: number | undefined, max: number | undefined, value: number) =>
+    (min === undefined || min <= value)
+    && (max === undefined || value <= max)
+  const match = (x: Building) =>
+    matchByVariants(filters.types, x.type)
+    // && matchByVariants(filters.rooms, x.rooms)
+    // && matchByVariants(filters.status, x.status)
+    && matchByVariants(filters.frame, x.frame)
+    // && filters.country === x.country
+    // && filters.city === x.city
+    && matchByRange(filters.priceFrom, filters.priceTo, x.price)
+    && matchByRange(filters.floorFrom, filters.floorTo, x.floor)
+    && matchByRange(filters.areaFrom, filters.areaTo, x.area)
+  const matchedBuildings = buildings.filter(match)
+
+  useEffect(() => {
+    setShowCards(!!selectedArea)
+  }, [selectedArea])
+
   return (
-    <div className="root-container">
-      <Map
-        center={[41.65, 41.65]}
-        zoom={12}
-        buildings={buildings.map(x => ({ ...x, color: colorToHex(grad(clamp((now - x.created.getTime()) / delta, 0, 1))) }))}
-      />
-      <div className="cards__wrapper">
-      <Cards buildings={
-        buildings
-          .filter(x => bounds === undefined || bounds.contains(x))
-          .filter(x => selectedArea === undefined || selectedArea.contains(new LngLat(x.lng, x.lat)))
-      }
-      />
+    <div style={{
+      display: 'flex',
+      width: '100%',
+      height: '100%',
+      flexDirection: 'column',
+      position: 'relative',
+    }}>
+      <div>
+        <FiltersHeader />
       </div>
-      <ShowFiltersButton onClick={() => setShowFiltersPopup(!showFiltersPopup)}>
-        <FilterOutline />
-        Фильтры
-      </ShowFiltersButton>
+      <div
+        className="root-container"
+        style={{
+          flexShrink: 0
+        }}
+      >
+        <Map
+          center={[41.65, 41.65]}
+          zoom={12}
+          buildings={matchedBuildings}
+          onClickInfo={() => setShowHelpPopup(true)}
+        />
+        <div
+          style={{ position: 'relative' }}
+        >
+          <button
+            style={{
+              position: 'absolute',
+              left: '0',
+              top: '50%',
+              transform: 'translate(-100%, -50%)'
+            }}
+            onClick={() => setShowCards(!showCards)}
+          >
+            {
+              showCards
+                ? <ArrowForwardCircleOutline
+                  color={'#00000030'}
+                  height="50px"
+                  width="50px"
+                />
+                : <ArrowBackCircleOutline
+                  color={'#00000030'}
+                  height="50px"
+                  width="50px"
+                />
+            }
+          </button>
+          {showCards && <div className="cards__wrapper" >
+            <Cards buildings={
+              matchedBuildings
+                .filter(x => bounds === undefined || bounds.contains(x.location))
+                .filter(x => selectedArea === undefined || selectedArea.contains(new LngLat(x.location.lng, x.location.lat)))
+            }
+            />
+          </div>}
+        </div>
+        <ShowFiltersButton onClick={() => setShowFiltersPopup(!showFiltersPopup)}>
+          <FilterOutline />
+          Фильтры
+        </ShowFiltersButton>
+      </div>
+      <FiltersPopup
+        visible={showFiltersPopup}
+        onClose={x => {
+          setShowFiltersPopup(false)
+          setFilters(x)
+        }} />
       {popupBuilding && <Popup building={popupBuilding} onClose={() => setPopupBuilding(undefined)} />}
-      {showFiltersPopup && <FiltersPopup onClose={() => setShowFiltersPopup(false)} />}
+      {showHelpPopup && <HelpPopup onClose={() => setShowHelpPopup(false)} />}
     </div>
   )
 }
