@@ -36,7 +36,7 @@ const SelectedOption = styled.div`
   color: #009C1A;
 `
 
-const SwitchGroup = styled.div`
+const ButtonGroup = styled.div`
   display: flex;
   flex-direction: row;
   gap: 0;
@@ -44,9 +44,9 @@ const SwitchGroup = styled.div`
   overflow: hidden;
 `
 
-const SwitchButton = styled.button``
+const Button = styled.button``
 
-const SwitchPressedButton = styled.button`
+const PressedButton = styled.button`
   color: white;
   background: #505050;
 `
@@ -111,10 +111,10 @@ export default function FiltersHeader() {
         <ChevronUpOutline />
       </SelectButton>
       <SelectBody>
-        <SwitchGroup>
-          <SwitchPressedButton>Жилая</SwitchPressedButton>
-          <SwitchButton>Коммерческая</SwitchButton>
-        </SwitchGroup>
+        <ButtonGroup>
+          <PressedButton>Жилая</PressedButton>
+          <Button>Коммерческая</Button>
+        </ButtonGroup>
         <Options>
           <Option>Вариант 1</Option>
           <Option>Вариант 2</Option>
@@ -125,17 +125,27 @@ export default function FiltersHeader() {
       </SelectBody>
     </Filter>
     <Filter>
-      <SelectButton>
-        Фильтр 3
-        <ChevronUpOutline />
-      </SelectButton>
-      <SelectBody>
-        <InputGroup>
-          <Input placeholder="От" />
-          <Input placeholder="До" />
-          <ResetButton>Сбросить</ResetButton>
-        </InputGroup>
-      </SelectBody>
+      <InputGroup>
+        <Input placeholder="Цена от" />
+        <Input placeholder="до" />
+        {/* <ResetButton>Сбросить</ResetButton> */} {/* В принципе можно без кнопки сброса */}
+      </InputGroup>
+    </Filter>
+    <Filter>
+      <ButtonGroup>
+        <PressedButton>Студия</PressedButton>
+        <Button>1</Button>
+        <Button>2</Button>
+        <Button>3</Button>
+        <Button>4+</Button>
+      </ButtonGroup>
+    </Filter>
+    <Filter>
+      <InputGroup>
+        <Input placeholder="Площадь от" />
+        <Input placeholder="до" />
+        {/* <ResetButton>Сбросить</ResetButton> */} {/* В принципе можно без кнопки сброса */}
+      </InputGroup>
     </Filter>
   </Filters>
 }

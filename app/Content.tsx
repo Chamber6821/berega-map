@@ -16,13 +16,10 @@ import FiltersHeader from "./filters/FiltersHeader";
 const ShowFiltersButton = styled.button`
   display: flex;
   align-items: center;
-  position: absolute;
   height: 40px;
   padding: 0 10px;
   background: #fff;
   border-radius: 8px;
-  top: 10px;
-  left: 10px;
   z-index: 2000;
   transition: background 0.2s;
 
@@ -71,8 +68,15 @@ export default function Content({ buildings }:
       flexDirection: 'column',
       position: 'relative',
     }}>
-      <div>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'row',
+      }}>
         <FiltersHeader />
+        <ShowFiltersButton onClick={() => setShowFiltersPopup(!showFiltersPopup)}>
+          <FilterOutline />
+          Фильтры
+        </ShowFiltersButton>
       </div>
       <div
         className="root-container"
@@ -121,10 +125,6 @@ export default function Content({ buildings }:
             />
           </div>}
         </div>
-        <ShowFiltersButton onClick={() => setShowFiltersPopup(!showFiltersPopup)}>
-          <FilterOutline />
-          Фильтры
-        </ShowFiltersButton>
       </div>
       <FiltersPopup
         visible={showFiltersPopup}
