@@ -1,4 +1,4 @@
-import { ChevronDownOutline, ChevronUpOutline } from "react-ionicons"
+import { ChevronUpOutline } from "react-ionicons"
 import styled from "styled-components"
 
 const Filter = styled.div`
@@ -86,31 +86,8 @@ const InputGroup = styled.div`
   border: 1px solid rgb(164, 170, 180);
 `
 
-const ResetButton = styled.button`
-  margin: 0px 0px 0px 14px;
-  font-size: 12px;
-  font-weight: 600;
-  color: rgb(73, 73, 73);
-  opacity: 0.2;
-  cursor: pointer;
-`
 export default function FiltersHeader() {
   return <Filters>
-    {/* <Filter>
-      <SelectButton>
-        Фильтр 1
-        <ChevronDownOutline />
-      </SelectButton>
-      <SelectBody>
-        <Options>
-          <Option>Вариант 1</Option>
-          <Option>Вариант 2</Option>
-          <SelectedOption>Правильный вриант</SelectedOption>
-          <Option>Вариант 5</Option>
-          <Option>Вариант 1</Option>
-        </Options>
-      </SelectBody>
-    </Filter> */}
     <Filter>
       <SelectButton className="select-button">
         Тип недвижимости
@@ -138,7 +115,6 @@ export default function FiltersHeader() {
         -
         <Input placeholder="до" />
         $
-        {/* <ResetButton>Сбросить</ResetButton> */} {/* В принципе можно без кнопки сброса */}
       </InputGroup>
     </Filter>
     <Filter className="filter__rooms">
@@ -157,7 +133,6 @@ export default function FiltersHeader() {
         -
         <Input placeholder="до" />
         м²
-        {/* <ResetButton>Сбросить</ResetButton> */} {/* В принципе можно без кнопки сброса */}
       </InputGroup>
     </Filter>
   </Filters>
