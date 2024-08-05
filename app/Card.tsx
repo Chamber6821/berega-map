@@ -24,7 +24,7 @@ export default function Card({ image, title, description, page }:
             aria-label="Favorite" />
         </div>
       </button>
-      <div className="body">
+      <div className="body card-body">
         <h1>{title}</h1>
         <div className="flex-column">
           <div className="group">

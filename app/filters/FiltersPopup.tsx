@@ -11,18 +11,12 @@ const Input = styled.input`
   max-height: 33px;
   max-width: 110px;
   outline: none;
+  font-weight: 500;
 
-  &:focus{
-  border: 2px solid #009C1A;
-  box-shadow: 0px 5px 10px 2px rgba(0, 156, 26, 0.2);
+  &::placeholder {
+    font-size: 14px;
+    font-weight: 500;
   }
-
-  &::placeholder{
-  color: #666666;
-  opacity: 0.7;
-  font-size: 12px;
-  font-weight: 600;
-}
 `
 
 const InputGroup = styled.div`
@@ -30,49 +24,49 @@ const InputGroup = styled.div`
   flex-direction: row;
   align-items: center;
   flex-wrap: wrap;
-  gap: 4px;
 `
 
 const ResetButton = styled.button`
-    margin: 0px 0px 0px 14px;
-    font-size: 12px;
-    font-weight: 600;
-    color: rgb(73, 73, 73);
-    opacity: 0.2;
-    cursor: pointer;
+  margin: 0px 0px 0px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgb(73, 73, 73);
+  opacity: 0.2;
+  cursor: pointer;
 `
 
 const AllFiltersButton = PrimaryButton
 
 const VariantButton = styled.button`
-    background-color: rgb(255, 255, 255);
-    overflow: visible;
-    border-style: solid;
-    border-width: 2px;
-    border-color: rgb(238, 245, 248);
-    border-radius: 8px;
-    padding: 0px 8px;
-    cursor: pointer;
-    align-self: center;
-    width: max-content;
-    height: 33px;
-    font-weight: 500;
+  background-color: rgb(255, 255, 255);
+  overflow: visible;
+  padding: 0px 8px;
+  cursor: pointer;
+  align-self: center;
+  width: max-content;
+  height: 33px;
+  font-weight: 500;
+  border-radius: 8px;
+
+  @media(hover: hover) {
+    &:hover {
+      color: rgb(0, 156, 26)
+    }
+  }
 `
 
 const PressedVariantButton = styled.button`
   color: rgba(0, 156, 26, 1);
   background-color: rgb(255, 255, 255);
-    overflow: visible;
-    border-style: solid;
-    border-width: 2px;
-    border-color: rgb(238, 245, 248);
-    border-radius: 8px;
-    padding: 0px 8px;
-    cursor: pointer;
-    align-self: center;
-    width: max-content;
-    height: 33px;
-    font-weight: 600;
+  overflow: visible;
+  border-color: rgb(238, 245, 248);
+  border-radius: 8px;
+  padding: 0px 8px;
+  cursor: pointer;
+  align-self: center;
+  width: max-content;
+  height: 33px;
+  font-weight: 500;
 `
 
 const Filter = ({ name, children }: { name: string, children: any }) =>
@@ -107,8 +101,11 @@ const useRangeInput = (): [State<Range>, React.ReactElement] => {
   const [[to, setTo], ToInput] = useInput<number>({ type: 'number', placeholder: "До", validator })
   const group =
     <InputGroup>
-      {FromInput}
-      {ToInput}
+      <div className="input-container input-container__number">
+        {FromInput}
+        -
+        {ToInput}
+      </div>
       <ResetButton onClick={() => {
         setFrom(undefined)
         setTo(undefined)
@@ -125,34 +122,36 @@ const useRangeInput = (): [State<Range>, React.ReactElement] => {
 const useVariantInput = <T extends string,>(variants: T[]): [State<T[]>, React.ReactElement] => {
   const [selected, setSelected] = useState<T[]>([])
   const group =
-    <InputGroup>
-      {
-        selected.length === 0
-          ? <PressedVariantButton>
-            Не важно
-          </PressedVariantButton>
-          : <VariantButton onClick={() => setSelected([])}>
-            Не важно
-          </VariantButton>
-      }
-      {
-        variants.map(x =>
-          selected.includes(x)
-            ? <PressedVariantButton
-              key={x}
-              onClick={() => setSelected(selected.filter(y => y !== x))}
-            >
-              {x}
+    <div className="input-container">
+      <InputGroup>
+        {
+          selected.length === 0
+            ? <PressedVariantButton>
+              Не важно
             </PressedVariantButton>
-            : <VariantButton
-              key={x}
-              onClick={() => setSelected([...selected, x])}
-            >
-              {x}
+            : <VariantButton onClick={() => setSelected([])}>
+              Не важно
             </VariantButton>
-        )
-      }
-    </InputGroup>
+        }
+        {
+          variants.map(x =>
+            selected.includes(x)
+              ? <PressedVariantButton
+                key={x}
+                onClick={() => setSelected(selected.filter(y => y !== x))}
+              >
+                {x}
+              </PressedVariantButton>
+              : <VariantButton
+                key={x}
+                onClick={() => setSelected([...selected, x])}
+              >
+                {x}
+              </VariantButton>
+          )
+        }
+      </InputGroup>
+    </div>
   return [[selected, setSelected], group]
 }
 
@@ -214,18 +213,18 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
           {/* <Filter name="Выбор страны">{CountryInput}</Filter> */}
           {/* <Filter name="Выбор города">{CityInput}</Filter> */}
           <Filter name="Тип">{TypesInput}</Filter>
-          {/* <Filter name="Кол-во комнат">{RoomsInput}</Filter> */}
-          <Filter name="Цена">{PriceInput}</Filter>
+          <Filter name="Кол-во комнат">{RoomsInput}</Filter>
+          <Filter name="Цена, $">{PriceInput}</Filter>
         </FiltersContainer>
       </div>
       {showAllFilters && <>
         <h2 className="filter__title filter__title-more">Дополнительные фильтры</h2>
-        <div className="filter__table">
+        <div className="filter__table filter__table-more">
           <FiltersContainer>
-            {/* <Filter name="Статус">{StatusInput}</Filter> */}
+            <Filter name="Статус">{StatusInput}</Filter>
             <Filter name="Этаж">{FloorInput}</Filter>
             <Filter name="Ремонт">{FrameInput}</Filter>
-            <Filter name="Площадь">{AreaInput}</Filter>
+            <Filter name="Площадь, м²">{AreaInput}</Filter>
           </FiltersContainer>
         </div>
       </>}

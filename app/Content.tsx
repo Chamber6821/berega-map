@@ -8,7 +8,7 @@ import Popup from "./Popup";
 import FiltersPopup from "./filters/FiltersPopup";
 import { useMap } from "./map/Map";
 import styled from "styled-components";
-import { ArrowBackCircleOutline, ArrowForwardCircleOutline, FilterOutline } from "react-ionicons";
+import { CaretBackOutline, CaretForwardOutline, FilterOutline } from "react-ionicons";
 import { LngLat } from "mapbox-gl";
 import HelpPopup from "./HelpPopup";
 import FiltersHeader from "./filters/FiltersHeader";
@@ -19,14 +19,16 @@ const ShowFiltersButton = styled.button`
   align-items: center;
   height: 40px;
   padding: 0 10px;
-  background: #fff;
-  border-radius: 8px;
+  background: rgb(0, 156, 26);
+  border-radius: 10px;
+  color: #fff;
   z-index: 2000;
   transition: background 0.2s;
+  font-weight: 500;
 
   @media(hover: hover){
   &:hover{
-      background: #f0f1f5;
+      background-color: rgb(171, 207, 177);
      }
   }
 `
@@ -69,13 +71,14 @@ export default function Content({ buildings }:
       flexDirection: 'column',
       position: 'relative',
     }}>
-      <div style={{
+      <div className="filter__wrapper" style={{
         display: 'flex',
         flexDirection: 'row',
       }}>
         <FiltersHeader />
         <ShowFiltersButton onClick={() => setShowFiltersPopup(!showFiltersPopup)}>
-          <FilterOutline />
+          <FilterOutline
+            color={'#00000'} />
           Фильтры
         </ShowFiltersButton>
       </div>
@@ -94,26 +97,30 @@ export default function Content({ buildings }:
         <div
           style={{ position: 'relative' }}
         >
-          <button
+          <button className="list__btn"
             style={{
               position: 'absolute',
               left: '0',
               top: '50%',
-              transform: 'translate(-100%, -50%)'
+              transform: 'translate(-100%, -50%)',
+              padding: '10px 5px',
+              background: 'rgb(0, 156, 26)',
+              borderTopLeftRadius: '10px',
+              borderBottomLeftRadius: '10px',
             }}
             onClick={() => setShowCards(!showCards)}
           >
             {
               showCards
-                ? <ArrowForwardCircleOutline
-                  color={'#00000030'}
-                  height="50px"
-                  width="50px"
+                ? <CaretForwardOutline
+                  color={'#ffffff'}
+                  height="30px"
+                  width="30px"
                 />
-                : <ArrowBackCircleOutline
-                  color={'#00000030'}
-                  height="50px"
-                  width="50px"
+                : <CaretBackOutline
+                  color={'#ffffff'}
+                  height="30px"
+                  width="30px"
                 />
             }
           </button>

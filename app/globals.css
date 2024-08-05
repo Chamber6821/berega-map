@@ -25,11 +25,61 @@ input[type="number"]::-webkit-outer-spin-button {
   padding: 20px 0 0 0;
 }
 
+.filter__wrapper {
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  font-weight: 500;
+}
+
+.filter__rooms {
+  border: 1px solid rgb(164, 170, 180);
+  padding: 5px;
+  border-radius: 8px;
+
+  div {
+    gap: 15px;
+  }
+
+  button {
+    border-radius: 10px;
+
+    @media(hover: hover) {
+      &:hover {
+        color: rgb(0, 156, 26)
+      }
+    }
+  }
+}
+
+.select-button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid rgb(164, 170, 180);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-weight: 500;
+}
+
+.select-popup {
+  button {
+    display: block;
+    width: 140px;
+    padding: 10px;
+    font-weight: 500;
+  }
+}
+
 p {
-  font-size: 14px;
+  font-size: 11px;
   font-weight: 400;
   color: rgba(97, 98, 123, 1);
   margin: 0px;
+}
+
+.card-body .price {
+  font-size: 10px;
 }
 
 .map {
@@ -48,6 +98,7 @@ p {
   top: 10px !important;
   right: 10px !important;
   border-radius: 8px;
+  font-weight: 600 !important;
 
   div:first-child {
     margin: 0 !important;
@@ -80,8 +131,8 @@ p {
 }
 
 .cards__wrapper {
-  overflow-y: scroll;
-  height: auto;
+  overflow-y: auto;
+  height: 100%;
 }
 
 .cards-container {
@@ -92,6 +143,10 @@ p {
   gap: 20px;
   min-width: 640px;
   padding: 10px 10px;
+}
+
+.cards-container>a {
+  height: 205px;
 }
 
 .cards__wrapper::-webkit-scrollbar {
@@ -159,10 +214,8 @@ p {
 }
 
 .filter__line {
-  display: block;
-}
-
-.filter__line {
+  display: flex;
+  align-items: center;
   margin: 10px 0 0 0;
 }
 
@@ -174,10 +227,37 @@ p {
   text-align: end;
 }
 
+.filter__table-more .input-container{
+  border: 2px solid #EEF5F8;
+}
+
+.input-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  border-radius: 8px;
+  background-color: #fff;
+  margin: 0 15px 0 0;
+  font-weight: 500;
+  input{
+    border: none; 
+  }
+}
+
+.input-container__number{
+  border: 1px solid rgb(164, 170, 180);
+}
+
+.filter__first .input-container__number{
+  border: none;
+}
+
 .popup__description {
-  max-height: 80px;
+  max-height: 66px;
   padding: 0 10px 0 0;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 .popup__description::-webkit-scrollbar {
@@ -249,7 +329,7 @@ p {
   border-radius: var(--border-radius);
   border-top-right-radius: 0;
   position: absolute;
-  top: calc(50% - 209px);
+  top: calc(50% - 250px);
   z-index: 3000;
 
   .popup {
@@ -292,6 +372,12 @@ p {
   }
 }
 
+@media(max-width: 1215px){
+  .filter__square{
+  display: none !important;
+  }
+}
+
 @media(max-width: 1150px) {
   .cards-container {
     min-width: 320px;
@@ -304,6 +390,12 @@ p {
 
   .filter__line h2 {
     width: 120px;
+  }
+}
+
+@media(max-width: 900px){
+  .filter__rooms{
+    display: none !important;
   }
 }
 
@@ -327,11 +419,6 @@ p {
     width: 100%;
   }
 
-  .filter__line {
-    display: flex;
-    align-items: flex-start;
-  }
-
   .filter__line h2 {
     width: 60px;
     font-size: 14px;
@@ -343,7 +430,7 @@ p {
   }
 
   .popup-container {
-    position: absolute;
+    position: fixed;
     width: 100%;
     top: unset;
     bottom: 0;
@@ -381,4 +468,24 @@ p {
 
 .button-pressed {
   background: #b0b0b0 !important;
+}
+
+@media(max-width: 685px){
+  .filter__price{
+    display: none !important;
+  }
+}
+
+@media(max-width: 400px){
+  .select-button{
+    font-size: 10px;
+  }
+  .select-popup{
+    font-size: 10px;
+    bottom: -10px;
+    button{
+      padding: 5px;
+      width: 100px;
+    }
+  }
 }

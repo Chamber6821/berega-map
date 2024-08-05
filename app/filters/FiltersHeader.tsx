@@ -3,11 +3,12 @@ import styled from "styled-components"
 
 const Filter = styled.div`
   position: relative;
-  z-index: 9999;
 `
 
 const Filters = styled.div`
   display: flex;
+  align-items: center;
+  justify-content: space-between;
   flex-direction: row;
   gap: 10px;
 `
@@ -16,59 +17,61 @@ const SelectButton = styled.button``
 
 const SelectBody = styled.div`
   position: absolute;
-  bottom: 0;
+  z-index: 2900;
+  bottom: -5px;
   transform: translateY(100%);
   background: white;
-  padding: 10px;
-  border-radius: 16px;
-  border: 1px solid black; /* временно, что бы визуально отличать блоки */ 
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid rgb(164, 170, 180); 
 `
 
 const Options = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
+  padding: 10px 0 0;
 `
 
-const Option = styled.div``
+const Option = styled.div`
+@media(hover: hover){
+  &:hover{
+    color: rgb(0, 156, 26);
+    cursor: pointer;
+  }
+}`
 
 const SelectedOption = styled.div`
   color: #009C1A;
+  cursor: pointer;
 `
 
 const ButtonGroup = styled.div`
   display: flex;
-  flex-direction: row;
   gap: 0;
-  border-radius: 16px;
+  border-radius: 10px;
   overflow: hidden;
 `
 
 const Button = styled.button``
 
 const PressedButton = styled.button`
-  color: white;
-  background: #505050;
+  color: white !important;
+  background: rgb(0, 156, 26);
+  padding: 0 5px;
 `
 
 const Input = styled.input`
-  border: 2px solid #EEF5F8;
   border-radius: 8px;
   padding: 10px;
-  max-height: 33px;
-  max-width: 110px;
+  max-height: 22px;
+  max-width: 130px;
   outline: none;
-
-  &:focus {
-    border: 2px solid #009C1A;
-    box-shadow: 0px 5px 10px 2px rgba(0, 156, 26, 0.2);
-  }
 
   &::placeholder {
     color: #666666;
     opacity: 0.7;
-    font-size: 12px;
-    font-weight: 600;
+    font-weight: 500;
   }
 `
 
@@ -78,6 +81,9 @@ const InputGroup = styled.div`
   align-items: center;
   flex-wrap: wrap;
   gap: 4px;
+  border-radius: 8px;
+  padding: 5px;
+  border: 1px solid rgb(164, 170, 180);
 `
 
 const ResetButton = styled.button`
@@ -90,7 +96,7 @@ const ResetButton = styled.button`
 `
 export default function FiltersHeader() {
   return <Filters>
-    <Filter>
+    {/* <Filter>
       <SelectButton>
         Фильтр 1
         <ChevronDownOutline />
@@ -104,13 +110,15 @@ export default function FiltersHeader() {
           <Option>Вариант 1</Option>
         </Options>
       </SelectBody>
-    </Filter>
+    </Filter> */}
     <Filter>
-      <SelectButton>
-        Фильтр 2
-        <ChevronUpOutline />
+      <SelectButton className="select-button">
+        Тип недвижимости
+        <ChevronUpOutline
+          height="15px"
+          width="15px" />
       </SelectButton>
-      <SelectBody>
+      <SelectBody className="select-popup">
         <ButtonGroup>
           <PressedButton>Жилая</PressedButton>
           <Button>Коммерческая</Button>
@@ -125,25 +133,30 @@ export default function FiltersHeader() {
       </SelectBody>
     </Filter>
     <Filter>
-      <InputGroup>
+      <InputGroup className="filter__price">
         <Input placeholder="Цена от" />
+        -
         <Input placeholder="до" />
+        $
         {/* <ResetButton>Сбросить</ResetButton> */} {/* В принципе можно без кнопки сброса */}
       </InputGroup>
     </Filter>
-    <Filter>
+    <Filter className="filter__rooms">
       <ButtonGroup>
         <PressedButton>Студия</PressedButton>
         <Button>1</Button>
         <Button>2</Button>
         <Button>3</Button>
-        <Button>4+</Button>
+        <Button>4</Button>
+        <Button>5+</Button>
       </ButtonGroup>
     </Filter>
     <Filter>
-      <InputGroup>
+      <InputGroup className="filter__square">
         <Input placeholder="Площадь от" />
+        -
         <Input placeholder="до" />
+        м²
         {/* <ResetButton>Сбросить</ResetButton> */} {/* В принципе можно без кнопки сброса */}
       </InputGroup>
     </Filter>
