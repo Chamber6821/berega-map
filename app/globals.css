@@ -9,22 +9,22 @@ body {
   overflow: hidden;
 }
 
-body::before{
-  content: "map berega.team";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 9999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #fff;
-  font-size: 2rem;
-  color: rgb(0, 156, 26);
-  font-weight: 600;
-}
+/* body::before{ */
+/*   content: "map berega.team"; */
+/*   position: absolute; */
+/*   top: 0; */
+/*   left: 0; */
+/*   right: 0; */
+/*   bottom: 0; */
+/*   z-index: 9999; */
+/*   display: flex; */
+/*   justify-content: center; */
+/*   align-items: center; */
+/*   background: #fff; */
+/*   font-size: 2rem; */
+/*   color: rgb(0, 156, 26); */
+/*   font-weight: 600; */
+/* } */
 
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
@@ -70,7 +70,7 @@ input[type="number"]::-webkit-outer-spin-button {
   }
 }
 
-.helpPopup__table td:first-child{
+.helpPopup__table td:first-child {
   float: inline-start;
 }
 
@@ -249,7 +249,7 @@ p {
   text-align: end;
 }
 
-.filter__table-more .input-container{
+.filter__table-more .input-container {
   border: 2px solid #EEF5F8;
 }
 
@@ -263,17 +263,18 @@ p {
   background-color: #fff;
   margin: 0 15px 0 0;
   font-weight: 500;
-  input{
-    border: none; 
+
+  input {
+    border: none;
   }
 }
 
-.input-container__number{
+.input-container__number {
   border: 1px solid rgb(164, 170, 180);
   flex-wrap: nowrap;
 }
 
-.filter__first .input-container__number{
+.filter__first .input-container__number {
   border: none;
 }
 
@@ -395,9 +396,9 @@ p {
   }
 }
 
-@media(max-width: 1215px){
-  .filter__square{
-  display: none !important;
+@media(max-width: 1215px) {
+  .filter__square {
+    display: none !important;
   }
 }
 
@@ -416,8 +417,8 @@ p {
   }
 }
 
-@media(max-width: 900px){
-  .filter__rooms{
+@media(max-width: 900px) {
+  .filter__rooms {
     display: none !important;
   }
 }
@@ -493,39 +494,46 @@ p {
   background: #b0b0b0 !important;
 }
 
-@media(max-width: 685px){
-  .filter__price{
+@media(max-width: 685px) {
+  .filter__price {
     display: none !important;
   }
-  .filter__line{
+
+  .filter__line {
     align-items: flex-start;
   }
 }
 
-@media(max-width: 400px){
-  .select-button{
+@media(max-width: 400px) {
+  .select-button {
     font-size: 10px;
   }
-  .select-popup{
+
+  .select-popup {
     font-size: 10px;
     bottom: -10px;
-    button{
+
+    button {
       padding: 5px;
       width: 100px;
     }
   }
-  .input-container__number input{
+
+  .input-container__number input {
     max-width: 70px;
     max-height: 25px;
   }
-  .filter__line h2{
+
+  .filter__line h2 {
     width: 40px;
     font-size: 10px;
   }
-  .input-container__number input::placeholder{
+
+  .input-container__number input::placeholder {
     font-size: 10px;
   }
-  .filter__table{
+
+  .filter__table {
     font-size: 10px;
   }
 }
