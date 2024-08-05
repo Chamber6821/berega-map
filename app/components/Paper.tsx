@@ -6,6 +6,7 @@ const Paper = styled.div`
   padding: 20px;
   background-color: white;
   position: relative;
+  z-index: 9999;
   border-radius: 12px;
   border-top-right-radius: 0;
 
