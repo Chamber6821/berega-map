@@ -1,3 +1,4 @@
+import { useWindowWidth } from "@react-hook/window-size"
 import { ChevronUpOutline } from "react-ionicons"
 import styled from "styled-components"
 
@@ -13,7 +14,21 @@ const Filters = styled.div`
   gap: 10px;
 `
 
-const SelectButton = styled.button``
+const SelectButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid rgb(164, 170, 180);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-weight: 500;
+
+  @media(max-width: 400px) {
+    & {
+      font-size: 10px;
+    }
+  }
+`
 
 const SelectBody = styled.div`
   position: absolute;
@@ -24,6 +39,25 @@ const SelectBody = styled.div`
   padding: 15px;
   border-radius: 8px;
   border: 1px solid rgb(164, 170, 180); 
+
+  & button {
+    display: block;
+    width: 140px;
+    padding: 10px;
+    font-weight: 500;
+  }
+
+  @media(max-width: 400px) {
+    & {
+      font-size: 10px;
+      bottom: -10px;
+
+      button {
+        padding: 5px;
+        width: 100px;
+      }
+    }
+  }
 `
 
 const Options = styled.div`
@@ -87,15 +121,16 @@ const InputGroup = styled.div`
 `
 
 export default function FiltersHeader() {
+  const width = useWindowWidth()
   return <Filters>
     <Filter>
-      <SelectButton className="select-button">
+      <SelectButton>
         Тип недвижимости
         <ChevronUpOutline
           height="15px"
           width="15px" />
       </SelectButton>
-      <SelectBody className="select-popup">
+      <SelectBody>
         <ButtonGroup>
           <PressedButton>Жилая</PressedButton>
           <Button>Коммерческая</Button>
@@ -109,31 +144,37 @@ export default function FiltersHeader() {
         </Options>
       </SelectBody>
     </Filter>
-    <Filter>
-      <InputGroup className="filter__price">
-        <Input placeholder="Цена от" />
-        -
-        <Input placeholder="до" />
-        $
-      </InputGroup>
-    </Filter>
-    <Filter className="filter__rooms">
-      <ButtonGroup>
-        <PressedButton>Студия</PressedButton>
-        <Button>1</Button>
-        <Button>2</Button>
-        <Button>3</Button>
-        <Button>4</Button>
-        <Button>5+</Button>
-      </ButtonGroup>
-    </Filter>
-    <Filter>
-      <InputGroup className="filter__square">
-        <Input placeholder="Площадь от" />
-        -
-        <Input placeholder="до" />
-        м²
-      </InputGroup>
-    </Filter>
+    {width > 685 &&
+      <Filter>
+        <InputGroup>
+          <Input placeholder="Цена от" />
+          -
+          <Input placeholder="до" />
+          $
+        </InputGroup>
+      </Filter>
+    }
+    {width > 900 &&
+      <Filter>
+        <ButtonGroup>
+          <PressedButton>Студия</PressedButton>
+          <Button>1</Button>
+          <Button>2</Button>
+          <Button>3</Button>
+          <Button>4</Button>
+          <Button>5+</Button>
+        </ButtonGroup>
+      </Filter>
+    }
+    {width > 1215 &&
+      <Filter>
+        <InputGroup>
+          <Input placeholder="Площадь от" />
+          -
+          <Input placeholder="до" />
+          м²
+        </InputGroup>
+      </Filter>
+    }
   </Filters>
 }

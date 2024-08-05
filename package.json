@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@maptiler/sdk": "^2.2.1",
+    "@react-hook/window-size": "^3.1.1",
     "mapbox-gl": "^3.5.2",
     "next": "14.2.5",
     "react": "^18",

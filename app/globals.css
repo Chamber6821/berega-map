@@ -74,25 +74,6 @@ input[type="number"]::-webkit-outer-spin-button {
   float: inline-start;
 }
 
-.select-button {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  border: 1px solid rgb(164, 170, 180);
-  border-radius: 8px;
-  padding: 5px 10px;
-  font-weight: 500;
-}
-
-.select-popup {
-  button {
-    display: block;
-    width: 140px;
-    padding: 10px;
-    font-weight: 500;
-  }
-}
-
 p {
   font-size: 11px;
   font-weight: 400;
@@ -396,12 +377,6 @@ p {
   }
 }
 
-@media(max-width: 1215px) {
-  .filter__square {
-    display: none !important;
-  }
-}
-
 @media(max-width: 1150px) {
   .cards-container {
     min-width: 320px;
@@ -414,12 +389,6 @@ p {
 
   .filter__line h2 {
     width: 120px;
-  }
-}
-
-@media(max-width: 900px) {
-  .filter__rooms {
-    display: none !important;
   }
 }
 
@@ -505,20 +474,6 @@ p {
 }
 
 @media(max-width: 400px) {
-  .select-button {
-    font-size: 10px;
-  }
-
-  .select-popup {
-    font-size: 10px;
-    bottom: -10px;
-
-    button {
-      padding: 5px;
-      width: 100px;
-    }
-  }
-
   .input-container__number input {
     max-width: 70px;
     max-height: 25px;
