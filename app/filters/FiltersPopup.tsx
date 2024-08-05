@@ -1,7 +1,8 @@
 import styled from "styled-components";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PrimaryButton from "../components/PrimaryButton";
 import Modal from "../components/Modal";
+import { FilterFrames, FilterRooms, FilterStatuses, FilterTypes, Range, useFilters } from "./useFilters";
 
 const Input = styled.input`
   border: 2px solid #EEF5F8;
@@ -82,9 +83,11 @@ const Filter = ({ name, children }: { name: string, children: any }) =>
     <td>{children}</td>
   </tr>
 
+type State<T> = [T, (value: T) => void]
+
 const useInput = <T,>({ type, placeholder = '', validator = x => x as T }:
   { type: React.HTMLInputTypeAttribute, placeholder?: string, validator?: (value: string) => T | undefined }):
-  [T | undefined, (x: T | undefined) => void, React.ReactElement] => {
+  [State<T | undefined>, React.ReactElement] => {
   const [value, setValue] = useState<T>()
   const input =
     <Input
@@ -93,15 +96,15 @@ const useInput = <T,>({ type, placeholder = '', validator = x => x as T }:
       value={`${value}`}
       onChange={e => setValue(validator(e.target.value))}
     />
-  return [value, setValue, input]
+  return [[value, setValue], input]
 }
 
 const FiltersContainer = ({ children }: { children: any }) => <table><tbody>{children}</tbody></table>
 
-const useRangeInput = (): [number | undefined, number | undefined, React.ReactElement] => {
+const useRangeInput = (): [State<Range>, React.ReactElement] => {
   const validator = (x: string) => x === "" ? undefined : Math.max(0, +x)
-  const [from, setFrom, FromInput] = useInput<number>({ type: 'number', placeholder: "От", validator })
-  const [to, setTo, ToInput] = useInput<number>({ type: 'number', placeholder: "До", validator })
+  const [[from, setFrom], FromInput] = useInput<number>({ type: 'number', placeholder: "От", validator })
+  const [[to, setTo], ToInput] = useInput<number>({ type: 'number', placeholder: "До", validator })
   const group =
     <InputGroup>
       {FromInput}
@@ -113,10 +116,13 @@ const useRangeInput = (): [number | undefined, number | undefined, React.ReactEl
         Сбросить
       </ResetButton>
     </InputGroup>
-  return [from, to, group]
+  return [[[from, to], ([from, to]) => {
+    setFrom(from)
+    setTo(to)
+  }], group]
 }
 
-const useVariantInput = <T extends string,>(variants: T[]): [T[], React.ReactElement] => {
+const useVariantInput = <T extends string,>(variants: T[]): [State<T[]>, React.ReactElement] => {
   const [selected, setSelected] = useState<T[]>([])
   const group =
     <InputGroup>
@@ -147,11 +153,11 @@ const useVariantInput = <T extends string,>(variants: T[]): [T[], React.ReactEle
         )
       }
     </InputGroup>
-  return [selected, group]
+  return [[selected, setSelected], group]
 }
 
-const useInputText = (): [string, React.ReactElement] => {
-  const [text, setText, input] = useInput<string>({ type: 'text' })
+const useInputText = (): [State<string>, React.ReactElement] => {
+  const [[text, setText], input] = useInput<string>({ type: 'text' })
   if (text === undefined) setText('')
   const group =
     <InputGroup>
@@ -160,55 +166,48 @@ const useInputText = (): [string, React.ReactElement] => {
         Сбросить
       </ResetButton>
     </InputGroup>
-  return [text || '', group]
+  return [[text || '', setText], group]
 }
 
-export type Filters = {
-  types?: string[],
-  rooms?: string[],
-  status?: string[],
-  frame?: string[],
-  country?: string,
-  city?: string,
-  priceFrom?: number,
-  priceTo?: number,
-  floorFrom?: number,
-  floorTo?: number,
-  areaFrom?: number,
-  areaTo?: number,
-}
-
-const listOrDefault = <T, P>(elements: T[], or: P): T[] | P =>
-  elements.length === 0
-    ? or
-    : elements
-
-export default function FiltersPopup({ visible, onClose }: { visible: boolean, onClose?: (filters: Filters) => void }) {
-  const [types, TypesInput] = useVariantInput(['Квартира', 'Дом', 'Земельный участок', 'Коммерческая недвижимость', 'Жилой дом', 'Апарт-отель', 'Таунхаус', 'Коттедж'])
-  const [rooms, RoomsInput] = useVariantInput(['Студия', '1', '2', '3', '4', '5+'])
-  const [priceFrom, priceTo, PriceInput] = useRangeInput()
-  const [country, CountryInput] = useInputText()
-  const [city, CityInput] = useInputText()
-  const [status, StatusInput] = useVariantInput(['Новостройка', 'Вторичное жилье', 'Переуступка'])
-  const [floorFrom, floorTo, FloorInput] = useRangeInput()
-  const [frame, FrameInput] = useVariantInput(['Черный каркас', 'Белый каркас', 'С ремонтом', 'Под ключ'])
-  const [areaFrom, areaTo, AreaInput] = useRangeInput()
+export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => void }) {
+  const [[country, setCountry], CountryInput] = useInputText()
+  const [[city, setCity], CityInput] = useInputText()
+  const [[types, setTypes], TypesInput] = useVariantInput([...FilterTypes])
+  const [[rooms, setRooms], RoomsInput] = useVariantInput([...FilterRooms])
+  const [[status, setStatus], StatusInput] = useVariantInput([...FilterStatuses])
+  const [[frame, setFrame], FrameInput] = useVariantInput([...FilterFrames])
+  const [[priceRange, setPrice], PriceInput] = useRangeInput()
+  const [[floorRange, setFloor], FloorInput] = useRangeInput()
+  const [[areaRange, setArea], AreaInput] = useRangeInput()
   const [showAllFilters, setShowAllFilters] = useState(false)
+  const filters = useFilters()
   const handleClose = () => {
     setShowAllFilters(false)
-    onClose && onClose({
-      types: listOrDefault(types, undefined),
-      rooms: listOrDefault(rooms, undefined),
-      status: listOrDefault(status, undefined),
-      frame: listOrDefault(frame, undefined),
+    filters.set({
       country, city,
-      priceFrom, priceTo,
-      floorFrom, floorTo,
-      areaFrom, areaTo,
+      types,
+      rooms,
+      status,
+      frame,
+      priceRange,
+      floorRange,
+      areaRange,
     })
+    onClose()
   }
+  useEffect(() => {
+    setCountry(filters.country || '')
+    setCity(filters.city || '')
+    setTypes(filters.types)
+    setRooms(filters.rooms)
+    setStatus(filters.status)
+    setFrame(filters.frame)
+    setPrice(filters.priceRange)
+    setFloor(filters.floorRange)
+    setArea(filters.areaRange)
+  }, [filters])
   return (
-    <Modal style={visible ? {} : { display: 'none' }} onClose={handleClose}>
+    <Modal onClose={handleClose}>
       <h1 className="filter__title">Фильтры</h1>
       <div className="filter__table filter__first">
         <FiltersContainer>

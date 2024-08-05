@@ -5,13 +5,14 @@ import { Building } from "./api/berega";
 import Cards from "./Cards";
 import { Map } from "./map";
 import Popup from "./Popup";
-import FiltersPopup, { Filters } from "./filters/FiltersPopup";
+import FiltersPopup from "./filters/FiltersPopup";
 import { useMap } from "./map/Map";
 import styled from "styled-components";
 import { ArrowBackCircleOutline, ArrowForwardCircleOutline, FilterOutline } from "react-ionicons";
 import { LngLat } from "mapbox-gl";
 import HelpPopup from "./HelpPopup";
 import FiltersHeader from "./filters/FiltersHeader";
+import { Range, useFilters } from "./filters/useFilters";
 
 const ShowFiltersButton = styled.button`
   display: flex;
@@ -35,15 +36,15 @@ export default function Content({ buildings }:
   const [showFiltersPopup, setShowFiltersPopup] = useState(false)
   const [showHelpPopup, setShowHelpPopup] = useState(false)
   const [showCards, setShowCards] = useState(false)
-  const [filters, setFilters] = useState<Filters>({})
   const popupBuilding = useMap(x => x.selectedBuilding)
   const setPopupBuilding = useMap(x => x.setSelectedBuilding)
   const bounds = useMap(x => x.bounds)
   const selectedArea = useMap(x => x.selectedArea)
-  const matchByVariants = (variants: string[] | undefined, value: string) => !variants || variants.includes(value)
-  const matchByRange = (min: number | undefined, max: number | undefined, value: number) =>
-    (min === undefined || min <= value)
-    && (max === undefined || value <= max)
+  const filters = useFilters()
+  const matchByVariants = (variants: string[], value: string) => variants.length === 0 || variants.includes(value)
+  const matchByRange = (range: Range, value: number) =>
+    (range[0] === undefined || range[0] <= value)
+    && (range[1] === undefined || value <= range[1])
   const match = (x: Building) =>
     matchByVariants(filters.types, x.type)
     // && matchByVariants(filters.rooms, x.rooms)
@@ -51,9 +52,9 @@ export default function Content({ buildings }:
     && matchByVariants(filters.frame, x.frame)
     // && filters.country === x.country
     // && filters.city === x.city
-    && matchByRange(filters.priceFrom, filters.priceTo, x.price)
-    && matchByRange(filters.floorFrom, filters.floorTo, x.floor)
-    && matchByRange(filters.areaFrom, filters.areaTo, x.area)
+    && matchByRange(filters.priceRange, x.price)
+    && matchByRange(filters.floorRange, x.floor)
+    && matchByRange(filters.areaRange, x.area)
   const matchedBuildings = buildings.filter(match)
 
   useEffect(() => {
@@ -126,12 +127,7 @@ export default function Content({ buildings }:
           </div>}
         </div>
       </div>
-      <FiltersPopup
-        visible={showFiltersPopup}
-        onClose={x => {
-          setShowFiltersPopup(false)
-          setFilters(x)
-        }} />
+      {showFiltersPopup && <FiltersPopup onClose={() => setShowFiltersPopup(false)} />}
       {popupBuilding && <Popup building={popupBuilding} onClose={() => setPopupBuilding(undefined)} />}
       {showHelpPopup && <HelpPopup onClose={() => setShowHelpPopup(false)} />}
     </div>
