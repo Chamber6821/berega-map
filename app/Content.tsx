@@ -12,7 +12,7 @@ import { CaretBackOutline, CaretForwardOutline, FilterOutline } from "react-ioni
 import { LngLat } from "mapbox-gl";
 import HelpPopup from "./HelpPopup";
 import FiltersHeader from "./filters/FiltersHeader";
-import { Range, useFilters } from "./filters/useFilters";
+import { filterOf, useFilters } from "./filters/useFilters";
 
 const ShowFiltersButton = styled.button`
   display: flex;
@@ -43,21 +43,7 @@ export default function Content({ buildings }:
   const bounds = useMap(x => x.bounds)
   const selectedArea = useMap(x => x.selectedArea)
   const filters = useFilters()
-  const matchByVariants = (variants: string[], value: string) => variants.length === 0 || variants.includes(value)
-  const matchByRange = (range: Range, value: number) =>
-    (range[0] === undefined || range[0] <= value)
-    && (range[1] === undefined || value <= range[1])
-  const match = (x: Building) =>
-    matchByVariants(filters.types, x.type)
-    // && matchByVariants(filters.rooms, x.rooms)
-    // && matchByVariants(filters.status, x.status)
-    && matchByVariants(filters.frame, x.frame)
-    // && filters.country === x.country
-    // && filters.city === x.city
-    && matchByRange(filters.priceRange, x.price)
-    && matchByRange(filters.floorRange, x.floor)
-    && matchByRange(filters.areaRange, x.area)
-  const matchedBuildings = buildings.filter(match)
+  const matchedBuildings = buildings.filter(filterOf(filters))
 
   useEffect(() => {
     setShowCards(!!selectedArea)
@@ -97,7 +83,7 @@ export default function Content({ buildings }:
         <div
           style={{ position: 'relative' }}
         >
-        <button className="list__btn"
+          <button className="list__btn"
             style={{
               position: 'absolute',
               left: '0',
