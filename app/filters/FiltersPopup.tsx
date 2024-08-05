@@ -32,6 +32,11 @@ const ResetButton = styled.button`
     color: rgb(73, 73, 73);
     opacity: 0.2;
     cursor: pointer;
+    @media(max-width: 400px){
+    &{
+    font-size: 10px
+    }
+    }
 `
 
 const AllFiltersButton = PrimaryButton

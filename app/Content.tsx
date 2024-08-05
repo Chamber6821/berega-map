@@ -96,7 +96,7 @@ export default function Content({ buildings }:
         <div
           style={{ position: 'relative' }}
         >
-          <button className="list__btn"
+        <button className="list__btn"
             style={{
               position: 'absolute',
               left: '0',
