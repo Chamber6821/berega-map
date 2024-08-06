@@ -89,3 +89,12 @@ export const isRawResidentionalComplex = (x: object): x is RawResidentionalCompl
   && isArrayProperty(x, 'pictures') && x.pictures.every(x => typeof x === 'string')
   && isStringProperty(x, 'Created Date')
 
+export const isApartment = (x: object): x is RawApartment =>
+  isNumberProperty(x, 'floor')
+  && isNumberProperty(x, 'frame')
+  && isNumberProperty(x, 'price_per_meter')
+  && isNumberProperty(x, 'price_total')
+  && isStringProperty(x, 'rooms_qty')
+  && isStringProperty(x, 'status')
+  && isNumberProperty(x, 'total_area')
+
