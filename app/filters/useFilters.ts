@@ -34,8 +34,8 @@ const matchByRange = (range: Range, value: number) =>
 
 export const filterOf = (filters: Filters) => (building: Building) =>
   matchByVariants(filters.types, building.type)
-  // && matchByVariants(filters.rooms, x.rooms)
-  // && matchByVariants(filters.status, x.status)
+  && matchByVariants(filters.rooms, building.rooms)
+  && (building.status === undefined || matchByVariants(filters.status, building.status))
   && matchByVariants(filters.frame, building.frame)
   // && filters.country === x.country
   // && filters.city === x.city
