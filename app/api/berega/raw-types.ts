@@ -1,4 +1,4 @@
-export const SecondHomeRoomVariants = ['Studio', '1+1', '2+1', '3+1', '4+1', '5+'] as const
+export const RoomVariants = ['Studio', '1+1', '2+1', '3+1', '4+1', '5+'] as const
 export const SecondHomeStatusVariants = ['Новостройки', 'Вторичное жилье'] as const
 export const SecondHomeTypeVariants = ['Дом', 'Квартира', 'Земельный участок', 'Коммерческая недвижимость'] as const
 
@@ -15,8 +15,7 @@ export type RawSecondHome = {
   name: string,
   pictures: string[],
   price: number,
-  price_per_meter: number,
-  rooms: typeof SecondHomeRoomVariants[number],
+  rooms: typeof RoomVariants[number],
   'status (OS)': typeof SecondHomeStatusVariants[number],
   total_area: number,
   Type: typeof SecondHomeTypeVariants[number],
@@ -39,11 +38,9 @@ export type RawResidentionalComplex = {
 
 export type RawApartment = {
   floor: number,
-  frame: string,
-  price_per_meter: number,
+  frame: 'Под ключ',
   price_total: number,
-  rooms_qty: string,
-  status: string,
+  rooms_qty: typeof RoomVariants[number],
   total_area: number,
 }
 
@@ -73,8 +70,7 @@ export const isRawSecondHome = (x: object): x is RawSecondHome =>
   && isStringProperty(x, 'name')
   && isArrayProperty(x, 'pictures') && x.pictures.every(x => typeof x === 'string')
   && isNumberProperty(x, 'price')
-  && isNumberProperty(x, 'price_per_meter')
-  && isStringProperty(x, 'rooms') && SecondHomeRoomVariants.includes(x.rooms as any)
+  && isStringProperty(x, 'rooms') && RoomVariants.includes(x.rooms as any)
   && isStringProperty(x, 'status (OS)') && SecondHomeStatusVariants.includes(x['status (OS)'] as any)
   && isNumberProperty(x, 'total_area')
   && isStringProperty(x, 'Type') && SecondHomeTypeVariants.includes(x.Type as any)
@@ -91,10 +87,8 @@ export const isRawResidentionalComplex = (x: object): x is RawResidentionalCompl
 
 export const isApartment = (x: object): x is RawApartment =>
   isNumberProperty(x, 'floor')
-  && isNumberProperty(x, 'frame')
-  && isNumberProperty(x, 'price_per_meter')
+  && isStringProperty(x, 'frame') && x.frame === 'Под ключ'
   && isNumberProperty(x, 'price_total')
-  && isStringProperty(x, 'rooms_qty')
-  && isStringProperty(x, 'status')
+  && isStringProperty(x, 'rooms_qty') && RoomVariants.includes(x.rooms_qty as any)
   && isNumberProperty(x, 'total_area')
 
