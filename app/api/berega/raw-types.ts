@@ -32,3 +32,13 @@ export type RawResidentionalComplex = {
   pictures: string[],
   'Created Date': string,
 }
+
+export type RawApartment = {
+  floor: number,
+  frame: string,
+  price_per_meter: number,
+  price_total: number,
+  rooms_qty: string,
+  status: string,
+  total_area: number,
+}
