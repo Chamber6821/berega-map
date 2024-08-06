@@ -1,6 +1,8 @@
 import { useWindowWidth } from "@react-hook/window-size"
-import { ChevronUpOutline } from "react-ionicons"
+import { useEffect, useState } from "react"
+import { ChevronDownOutline, ChevronUpOutline } from "react-ionicons"
 import styled from "styled-components"
+import { FilterRooms, Range, useFilters } from "./useFilters"
 
 const Filter = styled.div`
   position: relative;
@@ -95,12 +97,47 @@ const PressedButton = styled.button`
   padding: 0 5px;
 `
 
+const VariantGroup = styled.div`
+  display: flex;
+  gap: 4px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgb(164, 170, 180);
+  padding: 5px;
+  border-radius: 8px;
+`
+
+const Variant = styled.button`
+  border-radius: 10px;
+  padding: 0 5px;
+
+  @media(hover: hover) {
+    &:hover {
+      color: rgb(0, 156, 26)
+    }
+  }
+`
+
+const PressedVariant = styled.button`
+  color: white !important;
+  background: rgb(0, 156, 26);
+  padding: 0 5px;
+  border-radius: 10px;
+
+  @media(hover: hover) {
+    &:hover {
+      color: rgb(0, 156, 26)
+    }
+  }
+`
+
 const Input = styled.input`
   border-radius: 8px;
   padding: 10px;
   max-height: 22px;
   max-width: 130px;
   outline: none;
+  appearance: textfield;
 
   &::placeholder {
     color: #666666;
@@ -120,61 +157,134 @@ const InputGroup = styled.div`
   border: 1px solid rgb(164, 170, 180);
 `
 
-export default function FiltersHeader() {
-  const width = useWindowWidth()
-  return <Filters>
-    <Filter>
-      <SelectButton>
-        Тип недвижимости
-        <ChevronUpOutline
-          height="15px"
-          width="15px" />
-      </SelectButton>
+type State<T> = [T, (value: T) => void]
+
+const useInput = <T,>({ type, placeholder = '', validator = x => x as T }:
+  { type: React.HTMLInputTypeAttribute, placeholder?: string, validator?: (value: string) => T | undefined }):
+  [State<T | undefined>, React.ReactElement] => {
+  const [value, setValue] = useState<T>()
+  const input =
+    <Input
+      type={type}
+      placeholder={placeholder}
+      value={`${value}`}
+      onChange={e => setValue(validator(e.target.value))}
+    />
+  return [[value, setValue], input]
+}
+
+const useRangeInput = (prefix: string, postfix: string): [State<Range>, React.ReactElement] => {
+  const validator = (x: string) => x === "" ? undefined : Math.max(0, +x)
+  const [[from, setFrom], FromInput] = useInput<number>({ type: 'number', placeholder: `${prefix} от`, validator })
+  const [[to, setTo], ToInput] = useInput<number>({ type: 'number', placeholder: "до", validator })
+  const group =
+    <InputGroup>
+      {FromInput}
+      -
+      {ToInput}
+      {postfix}
+    </InputGroup>
+  return [[[from, to], ([from, to]) => {
+    setFrom(from)
+    setTo(to)
+  }], group]
+}
+
+const useVariantInput = <T extends string,>(variants: T[]): [State<T[]>, React.ReactElement] => {
+  const [selected, setSelected] = useState<T[]>([])
+  const group =
+    <VariantGroup>
+      {
+        variants.map(x =>
+          selected.includes(x)
+            ? <PressedVariant
+              key={x}
+              onClick={() => setSelected(selected.filter(y => y !== x))}
+            >
+              {x}
+            </PressedVariant>
+            : <Variant
+              key={x}
+              onClick={() => setSelected([...selected, x])}
+            >
+              {x}
+            </Variant>
+        )
+      }
+    </VariantGroup>
+  return [[selected, setSelected], group]
+}
+
+const useTabOptions = <T,>(label: string, tabs: { name: string, variants: T[] }[]): [State<T[]>, React.ReactElement] => {
+  const [opened, setOpened] = useState(false)
+  const [variants, setVariants] = useState<T[]>([])
+  const [tab, setTab] = useState(tabs[0].name)
+  return [[variants, setVariants], <>
+    <SelectButton onClick={() => setOpened(!opened)}>
+      {label}
+      {
+        opened
+          ? <ChevronUpOutline height="15px" width="15px" />
+          : <ChevronDownOutline height="15px" width="15px" />
+      }
+    </SelectButton>
+    {opened &&
       <SelectBody>
         <ButtonGroup>
-          <PressedButton>Жилая</PressedButton>
-          <Button>Коммерческая</Button>
+          {
+            tabs.map(x => x.name).map(x =>
+              x === tab
+                ? <PressedButton key={x}>{x}</PressedButton>
+                : <Button onClick={() => setTab(x)} key={x}>{x}</Button>
+            )
+          }
         </ButtonGroup>
         <Options>
-          <Option>Вариант 1</Option>
-          <Option>Вариант 2</Option>
-          <SelectedOption>Правильный вриант</SelectedOption>
-          <Option>Вариант 5</Option>
-          <Option>Вариант 1</Option>
+          {
+            tabs.filter(x => x.name === tab).flatMap(x => x.variants).map(x =>
+              variants.includes(x)
+                ? <SelectedOption onClick={() => setVariants(variants.filter(y => y !== x))} key={`${x}`}>{`${x}`}</SelectedOption>
+                : <Option onClick={() => setVariants([...variants, x])} key={`${x}`}>{`${x}`}</Option>
+            )
+          }
         </Options>
-      </SelectBody>
-    </Filter>
-    {width > 685 &&
-      <Filter>
-        <InputGroup>
-          <Input placeholder="Цена от" />
-          -
-          <Input placeholder="до" />
-          $
-        </InputGroup>
-      </Filter>
+      </SelectBody >
     }
-    {width > 900 &&
-      <Filter>
-        <ButtonGroup>
-          <PressedButton>Студия</PressedButton>
-          <Button>1</Button>
-          <Button>2</Button>
-          <Button>3</Button>
-          <Button>4</Button>
-          <Button>5+</Button>
-        </ButtonGroup>
-      </Filter>
+  </>]
+}
+
+export default function FiltersHeader() {
+  const width = useWindowWidth()
+  const filters = useFilters()
+  const [[price, setPrice], PriceInput] = useRangeInput('Цена', '$')
+  const [[area, setArea], AreaInput] = useRangeInput('Площадь', 'м²')
+  const [[rooms, setRooms], RoomsInput] = useVariantInput([...FilterRooms])
+  const [[types, setTypes], TypesInput] = useTabOptions('Тип недвижимости', [
+    {
+      name: 'Жилая',
+      variants: ['Новостройки', 'Вторичное жилье', 'Дома, коттеджи, таунхаусы', 'Земельные участки']
+    },
+    {
+      name: 'Коммерческая',
+      variants: ['Отель', 'Гостевой дом', 'Общепит', 'Офисное помещение', 'Производственное помещение', 'Свободная планировка']
     }
-    {width > 1215 &&
-      <Filter>
-        <InputGroup>
-          <Input placeholder="Площадь от" />
-          -
-          <Input placeholder="до" />
-          м²
-        </InputGroup>
-      </Filter>
-    }
+  ])
+  useEffect(() => {
+    filters.set({
+      priceRange: price,
+      areaRange: area,
+      rooms,
+    })
+  }, [...price, ...area, rooms.length])
+  useEffect(() => {
+    setPrice(filters.priceRange)
+    setArea(filters.areaRange)
+    setRooms(filters.rooms)
+  }, [filters])
+  return <Filters>
+    <Filter>{TypesInput}</Filter>
+    {width > 685 && <Filter>{PriceInput}</Filter>}
+    {width > 900 && <Filter>{RoomsInput}</Filter>}
+    {width > 1215 && <Filter>{AreaInput}</Filter>}
   </Filters>
 }
