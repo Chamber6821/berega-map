@@ -1,26 +1,8 @@
 import { range } from "../utils";
+import { isRawResidentionalComplex, isRawSecondHome, RawResidentionalComplex, RawSecondHome } from "./berega/raw-types";
+import { Building, DescriptionLine } from "./berega/types";
 
-type DescriptionLine = [string] | [string, string]
-type EntityType = "developer" | "features" | "residentialcomplex" | "secondhome"
-export type Building = {
-  title: string,
-  tag: string,
-  image: string | undefined,
-  shortDescription: DescriptionLine,
-  description: DescriptionLine[],
-  price: number,
-  area: number,
-  type: string,
-  floor: number,
-  frame: string,
-  location: {
-    lat: number,
-    lng: number,
-    address: string
-  }
-  page: string,
-  created: Date,
-}
+type EntityType = "developer" | "features" | "residentialcomplex" | "secondhome" | "apartments"
 
 const jsonFrom = async (url: RequestInfo | URL) => await (await fetch(url)).json();
 
@@ -52,7 +34,7 @@ const fullListOfType = async (type: EntityType) =>
     )
   ).reduce((a: any, b: any) => [...a, ...b], []);
 
-const idMap = (list: { _id: string }[]): { [key: string]: any } =>
+const idMap = <T extends { _id: string }>(list: T[]): { [key: string]: T } =>
   list.reduce((obj, element) => ({ ...obj, [element._id]: element }), {});
 
 const price = (count?: number) =>
@@ -63,21 +45,22 @@ const price = (count?: number) =>
     .replace(/\.\d+$/, "");
 
 export async function fetchResidentionalComplexes(): Promise<Building[]> {
-  const [developers, features, complexes] = await Promise.all([
+  const [developers, complexes] = await Promise.all([
     fullListOfType("developer"),
-    fullListOfType("features"),
     fullListOfType("residentialcomplex"),
+    fullListOfType("apartments")
   ]);
   const developerMap = idMap(developers);
-  const featureMap = idMap(features);
-  return complexes.map((x: any): Building => {
+  const brokenComplexes = complexes.filter((x: any) => !isRawResidentionalComplex(x))
+  if (brokenComplexes.length) console.log(brokenComplexes)
+  const correctComplexes: RawResidentionalComplex[] = complexes.filter((x: any) => isRawResidentionalComplex(x))
+  return correctComplexes.map((x): Building => {
     const apartmentsInfo: DescriptionLine = [
       `${x.apartments?.length || 0} апартаментов`,
       `от ${price(x.price_from)} до ${price(x.price_to)}`,
     ];
     return {
       title: x.name,
-      tag: featureMap?.[x.features?.[0]]?.name || "",
       image: x.pictures?.[0] ? `https:${x.pictures?.[0]}` : undefined,
       shortDescription: apartmentsInfo,
       description: [
@@ -96,39 +79,46 @@ export async function fetchResidentionalComplexes(): Promise<Building[]> {
         lng: x.address?.lng || 0,
         address: `${x.address?.address || "Нет адреса"} (${x.address?.lat || 0}, ${x.address?.lng || 0})`
       },
-      page: `https://berega.team/residential_complex/${x._id}`,
+      page: new URL(`https://berega.team/residential_complex/${x._id}`),
       created: new Date(x['Created Date'])
     };
   });
 }
 
 export async function fetchSecondHomes(): Promise<Building[]> {
-  const [homes, features] = await Promise.all([
+  const [homes] = await Promise.all([
     fullListOfType("secondhome"),
-    fullListOfType("features"),
   ]);
-  const featureMap = idMap(features);
-  return homes.map((x: any): Building => ({
-    title: x.name,
-    tag: featureMap?.[x.Features?.[0]]?.name || "",
-    image: x.pictures?.[0] ? `https:${x.pictures?.[0]}` : undefined,
-    shortDescription: ["Цена", price(x.price)],
-    description: [
-      ["Цена", price(x.price)],
-      ["Цена за м²", price(x.price_per_meter || 0)],
-      [`${x.floor} этаж, ${x.total_area} м²`],
-    ],
-    price: x.price,
-    area: x.total_area,
-    type: x.Type,
-    floor: x.floor,
-    frame: x['frame (OS)'],
-    location: {
-      lat: x.address?.lat || 0,
-      lng: x.address?.lng || 0,
-      address: x.address?.address || "Нет адреса"
+  const brokenHomes = homes.filter((x: any) => !isRawSecondHome(x))
+  if (brokenHomes.length > 0) console.log('broken second homes', brokenHomes)
+  const correctHomes: RawSecondHome[] = homes.filter((x: any) => isRawSecondHome(x))
+  return correctHomes.map((x): Building => ({
+    name: x.name,
+    position: {
+      lng: x.address.lng,
+      lat: x.address.lat,
+      address: x.address.address,
+      city: x["city (OS)"],
+      country: x["country (OS)"],
     },
-    page: `https://berega.team/second_home/${x._id}`,
+    apartments: [
+      {
+        type: x.Type,
+        floor: x.floor,
+        price: x.price,
+        area: x.total_area,
+        frame: x["frame (OS)"] as any,
+        rooms: 0
+      }
+    ],
+    page: new URL(`https://berega.team/second_home/${x._id}`),
+    images: x.pictures.map(x => new URL(`https:${x}`)),
+    shortDescription: ["Цена", price(x.price)],
+    fullDescription: [
+      ["Цена", price(x.price)],
+      ["Цена за м²", price(x.price / x.total_area)],
+      [`${x.floor} этаж, ${x.total_area} м²`, ''],
+    ],
     created: new Date(x['Created Date'])
   }));
 }
