@@ -19,7 +19,8 @@ export type Building = {
     address: string
   }
   page: string,
-  status?: 'Новостройки' | 'Вторичное жильё'
+  status?: 'Новостройки' | 'Вторичное жильё',
+  rooms: 'Студия' | '1' | '2' | '3' | '4' | '5+'
   created: Date,
 }
 
@@ -98,6 +99,7 @@ export async function fetchResidentionalComplexes(): Promise<Building[]> {
         address: `${x.address?.address || "Нет адреса"} (${x.address?.lat || 0}, ${x.address?.lng || 0})`
       },
       page: `https://berega.team/residential_complex/${x._id}`,
+      rooms: '2', // Просто потому что
       created: new Date(x['Created Date'])
     };
   });
@@ -131,6 +133,14 @@ export async function fetchSecondHomes(): Promise<Building[]> {
     },
     page: `https://berega.team/second_home/${x._id}`,
     status: x['status (OS)'],
+    rooms: ({
+      'Studio': 'Студия',
+      '1+1': '1',
+      '2+1': '2',
+      '3+1': '3',
+      '4+1': '4',
+      '5+': '5+'
+    } as const)[x.rooms as string] || '2',
     created: new Date(x['Created Date'])
   }));
 }
