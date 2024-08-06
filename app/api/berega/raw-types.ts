@@ -1,0 +1,20 @@
+export type RawSecondHome = {
+  address: {
+    address: string,
+    lng: number,
+    lat: number,
+  },
+  'city (OS)': string,
+  'country (OS)': string,
+  floor: number,
+  'frame (OS)': string,
+  name: string,
+  pictures: string[],
+  price: number,
+  price_per_meter: number,
+  rooms: 'Studio' | '1+1' | '2+1' | '3+1' | '4+1' | '5+',
+  'status (OS)': 'Новостройки' | 'Вторичное жилье',
+  total_area: number,
+  Type: 'Дом' | 'Квартира' | 'Земельный участок' | 'Коммерческая недвижимость',
+  'Created Date': string,
+}
