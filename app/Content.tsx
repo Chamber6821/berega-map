@@ -38,6 +38,7 @@ export default function Content({ buildings }:
   const [showFiltersPopup, setShowFiltersPopup] = useState(false)
   const [showHelpPopup, setShowHelpPopup] = useState(false)
   const [showCards, setShowCards] = useState(false)
+  const [showPreloader, setShowPreloader] = useState(true)
   const popupBuilding = useMap(x => x.selectedBuilding)
   const setPopupBuilding = useMap(x => x.setSelectedBuilding)
   const bounds = useMap(x => x.bounds)
@@ -49,6 +50,10 @@ export default function Content({ buildings }:
     setShowCards(!!selectedArea)
   }, [selectedArea])
 
+  useEffect(() => {
+    setTimeout(() => setShowPreloader(false), 1000)
+  }, [])
+
   return (
     <div style={{
       display: 'flex',
@@ -57,6 +62,7 @@ export default function Content({ buildings }:
       flexDirection: 'column',
       position: 'relative',
     }}>
+      {showPreloader && <div className="preloader"></div>}
       <div className="filter__wrapper" style={{
         display: 'flex',
         flexDirection: 'row',

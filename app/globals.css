@@ -9,22 +9,22 @@ body {
   overflow: hidden;
 }
 
-/* body::before{ */
-/*   content: "map berega.team"; */
-/*   position: absolute; */
-/*   top: 0; */
-/*   left: 0; */
-/*   right: 0; */
-/*   bottom: 0; */
-/*   z-index: 9999; */
-/*   display: flex; */
-/*   justify-content: center; */
-/*   align-items: center; */
-/*   background: #fff; */
-/*   font-size: 2rem; */
-/*   color: rgb(0, 156, 26); */
-/*   font-weight: 600; */
-/* } */
+.preloader::before {
+  content: "map berega.team";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #fff;
+  font-size: 2rem;
+  color: rgb(0, 156, 26);
+  font-weight: 600;
+}
 
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
