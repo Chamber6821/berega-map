@@ -22,12 +22,13 @@ const SelectButton = styled.button`
   gap: 7px;
   border: 1px solid rgb(164, 170, 180);
   border-radius: 8px;
-  padding: 5px 10px;
+  padding: 7px 10px;
   font-weight: 500;
 
-  @media(max-width: 400px) {
+  @media(max-width: 360px) {
     & {
-      font-size: 10px;
+      font-size: 12px;
+      padding: 10px 10px;
     }
   }
 `
@@ -45,18 +46,17 @@ const SelectBody = styled.div`
   & button {
     display: block;
     width: 140px;
-    padding: 10px;
+    padding: 8px;
     font-weight: 500;
   }
 
   @media(max-width: 400px) {
     & {
-      font-size: 10px;
       bottom: -10px;
 
       button {
-        padding: 5px;
-        width: 100px;
+        padding: 8px 5px;
+        width: 135px;
       }
     }
   }
@@ -65,8 +65,8 @@ const SelectBody = styled.div`
 const Options = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 10px 0 0;
+  gap: 20px;
+  padding: 25px 0 0;
 `
 
 const Option = styled.div`
@@ -103,7 +103,7 @@ const VariantGroup = styled.div`
   border-radius: 10px;
   overflow: hidden;
   border: 1px solid rgb(164, 170, 180);
-  padding: 5px;
+  padding: 7px;
   border-radius: 8px;
 `
 
@@ -153,7 +153,7 @@ const InputGroup = styled.div`
   flex-wrap: wrap;
   gap: 4px;
   border-radius: 8px;
-  padding: 5px;
+  padding: 7px;
   border: 1px solid rgb(164, 170, 180);
 `
 
