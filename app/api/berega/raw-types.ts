@@ -18,3 +18,17 @@ export type RawSecondHome = {
   Type: 'Дом' | 'Квартира' | 'Земельный участок' | 'Коммерческая недвижимость',
   'Created Date': string,
 }
+
+export type RawResidentionalComplex = {
+  address: {
+    address: string,
+    lng: number,
+    lat: number,
+  },
+  apartments: string[],
+  'city (OS)': string,
+  'country (OS)': string,
+  name: string,
+  pictures: string[],
+  'Created Date': string,
+}
