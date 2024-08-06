@@ -33,6 +33,43 @@ const ShowFiltersButton = styled.button`
   }
 `
 
+const ShowCardsButton = styled.button`
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translate(-100%, -50%);
+  padding: 10px 5px;
+  background: rgb(0, 156, 26);
+  border-radius: 10px 0 0 10px;
+
+  @media (max-width: 720px) {
+    & {
+      top: 0;
+      transform: translateY(-100%);
+      padding: 5px 10px;
+      border-radius: 10px 10px 0 0;
+    }
+
+    & > * {
+      transform: rotate(90deg);
+    }
+  }
+`
+
+const MapAndCards = styled.div`
+  flex-grow: 1;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  position: relative;
+
+  @media (max-width: 720px) {
+    & {
+      flex-direction: column;
+    }
+  }
+`
+
 export default function Content({ buildings }:
   { buildings: Building[] }) {
   const [showFiltersPopup, setShowFiltersPopup] = useState(false)
@@ -57,8 +94,8 @@ export default function Content({ buildings }:
   return (
     <div style={{
       display: 'flex',
-      width: '100%',
-      height: '100%',
+      width: '100dvw',
+      height: '100dvh',
       flexDirection: 'column',
       position: 'relative',
     }}>
@@ -74,12 +111,7 @@ export default function Content({ buildings }:
           Фильтры
         </ShowFiltersButton>
       </div>
-      <div
-        className="root-container"
-        style={{
-          flexShrink: 0
-        }}
-      >
+      <MapAndCards>
         <Map
           center={[41.65, 41.65]}
           zoom={12}
@@ -89,33 +121,23 @@ export default function Content({ buildings }:
         <div
           style={{ position: 'relative' }}
         >
-          <button className="list__btn"
-            style={{
-              position: 'absolute',
-              left: '0',
-              top: '50%',
-              transform: 'translate(-100%, -50%)',
-              padding: '10px 5px',
-              background: 'rgb(0, 156, 26)',
-              borderTopLeftRadius: '10px',
-              borderBottomLeftRadius: '10px',
-            }}
-            onClick={() => setShowCards(!showCards)}
-          >
-            {
-              showCards
-                ? <CaretForwardOutline
-                  color={'#ffffff'}
-                  height="30px"
-                  width="30px"
-                />
-                : <CaretBackOutline
-                  color={'#ffffff'}
-                  height="30px"
-                  width="30px"
-                />
-            }
-          </button>
+          <ShowCardsButton onClick={() => setShowCards(!showCards)}>
+            <div>
+              {
+                showCards
+                  ? <CaretForwardOutline
+                    color={'#ffffff'}
+                    height="30px"
+                    width="30px"
+                  />
+                  : <CaretBackOutline
+                    color={'#ffffff'}
+                    height="30px"
+                    width="30px"
+                  />
+              }
+            </div>
+          </ShowCardsButton>
           {showCards && <div className="cards__wrapper" >
             <Cards buildings={
               matchedBuildings
@@ -125,10 +147,10 @@ export default function Content({ buildings }:
             />
           </div>}
         </div>
-      </div>
+      </MapAndCards>
       {showFiltersPopup && <FiltersPopup onClose={() => setShowFiltersPopup(false)} />}
       {popupBuilding && <Popup building={popupBuilding} onClose={() => setPopupBuilding(undefined)} />}
       {showHelpPopup && <HelpPopup onClose={() => setShowHelpPopup(false)} />}
-    </div>
+    </div >
   )
 }

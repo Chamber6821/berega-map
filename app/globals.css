@@ -126,13 +126,6 @@ p {
   border-radius: 50%;
 }
 
-.root-container {
-  display: flex;
-  width: 100dvw;
-  height: 100dvh;
-  position: relative;
-}
-
 .cards__wrapper {
   overflow-y: auto;
   height: 100%;
@@ -393,10 +386,6 @@ p {
 }
 
 @media (max-width: 720px) {
-  .root-container {
-    flex-direction: column;
-  }
-
   .cards__wrapper {
     margin: 10px 0 0;
   }
