@@ -80,3 +80,12 @@ export const isRawSecondHome = (x: object): x is RawSecondHome =>
   && isStringProperty(x, 'Type') && SecondHomeTypeVariants.includes(x.Type as any)
   && isStringProperty(x, 'Created Date')
 
+export const isRawResidentionalComplex = (x: object): x is RawResidentionalComplex =>
+  isObjectProperty(x, 'address') && x.address !== null && isAddress(x.address)
+  && isArrayProperty(x, 'apartments') && x.apartments.every(x => typeof x === 'string')
+  && isStringProperty(x, 'city (OS)')
+  && isStringProperty(x, 'country (OS)')
+  && isStringProperty(x, 'name')
+  && isArrayProperty(x, 'pictures') && x.pictures.every(x => typeof x === 'string')
+  && isStringProperty(x, 'Created Date')
+
