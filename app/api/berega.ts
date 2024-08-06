@@ -19,6 +19,7 @@ export type Building = {
     address: string
   }
   page: string,
+  status?: 'Новостройки' | 'Вторичное жильё'
   created: Date,
 }
 
@@ -129,6 +130,7 @@ export async function fetchSecondHomes(): Promise<Building[]> {
       address: x.address?.address || "Нет адреса"
     },
     page: `https://berega.team/second_home/${x._id}`,
+    status: x['status (OS)'],
     created: new Date(x['Created Date'])
   }));
 }
