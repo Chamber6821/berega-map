@@ -10,7 +10,7 @@ import Polyline from "./Polyline";
 import ButtonControl from "./ButtonControl";
 import { create } from "zustand";
 import ViewButtonControl from "./ViewButtonControl";
-import { clamp, colorFromHex, colorToHex, gradient } from "../utils";
+import { clamp } from "../utils";
 
 export type Bounds = LngLatBounds
 
@@ -26,17 +26,40 @@ export const useMap = create<{
   setSelectedBuilding: (building) => set({ selectedBuilding: building })
 }))
 
-const monthAgo = () => {
+const monthAgo = (n: number = 1) => {
   const now = new Date()
-  now.setMonth(now.getMonth() - 1)
+  now.setMonth(now.getMonth() - n)
   return now
 }
 
-const grad = gradient(colorFromHex('#808080'), colorFromHex('#009c1a'))
-const now = new Date().getTime()
-const timeBound = monthAgo().getTime()
-const delta = now - timeBound
-const colored = (x: Building) => colorToHex(grad(clamp((now - x.created.getTime()) / delta, 0, 1)))
+const isNewBuilding = (x: Building) => 'status' in x && x.status === 'Новостройки'
+const isSecondBuilding = (x: Building) => 'status' in x && x.status === 'Вторичное жильё'
+const isResidentionalComplex = (x: Building) => !('status' in x)
+const isStead = (x: Building) => x.type === 'Земельный участок'
+const isCommercialRealEstate = (x: Building) => x.type === 'Коммерческая недвижимость'
+
+const colorFor = (x: Building) => {
+  if (isNewBuilding(x)) return '#0000ff'
+  if (isSecondBuilding(x)) return '#009c1a'
+  if (isResidentionalComplex(x)) return '#8000ff'
+  if (isStead(x)) return '#ffff00'
+  if (isCommercialRealEstate(x)) return '#ff0000'
+  return '#009c1a'
+}
+
+const gradient = (min: number, max: number) => (point: number) => clamp((point - min) / (max - min), 0.4, 1)
+const secondBuildingGradient = gradient(monthAgo(1).getTime(), new Date().getTime())
+const residentionalComplexGradient = gradient(monthAgo(3).getTime(), new Date().getTime())
+const steadGradient = gradient(monthAgo(6).getTime(), new Date().getTime())
+
+const opacityFor = (x: Building) => {
+  if (isNewBuilding(x)) return 1
+  if (isSecondBuilding(x)) return secondBuildingGradient(x.created.getTime())
+  if (isResidentionalComplex(x)) return residentionalComplexGradient(x.created.getTime())
+  if (isStead(x)) return steadGradient(x.created.getTime())
+  if (isCommercialRealEstate(x)) return 1
+  return 1
+}
 
 export default function Map({ center, zoom, buildings, onClickInfo }:
   { center: [number, number], zoom: number, buildings: Building[], onClickInfo?: () => void }) {
@@ -162,6 +185,7 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
 
     type Marker = {
       color: string,
+      opacity: number,
       originIndex: number,
     }
     const geoJsonMarkers: GeoJSON.FeatureCollection<GeoJSON.Point, Marker> = {
@@ -174,7 +198,8 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
             'coordinates': [x.location.lng, x.location.lat]
           },
           'properties': {
-            'color': colored(x),
+            'color': colorFor(x),
+            'opacity': opacityFor(x),
             'originIndex': i
           }
         })
@@ -192,6 +217,8 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
         source: 'markers',
         paint: {
           'circle-color': ['get', 'color'],
+          'circle-opacity': ['get', 'opacity'],
+          'circle-stroke-opacity': ['get', 'opacity'],
           'circle-radius': 7,
           'circle-stroke-width': 1,
           'circle-stroke-color': '#fff'
@@ -273,7 +300,8 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
             'coordinates': [x.location.lng, x.location.lat]
           },
           'properties': {
-            'color': colored(x),
+            'color': colorFor(x),
+            'opacity': opacityFor(x),
             'originIndex': i
           }
         })
