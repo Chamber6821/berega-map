@@ -141,8 +141,8 @@ p {
   padding: 10px 10px;
 }
 
-.cards-container>a {
-  height: 205px;
+.cards-container>a>div {
+  min-height: 205px;
 }
 
 .cards__wrapper::-webkit-scrollbar {
@@ -213,6 +213,7 @@ p {
   display: flex;
   align-items: center;
   margin: 10px 0 0 0;
+  padding: 0 5px;
 }
 
 .filter__line h2 {
@@ -406,11 +407,6 @@ p {
     font-size: 14px;
   }
 
-  .filter__table {
-    padding: 20px 15px;
-    font-size: 14px;
-  }
-
   .popup-container {
     position: fixed;
     width: 100%;
@@ -420,6 +416,8 @@ p {
     left: 0;
     margin: 0;
     border-top-right-radius: 12px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
 
     .popup {
       .content {
@@ -464,20 +462,11 @@ p {
 
 @media(max-width: 400px) {
   .input-container__number input {
-    max-width: 70px;
-    max-height: 25px;
+    max-width: 90px;
   }
 
   .filter__line h2 {
-    width: 40px;
-    font-size: 10px;
-  }
-
-  .input-container__number input::placeholder {
-    font-size: 10px;
-  }
-
-  .filter__table {
-    font-size: 10px;
+    width: 50px;
+    font-size: 13px;
   }
 }
