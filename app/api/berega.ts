@@ -1,3 +1,4 @@
+import { FilterCommercialType, FilterStatus } from "../filters/useFilters";
 import { range } from "../utils";
 
 type DescriptionLine = [string] | [string, string]
@@ -19,7 +20,8 @@ export type Building = {
     address: string
   }
   page: string,
-  status?: 'Новостройки' | 'Вторичное жильё',
+  status?: FilterStatus,
+  commertialType?: FilterCommercialType,
   rooms: 'Студия' | '1' | '2' | '3' | '4' | '5+'
   created: Date,
 }
@@ -141,6 +143,7 @@ export async function fetchSecondHomes(): Promise<Building[]> {
       '4+1': '4',
       '5+': '5+'
     } as const)[x.rooms as string] || '2',
+    commertialType: x.commercial_type,
     created: new Date(x['Created Date'])
   }));
 }

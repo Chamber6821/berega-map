@@ -253,6 +253,36 @@ const useTabOptions = <T,>(label: string, tabs: { name: string, variants: T[] }[
   </>]
 }
 
+
+const typesMap = {
+  'Дома, коттеджи, таунхаусы': ['Дом', 'Жилой дом', 'Таунхаус', 'Коттедж'],
+  'Земельные участки': ['Земельный участок'],
+} as const
+
+const commercialTypesMap = {
+  'Отель': ['Отель'],
+  'Гостевой дом': ['Гостевой дом'],
+  'Общепит': ['Ресторан', 'Кафе'],
+  'Офисное помещение': ['Офисное помещение'],
+  'Производственное помещение': ['Склад', 'Завод', 'База'],
+  'Свободная планировка': ['Универсальное помещение']
+} as const
+
+const statusMap = {
+  'Новостройки': ['Новостройка'],
+  'Вторичное жилье': ['Вторичное жилье']
+} as const
+
+const mapTo = <F extends string, T>(map: { [key in F]?: readonly T[] }, list: F[]): T[] =>
+  list.flatMap(x => map[x] || [])
+
+const entries = <K extends string, V>(obj: { [key in K]: V }): [K, V][] =>
+  Object.entries(obj) as any
+
+const match = <T,>(all: readonly T[], part: readonly T[]) => part.every(x => all.includes(x))
+const mapFrom = <F extends string, T>(map: { [key in F]: readonly T[] }, list: T[]): F[] =>
+  entries(map).filter(x => match(list, x[1])).map(x => x[0])
+
 export default function FiltersHeader() {
   const width = useWindowWidth()
   const filters = useFilters()
@@ -268,18 +298,27 @@ export default function FiltersHeader() {
       name: 'Коммерческая',
       variants: ['Отель', 'Гостевой дом', 'Общепит', 'Офисное помещение', 'Производственное помещение', 'Свободная планировка']
     }
-  ])
+  ] as const)
   useEffect(() => {
     filters.set({
       priceRange: price,
       areaRange: area,
       rooms,
+      types: mapTo(typesMap, types),
+      commercialTypes: mapTo(commercialTypesMap, types),
+      status: mapTo(statusMap, types),
     })
-  }, [...price, ...area, rooms.length])
+  }, [...price, ...area, rooms.length, types.length])
   useEffect(() => {
+    console.log('filters', filters)
     setPrice(filters.priceRange)
     setArea(filters.areaRange)
     setRooms(filters.rooms)
+    setTypes([
+      ...mapFrom(typesMap, filters.types),
+      ...mapFrom(commercialTypesMap, filters.commercialTypes),
+      ...mapFrom(statusMap, filters.status),
+    ])
   }, [filters])
   return <Filters>
     <Filter>{TypesInput}</Filter>
