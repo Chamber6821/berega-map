@@ -10,7 +10,8 @@ import Polyline from "./Polyline";
 import ButtonControl from "./ButtonControl";
 import { create } from "zustand";
 import ViewButtonControl from "./ViewButtonControl";
-import { clamp } from "../utils";
+import { clamp, inside } from "../utils";
+import debounce from "debounce";
 
 export type Bounds = LngLatBounds
 
@@ -123,6 +124,7 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
       container: mapContainer.current as HTMLDivElement,
       center: [center[1], center[0]],
       zoom: zoom,
+      style: 'mapbox://styles/mapbox/streets-v12',
     })
     polygonRef.current = new Polygon(mapRef.current, 'polygon', {
       borderColor: '#439639',
@@ -250,6 +252,61 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
       map
         .on('mouseenter', 'markers', () => ['view', 'filtered'].includes(modeRef.current) && (map.getCanvas().style.cursor = 'pointer'))
         .on('mouseleave', 'markers', () => ['view', 'filtered'].includes(modeRef.current) && (map.getCanvas().style.cursor = ''))
+    })
+
+    map.once('style.load', () => {
+      const emptyFeatureCollection: GeoJSON.FeatureCollection = {
+        'type': 'FeatureCollection',
+        'features': []
+      }
+      const labelLayerId = map.getStyle()?.layers?.find(x => x.type === 'symbol' && x.layout?.['text-field'])?.id;
+      map
+        .addSource('colored-buildings', { type: 'geojson', data: emptyFeatureCollection })
+        .addSource('simple-buildings', { type: 'geojson', data: emptyFeatureCollection })
+        .addLayer({
+          id: 'colored-buildings',
+          source: 'colored-buildings',
+          type: 'fill-extrusion',
+          paint: {
+            'fill-extrusion-color': '#aaaaff',
+            'fill-extrusion-height': ['get', 'height'],
+            'fill-extrusion-base': ['get', 'min_height'],
+            'fill-extrusion-vertical-gradient': false,
+          }
+        }, labelLayerId)
+        .addLayer({
+          id: 'simple-buildings',
+          source: 'simple-buildings',
+          type: 'fill-extrusion',
+          paint: {
+            'fill-extrusion-color': '#ddddd1',
+            'fill-extrusion-height': ['get', 'height'],
+            'fill-extrusion-base': ['get', 'min_height'],
+            'fill-extrusion-vertical-gradient': false,
+          },
+        }, labelLayerId)
+      const coloredBuildingsSource = map.getSource('colored-buildings') as GeoJSONSource
+      const simpleBuildingsSource = map.getSource('simple-buildings') as GeoJSONSource
+      map.on('move', debounce(() => {
+        const buildings = map.queryRenderedFeatures(undefined, { layers: ['building'], filter: ['==', 'extrude', 'true'] })
+        const markers = map.queryRenderedFeatures(undefined, { layers: ['markers'] })
+        const mask = buildings.map(x =>
+          markers.some(y =>
+            inside(
+              (y.geometry as GeoJSON.Point).coordinates as [number, number],
+              (x.geometry as GeoJSON.Polygon).coordinates[0] as [number, number][]
+            )
+          )
+        )
+        coloredBuildingsSource.setData({
+          'type': 'FeatureCollection',
+          'features': buildings.filter((_, i) => mask[i])
+        })
+        simpleBuildingsSource.setData({
+          'type': 'FeatureCollection',
+          'features': buildings.filter((_, i) => !mask[i])
+        })
+      }, 100))
     })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
