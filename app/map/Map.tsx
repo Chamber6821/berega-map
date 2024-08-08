@@ -306,7 +306,7 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
         })
       const coloredBuildingsSource = map.getSource('colored-buildings') as GeoJSONSource
       const simpleBuildingsSource = map.getSource('simple-buildings') as GeoJSONSource
-      map.on('move', (() => {
+      map.on('move', debounce(() => {
         const buildings = map.queryRenderedFeatures(undefined, { layers: ['building'], filter: ['==', 'extrude', 'true'] })
         const markers = map.queryRenderedFeatures(undefined, { layers: ['markers'] }).sort()
         const mask = buildings.map(x =>
