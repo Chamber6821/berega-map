@@ -285,6 +285,10 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
             'fill-extrusion-vertical-gradient': false,
           },
         }, labelLayerId)
+        .on('click', 'colored-buildings', (e) => {
+          const marker = e.features?.[0]?.properties as Marker | undefined
+          marker && mapState.setSelectedBuilding(buildingsRef.current[marker.originIndex])
+        })
       const coloredBuildingsSource = map.getSource('colored-buildings') as GeoJSONSource
       const simpleBuildingsSource = map.getSource('simple-buildings') as GeoJSONSource
       map.on('move', debounce(() => {
