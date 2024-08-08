@@ -33,18 +33,18 @@ const monthAgo = (n: number = 1) => {
   return now
 }
 
+const isStead = (x: Building) => x.type === 'Земельный участок'
+const isCommercialRealEstate = (x: Building) => x.type === 'Коммерческая недвижимость'
 const isNewBuilding = (x: Building) => 'status' in x && x.status === 'Новостройки'
 const isSecondBuilding = (x: Building) => 'status' in x && x.status === 'Вторичное жильё'
 const isResidentionalComplex = (x: Building) => !('status' in x)
-const isStead = (x: Building) => x.type === 'Земельный участок'
-const isCommercialRealEstate = (x: Building) => x.type === 'Коммерческая недвижимость'
 
 const colorFor = (x: Building) => {
+  if (isStead(x)) return '#ffff00'
+  if (isCommercialRealEstate(x)) return '#ff0000'
   if (isNewBuilding(x)) return '#0000ff'
   if (isSecondBuilding(x)) return '#009c1a'
   if (isResidentionalComplex(x)) return '#8000ff'
-  if (isStead(x)) return '#ffff00'
-  if (isCommercialRealEstate(x)) return '#ff0000'
   return '#009c1a'
 }
 
@@ -54,11 +54,11 @@ const residentionalComplexGradient = gradient(monthAgo(3).getTime(), new Date().
 const steadGradient = gradient(monthAgo(6).getTime(), new Date().getTime())
 
 const opacityFor = (x: Building) => {
+  if (isStead(x)) return steadGradient(x.created.getTime())
+  if (isCommercialRealEstate(x)) return 1
   if (isNewBuilding(x)) return 1
   if (isSecondBuilding(x)) return secondBuildingGradient(x.created.getTime())
   if (isResidentionalComplex(x)) return residentionalComplexGradient(x.created.getTime())
-  if (isStead(x)) return steadGradient(x.created.getTime())
-  if (isCommercialRealEstate(x)) return 1
   return 1
 }
 
