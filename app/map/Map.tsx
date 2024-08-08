@@ -219,8 +219,20 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
         source: 'markers',
         paint: {
           'circle-color': ['get', 'color'],
-          'circle-opacity': ['get', 'opacity'],
-          'circle-stroke-opacity': ['get', 'opacity'],
+          'circle-opacity': [
+            'step',
+            ['zoom'],
+            ['get', 'opacity'],
+            15,
+            0
+          ],
+          'circle-stroke-opacity': [
+            'step',
+            ['zoom'],
+            ['get', 'opacity'],
+            15,
+            0
+          ],
           'circle-radius': 7,
           'circle-stroke-width': 1,
           'circle-stroke-color': '#fff'
@@ -237,6 +249,7 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
         id: 'selected-marker',
         type: 'circle',
         source: 'selected-marker',
+        maxzoom: 15,
         paint: {
           'circle-color': ['get', 'color'],
           'circle-radius': 7,
@@ -267,6 +280,7 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
           id: 'colored-buildings',
           source: 'colored-buildings',
           type: 'fill-extrusion',
+          minzoom: 15,
           paint: {
             'fill-extrusion-color': ['get', 'color'],
             'fill-extrusion-height': ['get', 'height'],
@@ -278,6 +292,7 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
           id: 'simple-buildings',
           source: 'simple-buildings',
           type: 'fill-extrusion',
+          minzoom: 15,
           paint: {
             'fill-extrusion-color': '#ddddd1',
             'fill-extrusion-height': ['get', 'height'],
@@ -291,9 +306,9 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
         })
       const coloredBuildingsSource = map.getSource('colored-buildings') as GeoJSONSource
       const simpleBuildingsSource = map.getSource('simple-buildings') as GeoJSONSource
-      map.on('move', debounce(() => {
+      map.on('move', (() => {
         const buildings = map.queryRenderedFeatures(undefined, { layers: ['building'], filter: ['==', 'extrude', 'true'] })
-        const markers = map.queryRenderedFeatures(undefined, { layers: ['markers'] })
+        const markers = map.queryRenderedFeatures(undefined, { layers: ['markers'] }).sort()
         const mask = buildings.map(x =>
           markers.find(y =>
             inside(
@@ -312,7 +327,7 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
           'type': 'FeatureCollection',
           'features': buildings.filter((_, i) => !mask[i])
         })
-      }, 100))
+      }))
     })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
