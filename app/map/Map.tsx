@@ -346,7 +346,7 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
             }
           })
         })
-        toRemove.forEach(i => simpleBuildings.splice(i, 1))
+        toRemove.reverse().forEach(i => simpleBuildings.splice(i, 1))
 
         coloredBuildingsSource.setData({ 'type': 'FeatureCollection', 'features': coloredBuildings })
         simpleBuildingsSource.setData({ 'type': 'FeatureCollection', 'features': simpleBuildings })
