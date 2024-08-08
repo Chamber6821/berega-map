@@ -12,6 +12,8 @@ import { create } from "zustand";
 import ViewButtonControl from "./ViewButtonControl";
 import { clamp, inside, logIt } from "../utils";
 import debounce from "debounce";
+import intersect from "@turf/intersect";
+import { features } from "process";
 
 export type Bounds = LngLatBounds
 
@@ -317,16 +319,37 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
             )
           )
         )
-        coloredBuildingsSource.setData({
-          'type': 'FeatureCollection',
-          'features': buildings
-            .map((x, i) => ({ ...x, geometry: x.geometry, properties: { ...x.properties, ...mask[i]?.properties } }))
-            .filter((_, i) => mask[i])
+        const coloredBuildings = buildings
+          .map((x, i) => ({ ...x, geometry: x.geometry, properties: { ...x.properties, ...mask[i]?.properties } }))
+          .filter((_, i) => mask[i])
+        const simpleBuildings = buildings.filter((_, i) => !mask[i])
+
+        const toRemove: number[] = []
+        coloredBuildings.forEach((colored, i) => {
+          simpleBuildings.forEach((simple, j) => {
+            if (intersect({
+              type: 'FeatureCollection',
+              features: [
+                colored as GeoJSON.Feature<GeoJSON.Polygon>,
+                simple as GeoJSON.Feature<GeoJSON.Polygon>
+              ]
+            })) {
+              coloredBuildings.push({
+                ...simple,
+                geometry: simple.geometry,
+                properties: {
+                  ...simple.properties,
+                  color: colored.properties.color
+                }
+              })
+              toRemove.push(j)
+            }
+          })
         })
-        simpleBuildingsSource.setData({
-          'type': 'FeatureCollection',
-          'features': buildings.filter((_, i) => !mask[i])
-        })
+        toRemove.forEach(i => simpleBuildings.splice(i, 1))
+
+        coloredBuildingsSource.setData({ 'type': 'FeatureCollection', 'features': coloredBuildings })
+        simpleBuildingsSource.setData({ 'type': 'FeatureCollection', 'features': simpleBuildings })
       }))
     })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
