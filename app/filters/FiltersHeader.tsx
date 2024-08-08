@@ -235,7 +235,10 @@ const useTabOptions = <T,>(label: string, tabs: { name: string, variants: T[] }[
             tabs.map(x => x.name).map(x =>
               x === tab
                 ? <PressedButton key={x}>{x}</PressedButton>
-                : <Button onClick={() => setTab(x)} key={x}>{x}</Button>
+                : <Button onClick={() => {
+                  setVariants([])
+                  setTab(x)
+                }} key={x}>{x}</Button>
             )
           }
         </ButtonGroup>
@@ -244,7 +247,7 @@ const useTabOptions = <T,>(label: string, tabs: { name: string, variants: T[] }[
             tabs.filter(x => x.name === tab).flatMap(x => x.variants).map(x =>
               variants.includes(x)
                 ? <SelectedOption onClick={() => setVariants(variants.filter(y => y !== x))} key={`${x}`}>{`${x}`}</SelectedOption>
-                : <Option onClick={() => setVariants([...variants, x])} key={`${x}`}>{`${x}`}</Option>
+                : <Option onClick={() => setVariants([x])} key={`${x}`}>{`${x}`}</Option>
             )
           }
         </Options>
@@ -308,7 +311,7 @@ export default function FiltersHeader() {
       commercialTypes: mapTo(commercialTypesMap, types),
       status: mapTo(statusMap, types),
     })
-  }, [...price, ...area, rooms.length, types.length])
+  }, [...price, ...area, rooms.length, ...types, types.length])
   useEffect(() => {
     console.log('filters', filters)
     setPrice(filters.priceRange)
