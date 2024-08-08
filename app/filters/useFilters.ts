@@ -10,7 +10,7 @@ export type FilterCommercialType = typeof FilterCommercialTypes[number]
 export const FilterRooms = ['Студия', '1', '2', '3', '4', '5+']
 export type FilterRoom = typeof FilterRooms[number]
 
-export const FilterStatuses = ['Новостройка', 'Вторичное жилье', 'Переуступка']
+export const FilterStatuses = ['Новостройки', 'Вторичное жильё']
 export type FilterStatus = typeof FilterStatuses[number]
 
 export const FilterFrames = ['Черный каркас', 'Белый каркас', 'С ремонтом', 'Под ключ']

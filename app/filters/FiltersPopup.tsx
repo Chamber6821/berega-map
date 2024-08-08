@@ -176,7 +176,7 @@ const useInputText = (): [State<string>, React.ReactElement] => {
 export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => void }) {
   const [[country, setCountry], CountryInput] = useInputText()
   const [[city, setCity], CityInput] = useInputText()
-  const [[types, setTypes], TypesInput] = useVariantInput([...FilterTypes])
+  const [[types, setTypes], TypesInput] = useVariantInput(['Квартира', 'Дом', 'Земельный участок', 'Коммерческая', 'Жилой дом', 'Апарт-отель', 'Таунхаус', 'Коттедж'])
   const [[rooms, setRooms], RoomsInput] = useVariantInput([...FilterRooms])
   const [[status, setStatus], StatusInput] = useVariantInput([...FilterStatuses])
   const [[frame, setFrame], FrameInput] = useVariantInput([...FilterFrames])
@@ -189,7 +189,7 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
     setShowAllFilters(false)
     filters.set({
       country, city,
-      types,
+      types: types.map(x => x === 'Коммерческая' ? 'Коммерческая недвижимость' : x),
       rooms,
       status,
       frame,
@@ -202,7 +202,7 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
   useEffect(() => {
     setCountry(filters.country || '')
     setCity(filters.city || '')
-    setTypes(filters.types)
+    setTypes(filters.types.map(x => x === 'Коммерческая недвижимость' ? 'Коммерческая' : x))
     setRooms(filters.rooms)
     setStatus(filters.status)
     setFrame(filters.frame)

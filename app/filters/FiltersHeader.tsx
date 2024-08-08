@@ -269,8 +269,8 @@ const commercialTypesMap = {
 } as const
 
 const statusMap = {
-  'Новостройки': ['Новостройка'],
-  'Вторичное жилье': ['Вторичное жилье']
+  'Новостройки': ['Новостройки'],
+  'Вторичное жилье': ['Вторичное жильё']
 } as const
 
 const mapTo = <F extends string, T>(map: { [key in F]?: readonly T[] }, list: F[]): T[] =>
