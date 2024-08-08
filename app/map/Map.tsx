@@ -10,7 +10,7 @@ import Polyline from "./Polyline";
 import ButtonControl from "./ButtonControl";
 import { create } from "zustand";
 import ViewButtonControl from "./ViewButtonControl";
-import { clamp, inside } from "../utils";
+import { clamp, inside, logIt } from "../utils";
 import debounce from "debounce";
 
 export type Bounds = LngLatBounds
@@ -268,7 +268,7 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
           source: 'colored-buildings',
           type: 'fill-extrusion',
           paint: {
-            'fill-extrusion-color': '#aaaaff',
+            'fill-extrusion-color': ['get', 'color'],
             'fill-extrusion-height': ['get', 'height'],
             'fill-extrusion-base': ['get', 'min_height'],
             'fill-extrusion-vertical-gradient': false,
@@ -291,7 +291,7 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
         const buildings = map.queryRenderedFeatures(undefined, { layers: ['building'], filter: ['==', 'extrude', 'true'] })
         const markers = map.queryRenderedFeatures(undefined, { layers: ['markers'] })
         const mask = buildings.map(x =>
-          markers.some(y =>
+          markers.find(y =>
             inside(
               (y.geometry as GeoJSON.Point).coordinates as [number, number],
               (x.geometry as GeoJSON.Polygon).coordinates[0] as [number, number][]
@@ -300,7 +300,9 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
         )
         coloredBuildingsSource.setData({
           'type': 'FeatureCollection',
-          'features': buildings.filter((_, i) => mask[i])
+          'features': buildings
+            .map((x, i) => ({ ...x, geometry: x.geometry, properties: { ...x.properties, ...mask[i]?.properties } }))
+            .filter((_, i) => mask[i])
         })
         simpleBuildingsSource.setData({
           'type': 'FeatureCollection',
