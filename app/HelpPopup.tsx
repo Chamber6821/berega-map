@@ -65,9 +65,9 @@ export default function HelpPopup({ onClose }: { onClose?: () => void }) {
               marginLeft: '5px',
               padding: '10px',
               borderRadius: '50%',
-              background: '#0000ff',
+              background: '#df11ff',
             }}></span></td>
-            <td>- синим цветом обозначаются новостройки (первичное жилье), цвет никогда не изменяется.</td>
+            <td>- новостройки (первичное жилье), цвет никогда не изменяется.</td>
           </tr>
           <tr style={{
               display: 'flex',
@@ -85,9 +85,9 @@ export default function HelpPopup({ onClose }: { onClose?: () => void }) {
               marginLeft: '5px',
               padding: '10px',
               borderRadius: '50%',
-              background: '#009c1a',
+              background: '#0000ff',
             }}></span></td>
-            <td>- зеленым цветом обозначаются объекты вторичного жилья, цвет бледнеет в течение месяца с момента размещения.</td>
+            <td>- объекты вторичного жилья, цвет бледнеет в течение месяца с момента размещения.</td>
           </tr>
           <tr style={{
               display: 'flex',
@@ -105,9 +105,9 @@ export default function HelpPopup({ onClose }: { onClose?: () => void }) {
               marginLeft: '5px',
               padding: '10px',
               borderRadius: '50%',
-              background: '#8000FF',
+              background: '#009c1a',
             }}></span></td>
-            <td>- этот тип недвижимости обозначается фиолетовым цветом, цвет бледнеет в течение 3-ех месяцев с момента размещения.</td>
+            <td>- цвет бледнеет в течение 3-ех месяцев с момента размещения.</td>
           </tr>
           <tr style={{
               display: 'flex',
@@ -125,9 +125,9 @@ export default function HelpPopup({ onClose }: { onClose?: () => void }) {
               marginLeft: '5px',
               padding: '10px',
               borderRadius: '50%',
-              background: '#FFFF00',
+              background: '#994009',
             }}></span></td>
-            <td>- земельные участки обозначаются желтым цветом, цвет бледнеет в течение 6-ти месяцев.</td>
+            <td>- земельные участки, цвет бледнеет в течение 6-ти месяцев.</td>
           </tr>
           <tr style={{
               display: 'flex',
@@ -145,9 +145,9 @@ export default function HelpPopup({ onClose }: { onClose?: () => void }) {
               marginLeft: '5px',
               padding: '10px',
               borderRadius: '50%',
-              background: '#FF0000',
+              background: '#ffa640',
             }}></span></td>
-            <td>- коммерческая недвижимость обозначается красным цветом, цвет никогда не изменяется.</td>
+            <td>- коммерческая недвижимость, цвет никогда не изменяется.</td>
           </tr>
         </tbody>
       </table>
