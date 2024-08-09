@@ -10,10 +10,9 @@ import Polyline from "./Polyline";
 import ButtonControl from "./ButtonControl";
 import { create } from "zustand";
 import ViewButtonControl from "./ViewButtonControl";
-import { clamp, inside, logIt } from "../utils";
+import { clamp, inside } from "../utils";
 import debounce from "debounce";
 import intersect from "@turf/intersect";
-import { features } from "process";
 
 export type Bounds = LngLatBounds
 
@@ -42,11 +41,11 @@ const isSecondBuilding = (x: Building) => 'status' in x && x.status === 'Вто�
 const isResidentionalComplex = (x: Building) => !('status' in x)
 
 const colorFor = (x: Building) => {
-  if (isStead(x)) return '#ffff00'
+  if (isStead(x)) return '#18f0d3'
   if (isCommercialRealEstate(x)) return '#ff0000'
-  if (isNewBuilding(x)) return '#0000ff'
+  if (isNewBuilding(x)) return '#8000ff'
   if (isSecondBuilding(x)) return '#009c1a'
-  if (isResidentionalComplex(x)) return '#8000ff'
+  if (isResidentionalComplex(x)) return '#0000ff'
   return '#009c1a'
 }
 
@@ -58,9 +57,9 @@ const steadGradient = gradient(monthAgo(6).getTime(), new Date().getTime())
 const opacityFor = (x: Building) => {
   if (isStead(x)) return steadGradient(x.created.getTime())
   if (isCommercialRealEstate(x)) return 1
-  if (isNewBuilding(x)) return 1
+  if (isNewBuilding(x)) return residentionalComplexGradient(x.created.getTime())
   if (isSecondBuilding(x)) return secondBuildingGradient(x.created.getTime())
-  if (isResidentionalComplex(x)) return residentionalComplexGradient(x.created.getTime())
+  if (isResidentionalComplex(x)) return 1
   return 1
 }
 

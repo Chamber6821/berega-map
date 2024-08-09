@@ -258,7 +258,7 @@ const useTabOptions = <T,>(label: string, tabs: { name: string, variants: T[] }[
 
 
 const typesMap = {
-  'Дома, коттеджи, таунхаусы': ['Дом', 'Жилой дом', 'Таунхаус', 'Коттедж'],
+  'Новостройки': ['Дом', 'Жилой дом', 'Таунхаус', 'Коттедж'],
   'Земельные участки': ['Земельный участок'],
 } as const
 
@@ -272,8 +272,12 @@ const commercialTypesMap = {
 } as const
 
 const statusMap = {
-  'Новостройки': ['Новостройки'],
+  'Дома, коттеджи, таунхаусы': ['Новостройки'],
   'Вторичное жилье': ['Вторичное жильё']
+} as const
+
+const frameMap = {
+  'Новостройки': ['Черный каркас', 'Белый каркас', 'С ремонтом', 'Под ключ'],
 } as const
 
 const mapTo = <F extends string, T>(map: { [key in F]?: readonly T[] }, list: F[]): T[] =>
@@ -310,6 +314,7 @@ export default function FiltersHeader() {
       types: mapTo(typesMap, types),
       commercialTypes: mapTo(commercialTypesMap, types),
       status: mapTo(statusMap, types),
+      frame: mapTo(frameMap, types),
     })
   }, [...price, ...area, rooms.length, ...types, types.length])
   useEffect(() => {
@@ -321,6 +326,7 @@ export default function FiltersHeader() {
       ...mapFrom(typesMap, filters.types),
       ...mapFrom(commercialTypesMap, filters.commercialTypes),
       ...mapFrom(statusMap, filters.status),
+      ...mapFrom(frameMap, filters.frame),
     ])
   }, [filters])
   return <Filters>
