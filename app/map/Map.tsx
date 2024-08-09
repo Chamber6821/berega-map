@@ -41,11 +41,11 @@ const isSecondBuilding = (x: Building) => 'status' in x && x.status === 'Вто�
 const isResidentionalComplex = (x: Building) => !('status' in x)
 
 const colorFor = (x: Building) => {
-  if (isStead(x)) return '#18f0d3'
-  if (isCommercialRealEstate(x)) return '#ff0000'
-  if (isNewBuilding(x)) return '#8000ff'
-  if (isSecondBuilding(x)) return '#009c1a'
-  if (isResidentionalComplex(x)) return '#0000ff'
+  if (isStead(x)) return '#994009'
+  if (isCommercialRealEstate(x)) return '#ffa640'
+  if (isNewBuilding(x)) return '#009c1a' // В фильтрах пункт: Дома, коттеджи, таунхаусы
+  if (isSecondBuilding(x)) return '#0000ff'
+  if (isResidentionalComplex(x)) return '#df11ff' // В фильтрах пункт: Новостройки
   return '#009c1a'
 }
 
