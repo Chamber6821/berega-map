@@ -276,6 +276,10 @@ const statusMap = {
   'Вторичное жилье': ['Вторичное жильё']
 } as const
 
+const frameMap = {
+  'Новостройки': ['Черный каркас', 'Белый каркас', 'С ремонтом', 'Под ключ'],
+} as const
+
 const mapTo = <F extends string, T>(map: { [key in F]?: readonly T[] }, list: F[]): T[] =>
   list.flatMap(x => map[x] || [])
 
@@ -310,6 +314,7 @@ export default function FiltersHeader() {
       types: mapTo(typesMap, types),
       commercialTypes: mapTo(commercialTypesMap, types),
       status: mapTo(statusMap, types),
+      frame: mapTo(frameMap, types),
     })
   }, [...price, ...area, rooms.length, ...types, types.length])
   useEffect(() => {
@@ -321,6 +326,7 @@ export default function FiltersHeader() {
       ...mapFrom(typesMap, filters.types),
       ...mapFrom(commercialTypesMap, filters.commercialTypes),
       ...mapFrom(statusMap, filters.status),
+      ...mapFrom(frameMap, filters.frame),
     ])
   }, [filters])
   return <Filters>

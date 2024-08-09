@@ -82,6 +82,7 @@ export default function Content({ buildings }:
   const selectedArea = useMap(x => x.selectedArea)
   const filters = useFilters()
   const matchedBuildings = buildings.filter(filterOf(filters))
+  console.log(popupBuilding)
 
   useEffect(() => {
     setShowCards(!!selectedArea)
