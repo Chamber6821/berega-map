@@ -57,9 +57,9 @@ const steadGradient = gradient(monthAgo(6).getTime(), new Date().getTime())
 const opacityFor = (x: Building) => {
   if (isStead(x)) return steadGradient(x.created.getTime())
   if (isCommercialRealEstate(x)) return 1
-  if (isNewBuilding(x)) return 1
+  if (isNewBuilding(x)) return residentionalComplexGradient(x.created.getTime())
   if (isSecondBuilding(x)) return secondBuildingGradient(x.created.getTime())
-  if (isResidentionalComplex(x)) return residentionalComplexGradient(x.created.getTime())
+  if (isResidentionalComplex(x)) return 1
   return 1
 }
 
