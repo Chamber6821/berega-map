@@ -41,11 +41,11 @@ const isSecondBuilding = (x: Building) => 'status' in x && x.status === 'Вто�
 const isResidentionalComplex = (x: Building) => !('status' in x)
 
 const colorFor = (x: Building) => {
-  if (isStead(x)) return '#ffff00'
+  if (isStead(x)) return '#18f0d3'
   if (isCommercialRealEstate(x)) return '#ff0000'
-  if (isNewBuilding(x)) return '#0000ff'
+  if (isNewBuilding(x)) return '#8000ff'
   if (isSecondBuilding(x)) return '#009c1a'
-  if (isResidentionalComplex(x)) return '#8000ff'
+  if (isResidentionalComplex(x)) return '#0000ff'
   return '#009c1a'
 }
 
