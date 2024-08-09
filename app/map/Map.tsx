@@ -10,10 +10,9 @@ import Polyline from "./Polyline";
 import ButtonControl from "./ButtonControl";
 import { create } from "zustand";
 import ViewButtonControl from "./ViewButtonControl";
-import { clamp, inside, logIt } from "../utils";
+import { clamp, inside } from "../utils";
 import debounce from "debounce";
 import intersect from "@turf/intersect";
-import { features } from "process";
 
 export type Bounds = LngLatBounds
 
