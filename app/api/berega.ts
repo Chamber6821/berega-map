@@ -1,4 +1,4 @@
-import { FilterCommercialType, FilterStatus } from "../filters/useFilters";
+import { FilterGroup, FilterStatus } from "../filters/useFilters";
 import { range } from "../utils";
 
 type DescriptionLine = [string] | [string, string]
@@ -11,7 +11,6 @@ export type Building = {
   description: DescriptionLine[],
   price: number,
   area: number,
-  type: string,
   floor: number,
   frame: string,
   location: {
@@ -20,8 +19,8 @@ export type Building = {
     address: string
   }
   page: string,
+  group: FilterGroup,
   status?: FilterStatus,
-  commertialType?: FilterCommercialType,
   rooms: 'Студия' | '1' | '2' | '3' | '4' | '5+'
   created: Date,
 }
@@ -92,7 +91,6 @@ export async function fetchResidentionalComplexes(): Promise<Building[]> {
       ],
       price: x.price_from,
       area: 0,
-      type: x.Type[0] || 'Жилой дом',
       floor: 0,
       frame: 'С ремонтом',
       location: {
@@ -102,6 +100,7 @@ export async function fetchResidentionalComplexes(): Promise<Building[]> {
       },
       page: `https://berega.team/residential_complex/${x._id}`,
       rooms: '2', // Просто потому что
+      group: ['Жилой дом', 'Таунхаус', 'Коттедж'].some(y => x.Type.includes(y)) ? 'Дома, коттеджи, таунхаусы' : 'Новостройки',
       created: new Date(x['Created Date'])
     };
   });
@@ -113,6 +112,26 @@ export async function fetchSecondHomes(): Promise<Building[]> {
     fullListOfType("features"),
   ]);
   const featureMap = idMap(features);
+  const groupFor = (x: any): FilterGroup => {
+    switch (x.Type) {
+      case 'Коммерческая недвижимость':
+        switch (x.commercial_type) {
+          case 'Отель': return 'Отель'
+          case 'Гостевой дом': return 'Гостевой дом'
+          case 'Ресторан':
+          case 'Кафе': return 'Общепит'
+          case 'Офисное помещение': return 'Офисное помещение'
+          case 'Склад':
+          case 'Завод':
+          case 'База': return 'Производственное помещение'
+          case 'Универсальное помещение': return 'Свободная планировка'
+          default: return 'Вторичное жилье'
+        }
+      case 'Земельный участок': return 'Земельные участки'
+    }
+
+    return 'Вторичное жилье'
+  }
   return homes.map((x: any): Building => ({
     title: x.name,
     tag: featureMap?.[x.Features?.[0]]?.name || "",
@@ -125,8 +144,7 @@ export async function fetchSecondHomes(): Promise<Building[]> {
     ],
     price: x.price,
     area: x.total_area,
-    type: x.Type,
-    floor: x.floor,
+    floor: x.ofloor,
     frame: x['frame (OS)'],
     location: {
       lat: x.address?.lat || 0,
@@ -134,7 +152,6 @@ export async function fetchSecondHomes(): Promise<Building[]> {
       address: x.address?.address || "Нет адреса"
     },
     page: `https://berega.team/second_home/${x._id}`,
-    status: x['status (OS)'],
     rooms: ({
       'Studio': 'Студия',
       '1+1': '1',
@@ -143,7 +160,8 @@ export async function fetchSecondHomes(): Promise<Building[]> {
       '4+1': '4',
       '5+': '5+'
     } as const)[x.rooms as string] || '2',
-    commertialType: x.commercial_type,
+    group: groupFor(x),
+    status: x['status (OS)'],
     created: new Date(x['Created Date'])
   }));
 }

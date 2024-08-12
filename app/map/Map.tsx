@@ -34,19 +34,14 @@ const monthAgo = (n: number = 1) => {
   return now
 }
 
-const isStead = (x: Building) => x.type === 'Земельный участок'
-const isCommercialRealEstate = (x: Building) => x.type === 'Коммерческая недвижимость'
-const isNewBuilding = (x: Building) => 'status' in x && x.status === 'Новостройки'
-const isSecondBuilding = (x: Building) => 'status' in x && x.status === 'Вторичное жильё'
-const isResidentionalComplex = (x: Building) => !('status' in x)
-
 const colorFor = (x: Building) => {
-  if (isStead(x)) return '#994009'
-  if (isCommercialRealEstate(x)) return '#ffa640'
-  if (isNewBuilding(x)) return '#009c1a' // В фильтрах пункт: Дома, коттеджи, таунхаусы
-  if (isSecondBuilding(x)) return '#0000ff'
-  if (isResidentionalComplex(x)) return '#df11ff' // В фильтрах пункт: Новостройки
-  return '#009c1a'
+  switch (x.group) {
+    case 'Земельные участки': return '#994009'
+    case 'Новостройки': return '#009c1a'
+    case 'Вторичное жилье': return '#0000ff'
+    case 'Дома, коттеджи, таунхаусы': return '#df11ff'
+    default: return '#ffa640' // коммерческое всякое
+  }
 }
 
 const gradient = (min: number, max: number) => (point: number) => clamp((point - min) / (max - min), 0.4, 1)
@@ -55,12 +50,13 @@ const residentionalComplexGradient = gradient(monthAgo(3).getTime(), new Date().
 const steadGradient = gradient(monthAgo(6).getTime(), new Date().getTime())
 
 const opacityFor = (x: Building) => {
-  if (isStead(x)) return steadGradient(x.created.getTime())
-  if (isCommercialRealEstate(x)) return 1
-  if (isNewBuilding(x)) return residentionalComplexGradient(x.created.getTime())
-  if (isSecondBuilding(x)) return secondBuildingGradient(x.created.getTime())
-  if (isResidentionalComplex(x)) return 1
-  return 1
+  switch (x.group) {
+    case 'Земельные участки': return steadGradient(x.created.getTime())
+    case 'Новостройки': return residentionalComplexGradient(x.created.getTime())
+    case 'Вторичное жилье': return secondBuildingGradient(x.created.getTime())
+    case 'Дома, коттеджи, таунхаусы': return 1
+    default: return 1 // коммерческое всякое
+  }
 }
 
 export default function Map({ center, zoom, buildings, onClickInfo }:
