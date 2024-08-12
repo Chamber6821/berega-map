@@ -256,30 +256,6 @@ const useTabOptions = <T,>(label: string, tabs: { name: string, variants: T[] }[
   </>]
 }
 
-
-const typesMap = {
-  'Новостройки': ['Дом', 'Жилой дом', 'Таунхаус', 'Коттедж'],
-  'Земельные участки': ['Земельный участок'],
-} as const
-
-const commercialTypesMap = {
-  'Отель': ['Отель'],
-  'Гостевой дом': ['Гостевой дом'],
-  'Общепит': ['Ресторан', 'Кафе'],
-  'Офисное помещение': ['Офисное помещение'],
-  'Производственное помещение': ['Склад', 'Завод', 'База'],
-  'Свободная планировка': ['Универсальное помещение']
-} as const
-
-const statusMap = {
-  'Дома, коттеджи, таунхаусы': ['Новостройки'],
-  'Вторичное жилье': ['Вторичное жильё']
-} as const
-
-const frameMap = {
-  'Новостройки': ['Черный каркас', 'Белый каркас', 'С ремонтом', 'Под ключ'],
-} as const
-
 const mapTo = <F extends string, T>(map: { [key in F]?: readonly T[] }, list: F[]): T[] =>
   list.flatMap(x => map[x] || [])
 
@@ -311,10 +287,7 @@ export default function FiltersHeader() {
       priceRange: price,
       areaRange: area,
       rooms,
-      types: mapTo(typesMap, types),
-      commercialTypes: mapTo(commercialTypesMap, types),
-      status: mapTo(statusMap, types),
-      frame: mapTo(frameMap, types),
+      groups: types,
     })
   }, [...price, ...area, rooms.length, ...types, types.length])
   useEffect(() => {
@@ -322,12 +295,7 @@ export default function FiltersHeader() {
     setPrice(filters.priceRange)
     setArea(filters.areaRange)
     setRooms(filters.rooms)
-    setTypes([
-      ...mapFrom(typesMap, filters.types),
-      ...mapFrom(commercialTypesMap, filters.commercialTypes),
-      ...mapFrom(statusMap, filters.status),
-      ...mapFrom(frameMap, filters.frame),
-    ])
+    setTypes(filters.groups)
   }, [filters])
   return <Filters>
     <Filter>{TypesInput}</Filter>

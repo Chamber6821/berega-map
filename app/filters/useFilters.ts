@@ -7,6 +7,9 @@ export type FilterType = typeof FilterTypes[number]
 export const FilterCommercialTypes = ['Отель', 'Гостевой дом', 'Ресторан', 'Кафе', 'Офисное помещение', 'Склад', 'Завод', 'База', 'Универсальное помещение', 'Сельское хозяйство', 'Готовый бизнес', 'Хостел', 'Клиника', 'Автосервис', 'Туризм']
 export type FilterCommercialType = typeof FilterCommercialTypes[number]
 
+export const FilterGroups = ['Новостройки', 'Вторичное жилье', 'Дома, коттеджи, таунхаусы', 'Земельные участки', 'Отель', 'Гостевой дом', 'Общепит', 'Офисное помещение', 'Производственное помещение', 'Свободная планировка'] as const
+export type FilterGroup = typeof FilterGroups[number]
+
 export const FilterRooms = ['Студия', '1', '2', '3', '4', '5+']
 export type FilterRoom = typeof FilterRooms[number]
 
@@ -21,8 +24,7 @@ export type Range = [number | undefined, number | undefined]
 export type Filters = {
   country?: string,
   city?: string,
-  types: FilterType[],
-  commercialTypes: FilterCommercialType[],
+  groups: FilterGroup[],
   rooms: FilterRoom[],
   status: FilterStatus[],
   frame: FilterFrame[],
@@ -37,10 +39,8 @@ const matchByRange = (range: Range, value: number) =>
   && (range[1] === undefined || value <= range[1])
 
 export const filterOf = (filters: Filters) => (building: Building) =>
-  matchByVariants(filters.types, building.type)
-  && matchByVariants(filters.commercialTypes, building.commertialType)
-  && matchByVariants(filters.rooms, building.rooms)
-  && matchByVariants(filters.status, building.status)
+  matchByVariants(filters.rooms, building.rooms)
+  && matchByVariants(filters.groups, building.group)
   && matchByVariants(filters.frame, building.frame)
   // && filters.country === x.country
   // && filters.city === x.city
@@ -51,9 +51,8 @@ export const filterOf = (filters: Filters) => (building: Building) =>
 export const useFilters = create<Filters & {
   set: (part: Partial<Filters>) => void,
 }>((set) => ({
-  types: [],
-  commercialTypes: [],
   rooms: [],
+  groups: [],
   status: [],
   frame: [],
   priceRange: [undefined, undefined],
