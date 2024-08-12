@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { useEffect, useState } from "react";
 import PrimaryButton from "../components/PrimaryButton";
 import Modal from "../components/Modal";
-import { FilterFrames, FilterGroups, FilterRooms, FilterStatuses, FilterTypes, Range, useFilters } from "./useFilters";
+import { FilterFrames, FilterGroups, FilterRooms, FilterStatuses, Range, useFilters } from "./useFilters";
 
 const Input = styled.input`
   border: 2px solid #EEF5F8;
