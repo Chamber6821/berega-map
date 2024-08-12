@@ -26,7 +26,7 @@ export type Filters = {
   floorRange: Range,
   areaRange: Range,
 }
-adjhasdkjahsdkjsah
+
 const matchByVariants = (variants: string[], value?: string) => variants.length === 0 || value && variants.includes(value)
 const matchByRange = (range: Range, value: number) =>
   (range[0] === undefined || range[0] <= value)
