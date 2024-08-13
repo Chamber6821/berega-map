@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { Building } from "../api/berega";
 
-export const FilterGroups = ['Новостройки', 'Вторичное жилье', 'Дома, коттеджи, таунхаусы', 'Земельные участки', 'Отель', 'Гостевой дом', 'Общепит', 'Офисное помещение', 'Производственное помещение', 'Свободная планировка'] as const
+export const FilterGroups = ['Новостройки', 'Вторичное жилье', 'Дома, коттеджи, таунхаусы', 'Земельные участки', 'Коммерческая'] as const
 export type FilterGroup = typeof FilterGroups[number]
 
 export const FilterRooms = ['Студия', '1', '2', '3', '4', '5+']

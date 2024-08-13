@@ -66,7 +66,6 @@ const Options = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding: 25px 0 0;
 `
 
 const Option = styled.div`
@@ -80,21 +79,6 @@ const Option = styled.div`
 const SelectedOption = styled.div`
   color: #009C1A;
   cursor: pointer;
-`
-
-const ButtonGroup = styled.div`
-  display: flex;
-  gap: 0;
-  border-radius: 10px;
-  overflow: hidden;
-`
-
-const Button = styled.button``
-
-const PressedButton = styled.button`
-  color: white !important;
-  background: rgb(0, 156, 26);
-  padding: 0 5px;
 `
 
 const VariantGroup = styled.div`
@@ -215,11 +199,10 @@ const useVariantInput = <T extends string,>(variants: T[]): [State<T[]>, React.R
   return [[selected, setSelected], group]
 }
 
-const useTabOptions = <T,>(label: string, tabs: { name: string, variants: T[] }[]): [State<T[]>, React.ReactElement] => {
+const useOptions = <T,>(label: string, variants: T[]): [State<T[]>, React.ReactElement] => {
   const [opened, setOpened] = useState(false)
-  const [variants, setVariants] = useState<T[]>([])
-  const [tab, setTab] = useState(tabs[0].name)
-  return [[variants, setVariants], <>
+  const [selected, setSelected] = useState<T[]>([])
+  return [[selected, setSelected], <>
     <SelectButton onClick={() => setOpened(!opened)}>
       {label}
       {
@@ -230,24 +213,12 @@ const useTabOptions = <T,>(label: string, tabs: { name: string, variants: T[] }[
     </SelectButton>
     {opened &&
       <SelectBody>
-        <ButtonGroup>
-          {
-            tabs.map(x => x.name).map(x =>
-              x === tab
-                ? <PressedButton key={x}>{x}</PressedButton>
-                : <Button onClick={() => {
-                  setVariants([])
-                  setTab(x)
-                }} key={x}>{x}</Button>
-            )
-          }
-        </ButtonGroup>
         <Options>
           {
-            tabs.filter(x => x.name === tab).flatMap(x => x.variants).map(x =>
-              variants.includes(x)
-                ? <SelectedOption onClick={() => setVariants(variants.filter(y => y !== x))} key={`${x}`}>{`${x}`}</SelectedOption>
-                : <Option onClick={() => setVariants([x])} key={`${x}`}>{`${x}`}</Option>
+            variants.map(x =>
+              selected.includes(x)
+                ? <SelectedOption onClick={() => setSelected(selected.filter(y => y !== x))} key={`${x}`}>{`${x}`}</SelectedOption>
+                : <Option onClick={() => setSelected([x])} key={`${x}`}>{`${x}`}</Option>
             )
           }
         </Options>
@@ -256,32 +227,13 @@ const useTabOptions = <T,>(label: string, tabs: { name: string, variants: T[] }[
   </>]
 }
 
-const mapTo = <F extends string, T>(map: { [key in F]?: readonly T[] }, list: F[]): T[] =>
-  list.flatMap(x => map[x] || [])
-
-const entries = <K extends string, V>(obj: { [key in K]: V }): [K, V][] =>
-  Object.entries(obj) as any
-
-const match = <T,>(all: readonly T[], part: readonly T[]) => part.every(x => all.includes(x))
-const mapFrom = <F extends string, T>(map: { [key in F]: readonly T[] }, list: T[]): F[] =>
-  entries(map).filter(x => match(list, x[1])).map(x => x[0])
-
 export default function FiltersHeader() {
   const width = useWindowWidth()
   const filters = useFilters()
   const [[price, setPrice], PriceInput] = useRangeInput('Цена', '$')
   const [[area, setArea], AreaInput] = useRangeInput('Площадь', 'м²')
   const [[rooms, setRooms], RoomsInput] = useVariantInput([...FilterRooms])
-  const [[types, setTypes], TypesInput] = useTabOptions('Тип недвижимости', [
-    {
-      name: 'Жилая',
-      variants: ['Новостройки', 'Вторичное жилье', 'Дома, коттеджи, таунхаусы', 'Земельные участки']
-    },
-    {
-      name: 'Коммерческая',
-      variants: ['Отель', 'Гостевой дом', 'Общепит', 'Офисное помещение', 'Производственное помещение', 'Свободная планировка']
-    }
-  ] as const)
+  const [[types, setTypes], TypesInput] = useOptions('Тип недвижимости', ['Новостройки', 'Вторичное жилье', 'Дома, коттеджи, таунхаусы', 'Земельные участки', 'Коммерческая'] as const)
   useEffect(() => {
     filters.set({
       priceRange: price,
