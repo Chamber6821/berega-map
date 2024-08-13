@@ -2,7 +2,7 @@ import { useWindowWidth } from "@react-hook/window-size"
 import { useEffect, useState } from "react"
 import { ChevronDownOutline, ChevronUpOutline } from "react-ionicons"
 import styled from "styled-components"
-import { FilterRooms, Range, useFilters } from "./useFilters"
+import { FilterGroup, FilterRooms, Range, useFilters } from "./useFilters"
 
 const Filter = styled.div`
   position: relative;
@@ -252,7 +252,11 @@ export default function FiltersHeader() {
   return <Filters>
     <Filter>{TypesInput}</Filter>
     {width > 685 && <Filter>{PriceInput}</Filter>}
-    {width > 900 && <Filter>{RoomsInput}</Filter>}
+    {
+      width > 900
+      && types.some(x => (['Новостройки', 'Вторичное жилье'] as FilterGroup[]).includes(x))
+      && < Filter > {RoomsInput}</Filter>
+    }
     {width > 1215 && <Filter>{AreaInput}</Filter>}
   </Filters>
 }
