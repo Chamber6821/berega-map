@@ -66,7 +66,6 @@ const Options = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding: 25px 0 0;
 `
 
 const Option = styled.div`
