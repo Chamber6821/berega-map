@@ -37,9 +37,9 @@ const monthAgo = (n: number = 1) => {
 const colorFor = (x: Building) => {
   switch (x.group) {
     case 'Земельные участки': return '#994009'
-    case 'Новостройки': return '#009c1a'
+    case 'Новостройки': return '#df11ff'
     case 'Вторичное жилье': return '#0000ff'
-    case 'Дома, коттеджи, таунхаусы': return '#df11ff'
+    case 'Дома, коттеджи, таунхаусы': return '#009c1a'
     default: return '#ffa640' // коммерческое всякое
   }
 }
@@ -230,7 +230,7 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
             15,
             0
           ],
-          'circle-radius': 7,
+          'circle-radius': 3,
           'circle-stroke-width': 1,
           'circle-stroke-color': '#fff'
         }
@@ -249,7 +249,7 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
         maxzoom: 15,
         paint: {
           'circle-color': ['get', 'color'],
-          'circle-radius': 7,
+          'circle-radius': 3,
           'circle-stroke-width': 1,
           'circle-stroke-color': '#fff'
         }
