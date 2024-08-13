@@ -31,7 +31,7 @@ export type Filters = {
   areaRange: Range,
 }
 
-const matchByVariants = <T,>(variants: T[], value?: T) => variants.length === 0 || value && variants.includes(value)
+const matchByVariants = <T,>(variants: T[], value?: T) => variants.length === 0 || value !== undefined && variants.includes(value)
 const matchByRange = (range: Range, value: number) =>
   (range[0] === undefined || range[0] <= value)
   && (range[1] === undefined || value <= range[1])
