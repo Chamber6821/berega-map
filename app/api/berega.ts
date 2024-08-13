@@ -23,6 +23,74 @@ export type Building = {
   status?: FilterStatus,
   rooms: 'Студия' | '1' | '2' | '3' | '4' | '5+'
   created: Date,
+  API: string
+}
+
+export type PointsTypeOpenAPI = {
+  id: string;
+  latitude: number;
+  longitude: number;
+  postDate: string;
+};
+
+export type BuildingTypeOpenAPI = {
+  id: string;
+  title: string;
+  house_type: string;
+  transaction_type: string;
+  house_status: string;
+  address: string;
+  post_date: string;
+  owner_name: string;
+  images: string[];
+  description: string;
+  price_usd: number;
+  price_gel: number;
+  price_per_square_usd: number;
+  price_per_square_gel: number;
+  latitude: number;
+  longitude: number;
+  renovation: string;
+  project: string;
+  area: number;
+  rooms: string;
+  floor: number;
+  yard_area: number;
+  house_floors: number;
+  ceiling_height: number;
+  bedroom: string;
+  bathrooms: string;
+  balcony_area: number;
+  hot_water: string;
+  heating: string;
+  parking: string;
+  has_electricity: boolean;
+  has_natural_gas: boolean;
+  has_sewage: boolean;
+  has_water: boolean;
+  has_furniture: boolean;
+  has_loggia: boolean;
+  has_passenger_elevator: boolean;
+  has_service_elevator: boolean;
+  has_viber: boolean;
+  has_whatsapp: boolean;
+  is_urgent: boolean;
+  is_highlighted: boolean;
+  is_moved_up: boolean;
+  user_entity_type: string;
+  agency_name: string;
+  subway_station: string;
+  has_remote_viewing: boolean;
+  company_name: string;
+  company_logo: string;
+  project_name: string;
+  project_id: number;
+  garage: boolean;
+  kitchen_area: string;
+  house_will_have_to_live: string;
+  commercial_type: number;
+  user_application_count: number;
+  price_level: string;
 }
 
 const jsonFrom = async (url: RequestInfo | URL) => await (await fetch(url)).json();
@@ -65,6 +133,46 @@ const price = (count?: number) =>
     .replace("$", "$ ")
     .replace(/\.\d+$/, "");
 
+export const baseUrlAPI = () => "http://91.222.236.241:8080/api/real-estate/"
+
+export async function fetchAllPoints(): Promise<PointsTypeOpenAPI[]> {
+  const limit = 500;
+  let allPoints: PointsTypeOpenAPI[] = [];
+  let offset = 0;
+  let hasMore = true;
+  while (hasMore) {
+    const fetchPromises: Promise<PointsTypeOpenAPI[]>[] = [];
+    for (let i = 0; i < 10; i++) {
+      const url = `${baseUrlAPI()}/points?offset=${offset}&limit=${limit}`;
+      fetchPromises.push(
+          fetch(url, { cache: 'no-store' })
+              .then(res => res.json())
+              .then(data => data || [])
+      );
+      offset += limit;
+    }
+    const batches = await Promise.all(fetchPromises);
+    const batchPoints = batches.flat();
+    allPoints = [...allPoints, ...batchPoints];
+    hasMore = batchPoints.length === limit * 10;
+  }
+  return allPoints;
+}
+
+export async function getAllBuildingIds() : Promise<string[]> {
+  // TODO fetch всех точек и вычлинение id-шников
+}
+
+export async function fetchBuildingById(id : string) : Promise<BuildingTypeOpenAPI> {
+  // TODO сделать fetch по id-шнику
+}
+
+export async function fetchAllBuildingsFromOpenAPI() : Promise<Building[]> {
+  // TODO взять id-шники из getAllBuildingIds и по каждому сделать fetch через fetchBuildingById. После чего преобразовать каждый
+  // TODO к типу Building и вернуть
+}
+
+
 export async function fetchResidentionalComplexes(): Promise<Building[]> {
   const [developers, features, complexes] = await Promise.all([
     fullListOfType("developer"),
@@ -101,7 +209,8 @@ export async function fetchResidentionalComplexes(): Promise<Building[]> {
       page: `https://berega.team/residential_complex/${x._id}`,
       rooms: '2', // Просто потому что
       group: ['Жилой дом', 'Таунхаус', 'Коттедж'].some(y => x.Type.includes(y)) ? 'Дома, коттеджи, таунхаусы' : 'Новостройки',
-      created: new Date(x['Created Date'])
+      created: new Date(x['Created Date']),
+      API: 'Встроенное'
     };
   });
 }
@@ -162,7 +271,8 @@ export async function fetchSecondHomes(): Promise<Building[]> {
     } as const)[x.rooms as string] || '2',
     group: groupFor(x),
     status: x['status (OS)'],
-    created: new Date(x['Created Date'])
+    created: new Date(x['Created Date']),
+    API: 'Встроенное'
   }));
 }
 

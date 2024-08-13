@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { useEffect, useState } from "react";
 import PrimaryButton from "../components/PrimaryButton";
 import Modal from "../components/Modal";
-import { FilterFrames, FilterGroups, FilterRooms, FilterStatuses, Range, useFilters } from "./useFilters";
+import { FilterFrames, FilterGroups, FilterRooms, FilterStatuses, Range, useFilters, FilterAPIes } from "./useFilters";
 
 const Input = styled.input`
   border: 2px solid #EEF5F8;
@@ -124,39 +124,48 @@ const useRangeInput = (): [State<Range>, React.ReactElement] => {
   }], group]
 }
 
-const useVariantInput = <T extends string,>(variants: T[]): [State<T[]>, React.ReactElement] => {
-  const [selected, setSelected] = useState<T[]>([])
+const useVariantInput = <T extends string,>(variants: T[], options: { required: boolean } = { required: false }): [State<T[]>, React.ReactElement] => {
+  const [selected, setSelected] = useState<T[]>(options.required ? [variants[0]] : [])
+
+  const handleSelect = (value: T) => {
+    if (options.required) {
+      setSelected([value])
+    } else {
+      setSelected(selected.includes(value) ? selected.filter(x => x !== value) : [...selected, value])
+    }
+  }
+
   const group =
-    <div className="input-container">
-      <InputGroup>
-        {
-          selected.length === 0
-            ? <PressedVariantButton>
-              Не важно
-            </PressedVariantButton>
-            : <VariantButton onClick={() => setSelected([])}>
-              Не важно
-            </VariantButton>
-        }
-        {
-          variants.map(x =>
-            selected.includes(x)
-              ? <PressedVariantButton
-                key={x}
-                onClick={() => setSelected(selected.filter(y => y !== x))}
-              >
-                {x}
+      <div className="input-container">
+        <InputGroup>
+          {!options.required && selected.length === 0 && (
+              <PressedVariantButton>
+                Не важно
               </PressedVariantButton>
-              : <VariantButton
-                key={x}
-                onClick={() => setSelected([...selected, x])}
-              >
-                {x}
+          )}
+          {!options.required && selected.length > 0 && (
+              <VariantButton onClick={() => setSelected([])}>
+                Не важно
               </VariantButton>
-          )
-        }
-      </InputGroup>
-    </div>
+          )}
+          {variants.map(x =>
+              selected.includes(x)
+                  ? <PressedVariantButton
+                      key={x}
+                      onClick={() => !options.required && handleSelect(x)}
+                  >
+                    {x}
+                  </PressedVariantButton>
+                  : <VariantButton
+                      key={x}
+                      onClick={() => handleSelect(x)}
+                  >
+                    {x}
+                  </VariantButton>
+          )}
+        </InputGroup>
+      </div>
+
   return [[selected, setSelected], group]
 }
 
@@ -180,6 +189,7 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
   const [[rooms, setRooms], RoomsInput] = useVariantInput([...FilterRooms])
   const [[status, setStatus], StatusInput] = useVariantInput([...FilterStatuses])
   const [[frame, setFrame], FrameInput] = useVariantInput([...FilterFrames])
+  const [[API, setAPI], APIInput] = useVariantInput([...FilterAPIes], {required: true})
   const [[priceRange, setPrice], PriceInput] = useRangeInput()
   const [[floorRange, setFloor], FloorInput] = useRangeInput()
   const [[areaRange, setArea], AreaInput] = useRangeInput()
@@ -196,6 +206,7 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
       priceRange,
       floorRange,
       areaRange,
+      API
     })
     onClose()
   }
@@ -209,6 +220,7 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
     setPrice(filters.priceRange)
     setFloor(filters.floorRange)
     setArea(filters.areaRange)
+    setAPI(filters.API)
   }, [filters])
   return (
     <Modal onClose={handleClose}>
@@ -220,6 +232,7 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
           <Filter name="Тип">{TypesInput}</Filter>
           <Filter name="Кол-во комнат">{RoomsInput}</Filter>
           <Filter name="Цена, $">{PriceInput}</Filter>
+          <Filter name="API недвижимости">{APIInput}</Filter>
         </FiltersContainer>
       </div>
       {showAllFilters && <>
