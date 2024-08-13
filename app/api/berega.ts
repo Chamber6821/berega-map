@@ -133,7 +133,7 @@ const price = (count?: number) =>
     .replace("$", "$ ")
     .replace(/\.\d+$/, "");
 
-export const baseUrlAPI = () => "http://91.222.236.241:8080/api/real-estate/"
+export const baseUrlAPI = () => "http://91.222.236.241:8080/api/real-estate"
 
 export async function fetchAllPoints(): Promise<PointsTypeOpenAPI[]> {
   const limit = 500;
