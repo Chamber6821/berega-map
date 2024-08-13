@@ -160,16 +160,16 @@ export async function fetchAllPoints(): Promise<PointsTypeOpenAPI[]> {
 }
 
 export async function getAllBuildingIds() : Promise<string[]> {
-  // TODO fetch всех точек и вычлинение id-шников
+  //  fetch всех точек и вычлинение id-шников
 }
 
 export async function fetchBuildingById(id : string) : Promise<BuildingTypeOpenAPI> {
-  // TODO сделать fetch по id-шнику
+  //  сделать fetch по id-шнику
 }
 
 export async function fetchAllBuildingsFromOpenAPI() : Promise<Building[]> {
-  // TODO взять id-шники из getAllBuildingIds и по каждому сделать fetch через fetchBuildingById. После чего преобразовать каждый
-  // TODO к типу Building и вернуть
+  // взять id-шники из getAllBuildingIds и по каждому сделать fetch через fetchBuildingById. После чего преобразовать каждый
+  //  к типу Building и вернуть
 }
 
 
