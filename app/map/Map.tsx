@@ -36,26 +36,26 @@ const monthAgo = (n: number = 1) => {
 
 const colorFor = (x: Building) => {
   switch (x.group) {
-    case 'Земельные участки': return '#994009'
     case 'Новостройки': return '#df11ff'
     case 'Вторичное жилье': return '#0000ff'
     case 'Дома, коттеджи, таунхаусы': return '#009c1a'
-    default: return '#ffa640' // коммерческое всякое
+    case 'Земельные участки': return '#994009'
+    case 'Коммерческая': return '#ffa640'
   }
 }
 
+// Названия отвратительны, нужно переструктурировать стилизацию маркеров как-то в объекты
 const gradient = (min: number, max: number) => (point: number) => clamp((point - min) / (max - min), 0.4, 1)
-const secondBuildingGradient = gradient(monthAgo(1).getTime(), new Date().getTime())
-const residentionalComplexGradient = gradient(monthAgo(3).getTime(), new Date().getTime())
-const steadGradient = gradient(monthAgo(6).getTime(), new Date().getTime())
+const gradient2 = (months: number) => gradient(monthAgo(months).getTime(), new Date().getTime())
 
 const opacityFor = (x: Building) => {
+  const point = x.created.getTime()
   switch (x.group) {
-    case 'Земельные участки': return steadGradient(x.created.getTime())
-    case 'Новостройки': return residentionalComplexGradient(x.created.getTime())
-    case 'Вторичное жилье': return secondBuildingGradient(x.created.getTime())
-    case 'Дома, коттеджи, таунхаусы': return 1
-    default: return 1 // коммерческое всякое
+    case 'Новостройки': return 1
+    case 'Вторичное жилье': return gradient2(1)(point)
+    case 'Дома, коттеджи, таунхаусы': return gradient2(3)(point)
+    case 'Земельные участки': return gradient2(6)(point)
+    case 'Коммерческая': return 1
   }
 }
 
