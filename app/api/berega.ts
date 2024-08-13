@@ -100,7 +100,7 @@ export async function fetchResidentionalComplexes(): Promise<Building[]> {
       },
       page: `https://berega.team/residential_complex/${x._id}`,
       rooms: '2', // Просто потому что
-      group: ['Жилой дом', 'Таунхаус', 'Коттедж'].some(y => x.Type.includes(y)) ? 'Дома, коттеджи, таунхаусы' : 'Новостройки',
+      group: ['Таунхаус', 'Коттедж', 'Вилла'].some(y => x.Type.includes(y)) ? 'Дома, коттеджи, таунхаусы' : 'Новостройки',
       created: new Date(x['Created Date'])
     };
   });
