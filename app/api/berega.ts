@@ -112,26 +112,10 @@ export async function fetchSecondHomes(): Promise<Building[]> {
     fullListOfType("features"),
   ]);
   const featureMap = idMap(features);
-  const groupFor = (x: any): FilterGroup => {
-    switch (x.Type) {
-      case 'Коммерческая недвижимость':
-        switch (x.commercial_type) {
-          case 'Отель': return 'Отель'
-          case 'Гостевой дом': return 'Гостевой дом'
-          case 'Ресторан':
-          case 'Кафе': return 'Общепит'
-          case 'Офисное помещение': return 'Офисное помещение'
-          case 'Склад':
-          case 'Завод':
-          case 'База': return 'Производственное помещение'
-          case 'Универсальное помещение': return 'Свободная планировка'
-          default: return 'Вторичное жилье'
-        }
-      case 'Земельный участок': return 'Земельные участки'
-    }
-
-    return 'Вторичное жилье'
-  }
+  const groupFor = (x: any): FilterGroup => ({
+    'Коммерческая недвижимость': 'Коммерческая',
+    'Земельный участок': 'Земельные участки',
+  } as const)[x.Type as string] || 'Вторичное жилье'
   return homes.map((x: any): Building => ({
     title: x.name,
     tag: featureMap?.[x.Features?.[0]]?.name || "",

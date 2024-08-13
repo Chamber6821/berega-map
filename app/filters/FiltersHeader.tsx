@@ -230,7 +230,7 @@ const useTabOptions = <T,>(label: string, tabs: { name: string, variants: T[] }[
     </SelectButton>
     {opened &&
       <SelectBody>
-        <ButtonGroup>
+        {tabs.length > 1 && <ButtonGroup>
           {
             tabs.map(x => x.name).map(x =>
               x === tab
@@ -241,7 +241,7 @@ const useTabOptions = <T,>(label: string, tabs: { name: string, variants: T[] }[
                 }} key={x}>{x}</Button>
             )
           }
-        </ButtonGroup>
+        </ButtonGroup>}
         <Options>
           {
             tabs.filter(x => x.name === tab).flatMap(x => x.variants).map(x =>
@@ -275,12 +275,8 @@ export default function FiltersHeader() {
   const [[types, setTypes], TypesInput] = useTabOptions('Тип недвижимости', [
     {
       name: 'Жилая',
-      variants: ['Новостройки', 'Вторичное жилье', 'Дома, коттеджи, таунхаусы', 'Земельные участки']
+      variants: ['Новостройки', 'Вторичное жилье', 'Дома, коттеджи, таунхаусы', 'Земельные участки', 'Коммерческая']
     },
-    {
-      name: 'Коммерческая',
-      variants: ['Отель', 'Гостевой дом', 'Общепит', 'Офисное помещение', 'Производственное помещение', 'Свободная планировка']
-    }
   ] as const)
   useEffect(() => {
     filters.set({
