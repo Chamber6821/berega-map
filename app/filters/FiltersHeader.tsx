@@ -2,7 +2,7 @@ import { useWindowWidth } from "@react-hook/window-size"
 import { useEffect, useState } from "react"
 import { ChevronDownOutline, ChevronUpOutline } from "react-ionicons"
 import styled from "styled-components"
-import { FilterRooms, Range, useFilters } from "./useFilters"
+import { FilterGroup, FilterRooms, Range, useFilters } from "./useFilters"
 
 const Filter = styled.div`
   position: relative;
@@ -234,25 +234,37 @@ export default function FiltersHeader() {
   const [[area, setArea], AreaInput] = useRangeInput('Площадь', 'м²')
   const [[rooms, setRooms], RoomsInput] = useVariantInput([...FilterRooms])
   const [[types, setTypes], TypesInput] = useOptions('Тип недвижимости', ['Новостройки', 'Вторичное жилье', 'Дома, коттеджи, таунхаусы', 'Земельные участки', 'Коммерческая'] as const)
+  const [[agriculturals, setAgriculturals], AgriculturalsInput] = useVariantInput(['Сельхоз', 'Не сельхоз'] as const)
   useEffect(() => {
     filters.set({
       priceRange: price,
       areaRange: area,
       rooms,
       groups: types,
+      agriculturals: agriculturals.map(x => x === 'Сельхоз' ? true : false)
     })
-  }, [...price, ...area, rooms.length, ...types, types.length])
+  }, [...price, ...area, rooms.length, ...types, types.length, agriculturals.length])
   useEffect(() => {
     console.log('filters', filters)
     setPrice(filters.priceRange)
     setArea(filters.areaRange)
     setRooms(filters.rooms)
     setTypes(filters.groups)
+    setAgriculturals(filters.agriculturals.map(x => x ? 'Сельхоз' : 'Не сельхоз'))
   }, [filters])
   return <Filters>
     <Filter>{TypesInput}</Filter>
     {width > 685 && <Filter>{PriceInput}</Filter>}
-    {width > 900 && <Filter>{RoomsInput}</Filter>}
+    {
+      width > 900
+      && types.some(x => (['Новостройки', 'Вторичное жилье'] as FilterGroup[]).includes(x))
+      && < Filter > {RoomsInput}</Filter>
+    }
+    {
+      width > 900
+      && types.some(x => (['Земельные участки'] as FilterGroup[]).includes(x))
+      && < Filter > {AgriculturalsInput}</Filter>
+    }
     {width > 1215 && <Filter>{AreaInput}</Filter>}
   </Filters>
 }

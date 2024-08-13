@@ -21,6 +21,7 @@ export type Building = {
   page: string,
   group: FilterGroup,
   status?: FilterStatus,
+  agricultural?: boolean,
   rooms: 'Студия' | '1' | '2' | '3' | '4' | '5+'
   created: Date,
 }
@@ -146,6 +147,7 @@ export async function fetchSecondHomes(): Promise<Building[]> {
     } as const)[x.rooms as string] || '2',
     group: groupFor(x),
     status: x['status (OS)'],
+    agricultural: x.agricultural,
     created: new Date(x['Created Date'])
   }));
 }
