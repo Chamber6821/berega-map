@@ -59,6 +59,8 @@ const opacityFor = (x: Building) => {
   }
 }
 
+const markerRadius = 5
+
 export default function Map({ center, zoom, buildings, onClickInfo }:
   { center: [number, number], zoom: number, buildings: Building[], onClickInfo?: () => void }) {
   const mapState = useMap()
@@ -230,7 +232,7 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
             15,
             0
           ],
-          'circle-radius': 3,
+          'circle-radius': markerRadius,
           'circle-stroke-width': 1,
           'circle-stroke-color': '#fff'
         }
@@ -249,7 +251,7 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
         maxzoom: 15,
         paint: {
           'circle-color': ['get', 'color'],
-          'circle-radius': 3,
+          'circle-radius': markerRadius,
           'circle-stroke-width': 1,
           'circle-stroke-color': '#fff'
         }
