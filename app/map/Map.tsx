@@ -230,7 +230,7 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
             15,
             0
           ],
-          'circle-radius': 7,
+          'circle-radius': 3,
           'circle-stroke-width': 1,
           'circle-stroke-color': '#fff'
         }
@@ -249,7 +249,7 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
         maxzoom: 15,
         paint: {
           'circle-color': ['get', 'color'],
-          'circle-radius': 7,
+          'circle-radius': 3,
           'circle-stroke-width': 1,
           'circle-stroke-color': '#fff'
         }
