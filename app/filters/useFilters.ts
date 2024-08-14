@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import { Building } from '../api/berega';
+import { create } from 'zustand'
+import { Building } from '../api/berega'
 
 export const FilterGroups = ['Новостройки', 'Вторичное жилье', 'Дома, коттеджи, таунхаусы', 'Земельные участки', 'Коммерческая'] as const
 export type FilterGroup = typeof FilterGroups[number]
@@ -47,9 +47,11 @@ export const filterOf = (filters: Filters) => (building: Building) =>
   matchByRange(filters.floorRange, building.floor) &&
   matchByRange(filters.areaRange, building.area)
 
-export const useFilters = create<Filters & {
+export type FiltersStorage = Filters & {
   set: (part: Partial<Filters>) => void
-}>(set) => ({
+}
+
+export const useFilters = create<FiltersStorage>(set => ({
   rooms: [],
   groups: [],
   status: [],
@@ -58,5 +60,5 @@ export const useFilters = create<Filters & {
   priceRange: [undefined, undefined],
   floorRange: [undefined, undefined],
   areaRange: [undefined, undefined],
-  set,
-})
+  set
+}))

@@ -18,7 +18,7 @@ const useOnClickOutside = (ref: { current: HTMLElement | null }, handler: () => 
 export default function Modal ({ style, paperStyle, onClose, children }:
 { style?: CSSProperties, paperStyle?: CSSProperties, onClose?: () => void, children?: any }) {
   const ref = useRef<HTMLDivElement>(null)
-  useOnClickOutside(ref, (onClose != null) || (() => { }))
+  useOnClickOutside(ref, onClose ?? (() => { }))
   return (
     <Overlay style={style}>
       <Paper ref={ref} style={paperStyle}>

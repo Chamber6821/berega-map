@@ -1,32 +1,34 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react';
-import { Building } from '../api/berega';
+import { useEffect, useRef, useState } from 'react'
+import { Building } from '../api/berega'
 
 import mapbox, { GeoJSONSource, LngLatBounds, Map as MapboxMap, MapMouseEvent, MapTouchEvent, NavigationControl } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
-import Polygon from './Polygon';
-import Polyline from './Polyline';
-import ButtonControl from './ButtonControl';
-import { create } from 'zustand';
-import ViewButtonControl from './ViewButtonControl';
-import { clamp, inside } from '../utils';
-import debounce from 'debounce';
-import intersect from '@turf/intersect';
+import Polygon from './Polygon'
+import Polyline from './Polyline'
+import ButtonControl from './ButtonControl'
+import { create } from 'zustand'
+import ViewButtonControl from './ViewButtonControl'
+import { clamp, inside } from '../utils'
+import debounce from 'debounce'
+import intersect from '@turf/intersect'
 
 export type Bounds = LngLatBounds
 
-export const useMap = create<{
+export interface MapStorage {
   bounds?: Bounds, selectedArea?: Polygon
   selectedBuilding?: Building
   setBounds: (bounds?: Bounds) => void
   setSelectedArea: (selectedArea?: Polygon) => void
   setSelectedBuilding: (building: Building | undefined) => void
-}>set => ({
+}
+
+export const useMap = create<MapStorage>(set => ({
   setBounds: (bounds) => set({ bounds }),
   setSelectedArea: (selectedArea) => set({ selectedArea }),
   setSelectedBuilding: (building) => set({ selectedBuilding: building })
-})
+}))
 
 const monthAgo = (n: number = 1) => {
   const now = new Date()
@@ -103,8 +105,7 @@ export default function Map ({ center, zoom, buildings, onClickInfo }:
         break
       }
       case 'filtered': {
-        if ((polygonRef.current != null) && (polylineRef.current != null))
-          {polygonRef.current.path = polylineRef.current.path}
+        if ((polygonRef.current != null) && (polylineRef.current != null)) { polygonRef.current.path = polylineRef.current.path }
         polygonRef.current?.show()
         polylineRef.current?.hide()
         setSelectedArea(polygonRef.current)
@@ -181,7 +182,7 @@ export default function Map ({ center, zoom, buildings, onClickInfo }:
       .on('touchstart', drawingStart)
       .on('touchmove', drawingMove)
       .on('touchend', drawingEnd)
-      .on('moveend', () => mapState.setBounds((map.getBounds() != null) || undefined))
+      .on('moveend', () => mapState.setBounds(map.getBounds() ?? undefined))
       .once('style.load', () => setMode('view'))
 
     interface Marker {
@@ -259,7 +260,7 @@ export default function Map ({ center, zoom, buildings, onClickInfo }:
       map.moveLayer('markers', 'selected-marker')
       map.on('click', 'markers', (e) => {
         const marker = e.features?.[0]?.properties as Marker | undefined
-        ;(marker != null) && mapState.setSelectedBuilding(buildingsRef.current[marker.originIndex])
+          ; (marker != null) && mapState.setSelectedBuilding(buildingsRef.current[marker.originIndex])
       })
       map
         .on('mouseenter', 'markers', () => ['view', 'filtered'].includes(modeRef.current) && (map.getCanvas().style.cursor = 'pointer'))
@@ -297,11 +298,11 @@ export default function Map ({ center, zoom, buildings, onClickInfo }:
             'fill-extrusion-height': ['get', 'height'],
             'fill-extrusion-base': ['get', 'min_height'],
             'fill-extrusion-vertical-gradient': false
-          },
+          }
         }, labelLayerId)
         .on('click', 'colored-buildings', (e) => {
           const marker = e.features?.[0]?.properties as Marker | undefined
-          ;(marker != null) && mapState.setSelectedBuilding(buildingsRef.current[marker.originIndex])
+            ; (marker != null) && mapState.setSelectedBuilding(buildingsRef.current[marker.originIndex])
         })
       const coloredBuildingsSource = map.getSource('colored-buildings') as GeoJSONSource
       const simpleBuildingsSource = map.getSource('simple-buildings') as GeoJSONSource
