@@ -1,3 +1,4 @@
+name: Style
 on: [push]
 jobs:
   style:
