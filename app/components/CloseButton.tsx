@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from 'styled-components'
 
 const CloseButton = styled.button`
   position: absolute;
@@ -20,4 +20,3 @@ const CloseButton = styled.button`
 `
 
 export default CloseButton
-

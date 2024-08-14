@@ -1,18 +1,18 @@
 'use client'
 
-import { useEffect, useState } from "react";
-import { Building } from "./api/berega";
-import Cards from "./Cards";
-import { Map } from "./map";
-import Popup from "./Popup";
-import FiltersPopup from "./filters/FiltersPopup";
-import { useMap } from "./map/Map";
-import styled from "styled-components";
-import { CaretBackOutline, CaretForwardOutline, FilterOutline } from "react-ionicons";
-import { LngLat } from "mapbox-gl";
-import HelpPopup from "./HelpPopup";
-import FiltersHeader from "./filters/FiltersHeader";
-import { filterOf, useFilters } from "./filters/useFilters";
+import { useEffect, useState } from 'react'
+import { Building } from './api/berega'
+import Cards from './Cards'
+import { Map } from './map'
+import Popup from './Popup'
+import FiltersPopup from './filters/FiltersPopup'
+import { useMap } from './map/Map'
+import styled from 'styled-components'
+import { CaretBackOutline, CaretForwardOutline, FilterOutline } from 'react-ionicons'
+import { LngLat } from 'mapbox-gl'
+import HelpPopup from './HelpPopup'
+import FiltersHeader from './filters/FiltersHeader'
+import { filterOf, useFilters } from './filters/useFilters'
 
 const ShowFiltersButton = styled.button`
   display: flex;
@@ -70,8 +70,8 @@ const MapAndCards = styled.div`
   }
 `
 
-export default function Content({ buildings }:
-  { buildings: Building[] }) {
+export default function Content ({ buildings }:
+{ buildings: Building[] }) {
   const [showFiltersPopup, setShowFiltersPopup] = useState(false)
   const [showHelpPopup, setShowHelpPopup] = useState(false)
   const [showCards, setShowCards] = useState(false)
@@ -85,7 +85,7 @@ export default function Content({ buildings }:
   console.log(popupBuilding)
 
   useEffect(() => {
-    setShowCards(!!selectedArea)
+    setShowCards(!(selectedArea == null))
   }, [selectedArea])
 
   useEffect(() => {
@@ -98,17 +98,21 @@ export default function Content({ buildings }:
       width: '100dvw',
       height: '100dvh',
       flexDirection: 'column',
-      position: 'relative',
-    }}>
-      {showPreloader && <div className="preloader"></div>}
-      <div className="filter__wrapper" style={{
-        display: 'flex',
-        flexDirection: 'row',
-      }}>
+      position: 'relative'
+    }}
+    >
+      {showPreloader && <div className='preloader' />}
+      <div
+        className='filter__wrapper' style={{
+          display: 'flex',
+          flexDirection: 'row'
+        }}
+      >
         <FiltersHeader />
         <ShowFiltersButton onClick={() => setShowFiltersPopup(!showFiltersPopup)}>
           <FilterOutline
-            color={'#00000'} />
+            color='#00000'
+          />
           Фильтры
         </ShowFiltersButton>
       </div>
@@ -127,19 +131,19 @@ export default function Content({ buildings }:
               {
                 showCards
                   ? <CaretForwardOutline
-                    color={'#ffffff'}
-                    height="30px"
-                    width="30px"
-                  />
+                      color='#ffffff'
+                      height='30px'
+                      width='30px'
+                    />
                   : <CaretBackOutline
-                    color={'#ffffff'}
-                    height="30px"
-                    width="30px"
-                  />
+                      color='#ffffff'
+                      height='30px'
+                      width='30px'
+                    />
               }
             </div>
           </ShowCardsButton>
-          {showCards && <div className="cards__wrapper" >
+          {showCards && <div className='cards__wrapper'>
             <Cards buildings={
               matchedBuildings
                 .filter(x => bounds === undefined || bounds.contains(x.location))
@@ -150,8 +154,8 @@ export default function Content({ buildings }:
         </div>
       </MapAndCards>
       {showFiltersPopup && <FiltersPopup onClose={() => setShowFiltersPopup(false)} />}
-      {popupBuilding && <Popup building={popupBuilding} onClose={() => setPopupBuilding(undefined)} />}
+      {(popupBuilding != null) && <Popup building={popupBuilding} onClose={() => setPopupBuilding(undefined)} />}
       {showHelpPopup && <HelpPopup onClose={() => setShowHelpPopup(false)} />}
-    </div >
+    </div>
   )
 }

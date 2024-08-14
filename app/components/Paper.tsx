@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from 'styled-components'
 
 const Paper = styled.div`
   width: 80%;
@@ -18,4 +18,3 @@ const Paper = styled.div`
 `
 
 export default Paper
-

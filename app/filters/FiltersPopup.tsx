@@ -1,8 +1,8 @@
-import styled from "styled-components";
-import { useEffect, useState } from "react";
-import PrimaryButton from "../components/PrimaryButton";
-import Modal from "../components/Modal";
-import { FilterFrames, FilterGroups, FilterRooms, FilterStatuses, Range, useFilters } from "./useFilters";
+import styled from 'styled-components'
+import { useEffect, useState } from 'react'
+import PrimaryButton from '../components/PrimaryButton'
+import Modal from '../components/Modal'
+import { FilterFrames, FilterGroups, FilterRooms, FilterStatuses, Range, useFilters } from './useFilters'
 
 const Input = styled.input`
   border: 2px solid #EEF5F8;
@@ -75,7 +75,7 @@ const PressedVariantButton = styled.button`
 `
 
 const Filter = ({ name, children }: { name: string, children: any }) =>
-  <tr className="filter__line">
+  <tr className='filter__line'>
     <td style={{ paddingRight: '20px' }}>
       <h2>{name}</h2>
     </td>
@@ -85,28 +85,29 @@ const Filter = ({ name, children }: { name: string, children: any }) =>
 type State<T> = [T, (value: T) => void]
 
 const useInput = <T,>({ type, placeholder = '', validator = x => x as T }:
-  { type: React.HTMLInputTypeAttribute, placeholder?: string, validator?: (value: string) => T | undefined }):
+{ type: React.HTMLInputTypeAttribute, placeholder?: string, validator?: (value: string) => T | undefined }):
   [State<T | undefined>, React.ReactElement] => {
   const [value, setValue] = useState<T>()
-  const input =
+  const input = (
     <Input
       type={type}
       placeholder={placeholder}
       value={`${value}`}
       onChange={e => setValue(validator(e.target.value))}
     />
+  )
   return [[value, setValue], input]
 }
 
 const FiltersContainer = ({ children }: { children: any }) => <table><tbody>{children}</tbody></table>
 
 const useRangeInput = (): [State<Range>, React.ReactElement] => {
-  const validator = (x: string) => x === "" ? undefined : Math.max(0, +x)
-  const [[from, setFrom], FromInput] = useInput<number>({ type: 'number', placeholder: "От", validator })
-  const [[to, setTo], ToInput] = useInput<number>({ type: 'number', placeholder: "До", validator })
-  const group =
+  const validator = (x: string) => x === '' ? undefined : Math.max(0, +x)
+  const [[from, setFrom], FromInput] = useInput<number>({ type: 'number', placeholder: 'От', validator })
+  const [[to, setTo], ToInput] = useInput<number>({ type: 'number', placeholder: 'До', validator })
+  const group = (
     <InputGroup>
-      <div className="input-container input-container__number">
+      <div className='input-container input-container__number'>
         {FromInput}
         -
         {ToInput}
@@ -114,10 +115,12 @@ const useRangeInput = (): [State<Range>, React.ReactElement] => {
       <ResetButton onClick={() => {
         setFrom(undefined)
         setTo(undefined)
-      }}>
+      }}
+      >
         Сбросить
       </ResetButton>
     </InputGroup>
+  )
   return [[[from, to], ([from, to]) => {
     setFrom(from)
     setTo(to)
@@ -126,54 +129,56 @@ const useRangeInput = (): [State<Range>, React.ReactElement] => {
 
 const useVariantInput = <T extends string,>(variants: T[]): [State<T[]>, React.ReactElement] => {
   const [selected, setSelected] = useState<T[]>([])
-  const group =
-    <div className="input-container">
+  const group = (
+    <div className='input-container'>
       <InputGroup>
         {
           selected.length === 0
             ? <PressedVariantButton>
               Не важно
-            </PressedVariantButton>
+              </PressedVariantButton>
             : <VariantButton onClick={() => setSelected([])}>
               Не важно
-            </VariantButton>
+              </VariantButton>
         }
         {
           variants.map(x =>
             selected.includes(x)
               ? <PressedVariantButton
-                key={x}
-                onClick={() => setSelected(selected.filter(y => y !== x))}
-              >
+                  key={x}
+                  onClick={() => setSelected(selected.filter(y => y !== x))}
+                >
                 {x}
-              </PressedVariantButton>
+                </PressedVariantButton>
               : <VariantButton
-                key={x}
-                onClick={() => setSelected([...selected, x])}
-              >
+                  key={x}
+                  onClick={() => setSelected([...selected, x])}
+                >
                 {x}
-              </VariantButton>
+                </VariantButton>
           )
         }
       </InputGroup>
     </div>
+  )
   return [[selected, setSelected], group]
 }
 
 const useInputText = (): [State<string>, React.ReactElement] => {
   const [[text, setText], input] = useInput<string>({ type: 'text' })
   if (text === undefined) setText('')
-  const group =
+  const group = (
     <InputGroup>
       {input}
       <ResetButton onClick={() => setText(undefined)}>
         Сбросить
       </ResetButton>
     </InputGroup>
+  )
   return [[text || '', setText], group]
 }
 
-export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => void }) {
+export default function FiltersPopup ({ onClose = () => { } }: { onClose?: () => void }) {
   const [[country, setCountry], CountryInput] = useInputText()
   const [[city, setCity], CityInput] = useInputText()
   const [[groups, setGroups], TypesInput] = useVariantInput([...FilterGroups])
@@ -188,14 +193,15 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
   const handleClose = () => {
     setShowAllFilters(false)
     filters.set({
-      country, city,
+      country,
+      city,
       groups,
       rooms,
       status,
       frame,
       priceRange,
       floorRange,
-      areaRange,
+      areaRange
     })
     onClose()
   }
@@ -212,24 +218,24 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
   }, [filters])
   return (
     <Modal onClose={handleClose}>
-      <h1 className="filter__title">Фильтры</h1>
-      <div className="filter__table filter__first">
+      <h1 className='filter__title'>Фильтры</h1>
+      <div className='filter__table filter__first'>
         <FiltersContainer>
           {/* <Filter name="Выбор страны">{CountryInput}</Filter> */}
           {/* <Filter name="Выбор города">{CityInput}</Filter> */}
-          <Filter name="Тип">{TypesInput}</Filter>
-          <Filter name="Кол-во комнат">{RoomsInput}</Filter>
-          <Filter name="Цена, $">{PriceInput}</Filter>
+          <Filter name='Тип'>{TypesInput}</Filter>
+          <Filter name='Кол-во комнат'>{RoomsInput}</Filter>
+          <Filter name='Цена, $'>{PriceInput}</Filter>
         </FiltersContainer>
       </div>
       {showAllFilters && <>
-        <h2 className="filter__title filter__title-more">Дополнительные фильтры</h2>
-        <div className="filter__table filter__table-more">
+        <h2 className='filter__title filter__title-more'>Дополнительные фильтры</h2>
+        <div className='filter__table filter__table-more'>
           <FiltersContainer>
-            <Filter name="Статус">{StatusInput}</Filter>
-            <Filter name="Этаж">{FloorInput}</Filter>
-            <Filter name="Ремонт">{FrameInput}</Filter>
-            <Filter name="Площадь, м²">{AreaInput}</Filter>
+            <Filter name='Статус'>{StatusInput}</Filter>
+            <Filter name='Этаж'>{FloorInput}</Filter>
+            <Filter name='Ремонт'>{FrameInput}</Filter>
+            <Filter name='Площадь, м²'>{AreaInput}</Filter>
           </FiltersContainer>
         </div>
       </>}

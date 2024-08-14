@@ -1,32 +1,32 @@
 'use client'
 
-import { useEffect, useRef, useState } from "react";
-import { Building } from "../api/berega";
+import { useEffect, useRef, useState } from 'react';
+import { Building } from '../api/berega';
 
 import mapbox, { GeoJSONSource, LngLatBounds, Map as MapboxMap, MapMouseEvent, MapTouchEvent, NavigationControl } from 'mapbox-gl'
-import 'mapbox-gl/dist/mapbox-gl.css';
-import Polygon from "./Polygon";
-import Polyline from "./Polyline";
-import ButtonControl from "./ButtonControl";
-import { create } from "zustand";
-import ViewButtonControl from "./ViewButtonControl";
-import { clamp, inside } from "../utils";
-import debounce from "debounce";
-import intersect from "@turf/intersect";
+import 'mapbox-gl/dist/mapbox-gl.css'
+import Polygon from './Polygon';
+import Polyline from './Polyline';
+import ButtonControl from './ButtonControl';
+import { create } from 'zustand';
+import ViewButtonControl from './ViewButtonControl';
+import { clamp, inside } from '../utils';
+import debounce from 'debounce';
+import intersect from '@turf/intersect';
 
 export type Bounds = LngLatBounds
 
 export const useMap = create<{
-  bounds?: Bounds, selectedArea?: Polygon,
+  bounds?: Bounds, selectedArea?: Polygon
   selectedBuilding?: Building
-  setBounds: (bounds?: Bounds) => void,
+  setBounds: (bounds?: Bounds) => void
   setSelectedArea: (selectedArea?: Polygon) => void
   setSelectedBuilding: (building: Building | undefined) => void
-}>(set => ({
+}>set => ({
   setBounds: (bounds) => set({ bounds }),
   setSelectedArea: (selectedArea) => set({ selectedArea }),
   setSelectedBuilding: (building) => set({ selectedBuilding: building })
-}))
+})
 
 const monthAgo = (n: number = 1) => {
   const now = new Date()
@@ -61,8 +61,8 @@ const opacityFor = (x: Building) => {
 
 const markerRadius = 5
 
-export default function Map({ center, zoom, buildings, onClickInfo }:
-  { center: [number, number], zoom: number, buildings: Building[], onClickInfo?: () => void }) {
+export default function Map ({ center, zoom, buildings, onClickInfo }:
+{ center: [number, number], zoom: number, buildings: Building[], onClickInfo?: () => void }) {
   const mapState = useMap()
   const setSelectedArea = useMap(x => x.setSelectedArea)
   const mapContainer = useRef<HTMLDivElement>(null)
@@ -86,12 +86,12 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
         break
       }
       case 'draw': {
-        if (mapRef.current) {
+        if (mapRef.current != null) {
           mapRef.current.dragPan.disable()
           mapRef.current.getCanvas().style.cursor = 'crosshair'
         }
         polygonRef.current?.hide()
-        if (polylineRef.current) {
+        if (polylineRef.current != null) {
           polylineRef.current.path = []
           polylineRef.current.show()
         }
@@ -100,15 +100,15 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
       }
       case 'drawing': {
         // nothing
-        break;
+        break
       }
       case 'filtered': {
-        if (polygonRef.current && polylineRef.current)
-          polygonRef.current.path = polylineRef.current.path
+        if ((polygonRef.current != null) && (polylineRef.current != null))
+          {polygonRef.current.path = polylineRef.current.path}
         polygonRef.current?.show()
         polylineRef.current?.hide()
         setSelectedArea(polygonRef.current)
-        if (mapRef.current) {
+        if (mapRef.current != null) {
           mapRef.current.dragPan.enable()
           mapRef.current.getCanvas().style.cursor = ''
         }
@@ -118,12 +118,12 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
   }, [mode, setSelectedArea])
 
   useEffect(() => {
-    mapbox.accessToken = "pk.eyJ1IjoiY2hhbWJlcjY4MjEiLCJhIjoiY2xyZjY4MDBrMDF0bjJrbzU0djA2bnJueCJ9.sTgEkqcR0I_Yqjl0CTOQvA"
+    mapbox.accessToken = 'pk.eyJ1IjoiY2hhbWJlcjY4MjEiLCJhIjoiY2xyZjY4MDBrMDF0bjJrbzU0djA2bnJueCJ9.sTgEkqcR0I_Yqjl0CTOQvA'
     mapRef.current = new MapboxMap({
       container: mapContainer.current as HTMLDivElement,
       center: [center[1], center[0]],
-      zoom: zoom,
-      style: 'mapbox://styles/mapbox/streets-v12',
+      zoom,
+      style: 'mapbox://styles/mapbox/streets-v12'
     })
     polygonRef.current = new Polygon(mapRef.current, 'polygon', {
       borderColor: '#439639',
@@ -151,11 +151,11 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
         on: {
           click: () => {
             setMode({
-              'loading': 'loading',
-              'view': 'draw',
-              'draw': 'view',
-              'drawing': 'filtered',
-              'filtered': 'view'
+              loading: 'loading',
+              view: 'draw',
+              draw: 'view',
+              drawing: 'filtered',
+              filtered: 'view'
             }[modeRef.current] as 'view' | 'draw' | 'drawing' | 'filtered')
           }
         }
@@ -163,7 +163,7 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
       .addControl(
         new ViewButtonControl(map, {
           pitch: 0,
-          zoom: zoom
+          zoom
         }, {
           pitch: 80,
           zoom: 16
@@ -181,27 +181,27 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
       .on('touchstart', drawingStart)
       .on('touchmove', drawingMove)
       .on('touchend', drawingEnd)
-      .on('moveend', () => mapState.setBounds(map.getBounds() || undefined))
+      .on('moveend', () => mapState.setBounds((map.getBounds() != null) || undefined))
       .once('style.load', () => setMode('view'))
 
-    type Marker = {
-      color: string,
-      opacity: number,
-      originIndex: number,
+    interface Marker {
+      color: string
+      opacity: number
+      originIndex: number
     }
     const geoJsonMarkers: GeoJSON.FeatureCollection<GeoJSON.Point, Marker> = {
-      'type': 'FeatureCollection',
-      'features': buildings.map(
+      type: 'FeatureCollection',
+      features: buildings.map(
         (x, i) => ({
-          'type': 'Feature',
-          'geometry': {
-            'type': 'Point',
-            'coordinates': [x.location.lng, x.location.lat]
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [x.location.lng, x.location.lat]
           },
-          'properties': {
-            'color': colorFor(x),
-            'opacity': opacityFor(x),
-            'originIndex': i
+          properties: {
+            color: colorFor(x),
+            opacity: opacityFor(x),
+            originIndex: i
           }
         })
       )
@@ -240,8 +240,8 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
       map.addSource('selected-marker', {
         type: 'geojson',
         data: {
-          'type': 'FeatureCollection',
-          'features': []
+          type: 'FeatureCollection',
+          features: []
         }
       })
       map.addLayer({
@@ -259,7 +259,7 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
       map.moveLayer('markers', 'selected-marker')
       map.on('click', 'markers', (e) => {
         const marker = e.features?.[0]?.properties as Marker | undefined
-        marker && mapState.setSelectedBuilding(buildingsRef.current[marker.originIndex])
+        ;(marker != null) && mapState.setSelectedBuilding(buildingsRef.current[marker.originIndex])
       })
       map
         .on('mouseenter', 'markers', () => ['view', 'filtered'].includes(modeRef.current) && (map.getCanvas().style.cursor = 'pointer'))
@@ -268,10 +268,10 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
 
     map.once('style.load', () => {
       const emptyFeatureCollection: GeoJSON.FeatureCollection = {
-        'type': 'FeatureCollection',
-        'features': []
+        type: 'FeatureCollection',
+        features: []
       }
-      const labelLayerId = map.getStyle()?.layers?.find(x => x.type === 'symbol' && x.layout?.['text-field'])?.id;
+      const labelLayerId = map.getStyle()?.layers?.find(x => x.type === 'symbol' && x.layout?.['text-field'])?.id
       map
         .addSource('colored-buildings', { type: 'geojson', data: emptyFeatureCollection })
         .addSource('simple-buildings', { type: 'geojson', data: emptyFeatureCollection })
@@ -284,7 +284,7 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
             'fill-extrusion-color': ['get', 'color'],
             'fill-extrusion-height': ['get', 'height'],
             'fill-extrusion-base': ['get', 'min_height'],
-            'fill-extrusion-vertical-gradient': false,
+            'fill-extrusion-vertical-gradient': false
           }
         }, labelLayerId)
         .addLayer({
@@ -296,12 +296,12 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
             'fill-extrusion-color': '#ddddd1',
             'fill-extrusion-height': ['get', 'height'],
             'fill-extrusion-base': ['get', 'min_height'],
-            'fill-extrusion-vertical-gradient': false,
+            'fill-extrusion-vertical-gradient': false
           },
         }, labelLayerId)
         .on('click', 'colored-buildings', (e) => {
           const marker = e.features?.[0]?.properties as Marker | undefined
-          marker && mapState.setSelectedBuilding(buildingsRef.current[marker.originIndex])
+          ;(marker != null) && mapState.setSelectedBuilding(buildingsRef.current[marker.originIndex])
         })
       const coloredBuildingsSource = map.getSource('colored-buildings') as GeoJSONSource
       const simpleBuildingsSource = map.getSource('simple-buildings') as GeoJSONSource
@@ -312,14 +312,14 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
           markers.find(y =>
             inside(
               (y.geometry as GeoJSON.Point).coordinates as [number, number],
-              (x.geometry as GeoJSON.Polygon).coordinates[0] as [number, number][]
+              (x.geometry as GeoJSON.Polygon).coordinates[0] as Array<[number, number]>
             )
           )
         )
         const coloredBuildings = buildings
           .map((x, i) => ({ ...x, geometry: x.geometry, properties: { ...x.properties, ...mask[i]?.properties } }))
           .filter((_, i) => mask[i])
-        const simpleBuildings = buildings.filter((_, i) => !mask[i])
+        const simpleBuildings = buildings.filter((_, i) => mask[i] == null)
 
         const toRemove: number[] = []
         coloredBuildings.forEach((colored, i) => {
@@ -330,7 +330,7 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
                 colored as GeoJSON.Feature<GeoJSON.Polygon>,
                 simple as GeoJSON.Feature<GeoJSON.Polygon>
               ]
-            })) {
+            }) != null) {
               coloredBuildings.push({
                 ...simple,
                 geometry: simple.geometry,
@@ -345,31 +345,31 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
         })
         toRemove.reverse().forEach(i => simpleBuildings.splice(i, 1))
 
-        coloredBuildingsSource.setData({ 'type': 'FeatureCollection', 'features': coloredBuildings })
-        simpleBuildingsSource.setData({ 'type': 'FeatureCollection', 'features': simpleBuildings })
+        coloredBuildingsSource.setData({ type: 'FeatureCollection', features: coloredBuildings })
+        simpleBuildingsSource.setData({ type: 'FeatureCollection', features: simpleBuildings })
       }))
     })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const map = mapRef.current
-    if (!map || !map.isStyleLoaded()) return
+    if ((map == null) || !map.isStyleLoaded()) return
     const selectedMarker = map.getSource<GeoJSONSource>('selected-marker')
-    if (!selectedMarker) return
+    if (selectedMarker == null) return
     const building = mapState.selectedBuilding
-    if (building) {
+    if (building != null) {
       console.log('select building', building)
       selectedMarker.setData({
-        'type': 'FeatureCollection',
-        'features': [
+        type: 'FeatureCollection',
+        features: [
           {
-            'type': 'Feature',
-            'geometry': {
-              'type': 'Point',
-              'coordinates': [building.location.lng, building.location.lat]
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [building.location.lng, building.location.lat]
             },
-            'properties': {
-              'color': '#ff8000'
+            properties: {
+              color: '#ff8000'
             }
           }
         ]
@@ -377,8 +377,8 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
     } else {
       console.log('deselect building')
       selectedMarker.setData({
-        'type': 'FeatureCollection',
-        'features': []
+        type: 'FeatureCollection',
+        features: []
       })
     }
     console.log(map.getSource<GeoJSONSource>('selected-marker')?._data)
@@ -386,27 +386,26 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
 
   useEffect(() => {
     console.log('UPDATE MARKERS!')
-    if (!mapRef.current) return
+    if (mapRef.current == null) return
     const map = mapRef.current
     map.getSource<GeoJSONSource>('markers')?.setData({
-      'type': 'FeatureCollection',
-      'features': buildings.map(
+      type: 'FeatureCollection',
+      features: buildings.map(
         (x, i) => ({
-          'type': 'Feature',
-          'geometry': {
-            'type': 'Point',
-            'coordinates': [x.location.lng, x.location.lat]
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [x.location.lng, x.location.lat]
           },
-          'properties': {
-            'color': colorFor(x),
-            'opacity': opacityFor(x),
-            'originIndex': i
+          properties: {
+            color: colorFor(x),
+            opacity: opacityFor(x),
+            originIndex: i
           }
         })
       )
     })
   }, [buildings.length])
 
-
-  return <div className="map" ref={mapContainer}></div>
+  return <div className='map' ref={mapContainer} />
 }

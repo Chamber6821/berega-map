@@ -1,8 +1,8 @@
-import { useWindowWidth } from "@react-hook/window-size"
-import { useEffect, useState } from "react"
-import { ChevronDownOutline, ChevronUpOutline } from "react-ionicons"
-import styled from "styled-components"
-import { FilterGroup, FilterRooms, Range, useFilters } from "./useFilters"
+import { useWindowWidth } from '@react-hook/window-size'
+import { useEffect, useState } from 'react'
+import { ChevronDownOutline, ChevronUpOutline } from 'react-ionicons'
+import styled from 'styled-components'
+import { FilterGroup, FilterRooms, Range, useFilters } from './useFilters'
 
 const Filter = styled.div`
   position: relative;
@@ -144,30 +144,32 @@ const InputGroup = styled.div`
 type State<T> = [T, (value: T) => void]
 
 const useInput = <T,>({ type, placeholder = '', validator = x => x as T }:
-  { type: React.HTMLInputTypeAttribute, placeholder?: string, validator?: (value: string) => T | undefined }):
+{ type: React.HTMLInputTypeAttribute, placeholder?: string, validator?: (value: string) => T | undefined }):
   [State<T | undefined>, React.ReactElement] => {
   const [value, setValue] = useState<T>()
-  const input =
+  const input = (
     <Input
       type={type}
       placeholder={placeholder}
       value={`${value}`}
       onChange={e => setValue(validator(e.target.value))}
     />
+  )
   return [[value, setValue], input]
 }
 
 const useRangeInput = (prefix: string, postfix: string): [State<Range>, React.ReactElement] => {
-  const validator = (x: string) => x === "" ? undefined : Math.max(0, +x)
+  const validator = (x: string) => x === '' ? undefined : Math.max(0, +x)
   const [[from, setFrom], FromInput] = useInput<number>({ type: 'number', placeholder: `${prefix} от`, validator })
-  const [[to, setTo], ToInput] = useInput<number>({ type: 'number', placeholder: "до", validator })
-  const group =
+  const [[to, setTo], ToInput] = useInput<number>({ type: 'number', placeholder: 'до', validator })
+  const group = (
     <InputGroup>
       {FromInput}
       -
       {ToInput}
       {postfix}
     </InputGroup>
+  )
   return [[[from, to], ([from, to]) => {
     setFrom(from)
     setTo(to)
@@ -176,26 +178,27 @@ const useRangeInput = (prefix: string, postfix: string): [State<Range>, React.Re
 
 const useVariantInput = <T extends string,>(variants: T[]): [State<T[]>, React.ReactElement] => {
   const [selected, setSelected] = useState<T[]>([])
-  const group =
+  const group = (
     <VariantGroup>
       {
         variants.map(x =>
           selected.includes(x)
             ? <PressedVariant
-              key={x}
-              onClick={() => setSelected(selected.filter(y => y !== x))}
-            >
+                key={x}
+                onClick={() => setSelected(selected.filter(y => y !== x))}
+              >
               {x}
-            </PressedVariant>
+              </PressedVariant>
             : <Variant
-              key={x}
-              onClick={() => setSelected([...selected, x])}
-            >
+                key={x}
+                onClick={() => setSelected([...selected, x])}
+              >
               {x}
-            </Variant>
+              </Variant>
         )
       }
     </VariantGroup>
+  )
   return [[selected, setSelected], group]
 }
 
@@ -207,8 +210,8 @@ const useOptions = <T,>(label: string, variants: T[]): [State<T[]>, React.ReactE
       {label}
       {
         opened
-          ? <ChevronUpOutline height="15px" width="15px" />
-          : <ChevronDownOutline height="15px" width="15px" />
+          ? <ChevronUpOutline height='15px' width='15px' />
+          : <ChevronDownOutline height='15px' width='15px' />
       }
     </SelectButton>
     {opened &&
@@ -222,12 +225,11 @@ const useOptions = <T,>(label: string, variants: T[]): [State<T[]>, React.ReactE
             )
           }
         </Options>
-      </SelectBody >
-    }
+      </SelectBody>}
   </>]
 }
 
-export default function FiltersHeader() {
+export default function FiltersHeader () {
   const width = useWindowWidth()
   const filters = useFilters()
   const [[price, setPrice], PriceInput] = useRangeInput('Цена', '$')
@@ -241,7 +243,7 @@ export default function FiltersHeader() {
       areaRange: area,
       rooms,
       groups: types,
-      agriculturals: agriculturals.map(x => x === 'Сельхоз' ? true : false)
+      agriculturals: agriculturals.map(x => x === 'Сельхоз')
     })
   }, [...price, ...area, rooms.length, ...types, types.length, agriculturals.length])
   useEffect(() => {
@@ -252,19 +254,21 @@ export default function FiltersHeader() {
     setTypes(filters.groups)
     setAgriculturals(filters.agriculturals.map(x => x ? 'Сельхоз' : 'Не сельхоз'))
   }, [filters])
-  return <Filters>
-    <Filter>{TypesInput}</Filter>
-    {width > 685 && <Filter>{PriceInput}</Filter>}
-    {
-      width > 900
-      && types.some(x => (['Новостройки', 'Вторичное жилье'] as FilterGroup[]).includes(x))
-      && < Filter > {RoomsInput}</Filter>
+  return (
+    <Filters>
+      <Filter>{TypesInput}</Filter>
+      {width > 685 && <Filter>{PriceInput}</Filter>}
+      {
+      width > 900 &&
+      types.some(x => (['Новостройки', 'Вторичное жилье'] as FilterGroup[]).includes(x)) &&
+        <Filter> {RoomsInput}</Filter>
     }
-    {
-      width > 900
-      && types.some(x => (['Земельные участки'] as FilterGroup[]).includes(x))
-      && < Filter > {AgriculturalsInput}</Filter>
+      {
+      width > 900 &&
+      types.some(x => (['Земельные участки'] as FilterGroup[]).includes(x)) &&
+        <Filter> {AgriculturalsInput}</Filter>
     }
-    {width > 1215 && <Filter>{AreaInput}</Filter>}
-  </Filters>
+      {width > 1215 && <Filter>{AreaInput}</Filter>}
+    </Filters>
+  )
 }
