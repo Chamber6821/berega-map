@@ -1,5 +1,7 @@
 name: Check
-on: [push]
+on: 
+  pull_request:
+    - master
 jobs:
   style:
     runs-on: ubuntu-22.04
