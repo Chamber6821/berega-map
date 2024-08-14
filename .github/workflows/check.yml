@@ -1,0 +1,14 @@
+name: Check
+on: [push]
+jobs:
+  style:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: node_modules-${{ hashFiles('yarn.lock') }}
+          restore-keys: node_modules-
+      - run: yarn
+      - run: npx ts-standard

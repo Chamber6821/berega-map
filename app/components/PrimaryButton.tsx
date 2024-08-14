@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from 'styled-components'
 
 const PrimaryButton = styled.button`
   display: flex;
@@ -20,4 +20,3 @@ const PrimaryButton = styled.button`
 `
 
 export default PrimaryButton
-

@@ -1,9 +1,10 @@
-import { Building } from "./api/berega";
-import Card from "./Card";
+import { Building } from './api/berega'
+import Card from './Card'
 
-export default function Cards({ buildings }: { buildings: Building[] }) {
-  return <div className="cards-container">
-    {
+export default function Cards ({ buildings }: { buildings: Building[] }) {
+  return (
+    <div className='cards-container'>
+      {
       buildings
         .map(
           x => <Card
@@ -12,7 +13,8 @@ export default function Cards({ buildings }: { buildings: Building[] }) {
             title={x.title}
             description={x.shortDescription.length === 1 ? [x.shortDescription[0], ''] : x.shortDescription}
             page={x.page}
-          />)
+               />)
     }
-  </div>
+    </div>
+  )
 }

@@ -8,28 +8,28 @@ export const range = (n: number) => Array.from({ length: n }, (_, i) => i)
 export const average = (numbers: number[]) => numbers.reduce((a, b) => a + b) / numbers.length
 
 // https://stackoverflow.com/a/29915728
-export const inside = (point: [number, number], polygon: [number, number][]) => {
+export const inside = (point: [number, number], polygon: Array<[number, number]>) => {
   // ray-casting algorithm based on
   // https://wrf.ecse.rpi.edu/Research/Short_Notes/pnpoly.html
   const x = point[0]
-  const y = point[1];
+  const y = point[1]
   const vs = polygon
-  let inside = false;
-  for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
-    var xi = vs[i][0], yi = vs[i][1];
-    var xj = vs[j][0], yj = vs[j][1];
+  let inside = false
+  for (let i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+    const xi = vs[i][0]; const yi = vs[i][1]
+    const xj = vs[j][0]; const yj = vs[j][1]
 
-    var intersect = ((yi > y) != (yj > y))
-      && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
-    if (intersect) inside = !inside;
+    const intersect = ((yi > y) != (yj > y)) &&
+      (x < (xj - xi) * (y - yi) / (yj - yi) + xi)
+    if (intersect) inside = !inside
   }
-  return inside;
+  return inside
 }
 
-export type Color = {
-  r: number,
-  g: number,
-  b: number,
+export interface Color {
+  r: number
+  g: number
+  b: number
 }
 
 export const colorFromHex = (hex: string): Color => {
@@ -37,7 +37,7 @@ export const colorFromHex = (hex: string): Color => {
   return {
     r: parseInt(trimmed.substring(0, 2), 16),
     g: parseInt(trimmed.substring(2, 4), 16),
-    b: parseInt(trimmed.substring(4, 6), 16),
+    b: parseInt(trimmed.substring(4, 6), 16)
   }
 }
 
@@ -49,11 +49,11 @@ export const colorToHex = (color: Color) => {
 }
 
 export const gradient = (colorFrom: Color, colorTo: Color) => (progress: number) =>
-({
-  r: colorFrom.r * (1 - progress) + colorTo.r * progress,
-  g: colorFrom.g * (1 - progress) + colorTo.g * progress,
-  b: colorFrom.b * (1 - progress) + colorTo.b * progress,
-})
+  ({
+    r: colorFrom.r * (1 - progress) + colorTo.r * progress,
+    g: colorFrom.g * (1 - progress) + colorTo.g * progress,
+    b: colorFrom.b * (1 - progress) + colorTo.b * progress
+  })
 
 export const clamp = (x: number, min: number, max: number) => Math.max(min, Math.min(x, max))
 
@@ -62,4 +62,3 @@ export const createElement = (html: string) => {
   element.innerHTML = html
   return element
 }
-

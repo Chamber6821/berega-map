@@ -1,3 +1,3 @@
-import dynamic from 'next/dynamic';
+import dynamic from 'next/dynamic'
 
-export const Map = dynamic(() => import('./Map'), { ssr: false })
+export const Map = dynamic(async () => await import('./Map'), { ssr: false })

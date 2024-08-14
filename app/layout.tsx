@@ -1,22 +1,22 @@
-import type { Metadata } from "next";
-import { Montserrat } from "next/font/google";
-import "./globals.css";
+import type { Metadata } from 'next'
+import { Montserrat } from 'next/font/google'
+import './globals.css'
 
-const inter = Montserrat({ subsets: ["latin", "cyrillic"] });
+const inter = Montserrat({ subsets: ['latin', 'cyrillic'] })
 
 export const metadata: Metadata = {
-  title: "Map for buildings",
-  description: "Map for buildings",
-};
+  title: 'Map for buildings',
+  description: 'Map for buildings'
+}
 
-export default function RootLayout({
-  children,
+export default function RootLayout ({
+  children
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang='en'>
       <body className={inter.className}>{children}</body>
     </html>
-  );
+  )
 }
