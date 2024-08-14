@@ -260,7 +260,7 @@ export default function Map ({ center, zoom, buildings, onClickInfo }:
       map.moveLayer('markers', 'selected-marker')
       map.on('click', 'markers', (e) => {
         const marker = e.features?.[0]?.properties as Marker | undefined
-          ; (marker != null) && mapState.setSelectedBuilding(buildingsRef.current[marker.originIndex])
+        if (marker !== undefined) { mapState.setSelectedBuilding(buildingsRef.current[marker.originIndex]) }
       })
       map
         .on('mouseenter', 'markers', () => ['view', 'filtered'].includes(modeRef.current) && (map.getCanvas().style.cursor = 'pointer'))
@@ -302,7 +302,7 @@ export default function Map ({ center, zoom, buildings, onClickInfo }:
         }, labelLayerId)
         .on('click', 'colored-buildings', (e) => {
           const marker = e.features?.[0]?.properties as Marker | undefined
-            ; (marker != null) && mapState.setSelectedBuilding(buildingsRef.current[marker.originIndex])
+          if (marker !== undefined) { mapState.setSelectedBuilding(buildingsRef.current[marker.originIndex]) }
         })
       const coloredBuildingsSource = map.getSource('colored-buildings') as GeoJSONSource
       const simpleBuildingsSource = map.getSource('simple-buildings') as GeoJSONSource
