@@ -356,7 +356,6 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
         .on('move', debounce(update))
         .on('sourcedata', e => {
           if (e.sourceId !== 'markers') return
-          console.log(e)
           update()
         })
     })
