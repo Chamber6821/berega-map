@@ -51,7 +51,7 @@ export const useFilters = create<Filters & {
   set: (part: Partial<Filters>) => void,
 }>((set) => ({
   rooms: [],
-  groups: [],
+  groups: ['Вторичное жилье'],
   status: [],
   frame: [],
   agriculturals: [],
