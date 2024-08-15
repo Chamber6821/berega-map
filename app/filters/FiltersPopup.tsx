@@ -76,7 +76,10 @@ const PressedVariantButton = styled.button`
 
 const Filter = ({ name, children }: { name: string, children: any }) =>
   <tr className="filter__line">
-    <td style={{ paddingRight: '20px' }}>
+    <td style={{
+      paddingRight: '20px',
+      wordBreak: 'break-all'
+    }}>
       <h2>{name}</h2>
     </td>
     <td>{children}</td>
