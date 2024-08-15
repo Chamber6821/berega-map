@@ -257,7 +257,7 @@ export default function FiltersHeader() {
 
   // Инициализация фильтров
   useEffect(() => {
-    filters.set({ groups: ['Новостройки'] })
+    filters.set({ groups: ['Вторичное жилье'] })
   }, [])
 
   return <Filters>
