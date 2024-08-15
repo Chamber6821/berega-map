@@ -13,7 +13,6 @@ import ViewButtonControl from "./ViewButtonControl";
 import { clamp, inside } from "../utils";
 import debounce from "debounce";
 import intersect from "@turf/intersect";
-import { useFilters } from "../filters/useFilters";
 
 export type Bounds = LngLatBounds
 
@@ -66,7 +65,6 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
   { center: [number, number], zoom: number, buildings: Building[], onClickInfo?: () => void }) {
   const mapState = useMap()
   const setSelectedArea = useMap(x => x.setSelectedArea)
-  const filters = useFilters()
   const mapContainer = useRef<HTMLDivElement>(null)
   const mapRef = useRef<mapboxgl.Map>()
   const polygonRef = useRef<Polygon>()
@@ -353,14 +351,16 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
           const marker = e.features?.[0]?.properties as Marker | undefined
           marker && mapState.setSelectedBuilding(buildingsRef.current[marker.originIndex])
         })
-      map.on('move', debounce(updateBuildings(map)))
+      const update = updateBuildings(map)
+      map
+        .on('move', debounce(update))
+        .on('sourcedata', e => {
+          if (e.sourceId !== 'markers') return
+          console.log(e)
+          update()
+        })
     })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    if (mapRef.current?.isStyleLoaded())
-      updateBuildings(mapRef.current)()
-  }, [filters])
 
   useEffect(() => {
     const map = mapRef.current
