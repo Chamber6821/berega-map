@@ -13,6 +13,7 @@ import ViewButtonControl from "./ViewButtonControl";
 import { clamp, inside } from "../utils";
 import debounce from "debounce";
 import intersect from "@turf/intersect";
+import { useFilters } from "../filters/useFilters";
 
 export type Bounds = LngLatBounds
 
@@ -65,6 +66,7 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
   { center: [number, number], zoom: number, buildings: Building[], onClickInfo?: () => void }) {
   const mapState = useMap()
   const setSelectedArea = useMap(x => x.setSelectedArea)
+  const filters = useFilters()
   const mapContainer = useRef<HTMLDivElement>(null)
   const mapRef = useRef<mapboxgl.Map>()
   const polygonRef = useRef<Polygon>()
@@ -74,6 +76,54 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
   const modeRef = useRef(mode)
   const buildingsRef = useRef(buildings)
   buildingsRef.current = buildings
+
+  const updateBuildings = (map: MapboxMap) => {
+    const coloredBuildingsSource = map.getSource('colored-buildings') as GeoJSONSource
+    const simpleBuildingsSource = map.getSource('simple-buildings') as GeoJSONSource
+    return () => {
+      const buildings = map.queryRenderedFeatures(undefined, { layers: ['building'], filter: ['==', 'extrude', 'true'] })
+      const markers = map.queryRenderedFeatures(undefined, { layers: ['markers'] }).sort()
+      const mask = buildings.map(x =>
+        markers.find(y =>
+          inside(
+            (y.geometry as GeoJSON.Point).coordinates as [number, number],
+            (x.geometry as GeoJSON.Polygon).coordinates[0] as [number, number][]
+          )
+        )
+      )
+      const coloredBuildings = buildings
+        .map((x, i) => ({ ...x, geometry: x.geometry, properties: { ...x.properties, ...mask[i]?.properties } }))
+        .filter((_, i) => mask[i])
+      const simpleBuildings = buildings.filter((_, i) => !mask[i])
+
+      const toRemove: number[] = []
+      coloredBuildings.forEach((colored, i) => {
+        simpleBuildings.forEach((simple, j) => {
+          if (intersect({
+            type: 'FeatureCollection',
+            features: [
+              colored as GeoJSON.Feature<GeoJSON.Polygon>,
+              simple as GeoJSON.Feature<GeoJSON.Polygon>
+            ]
+          })) {
+            coloredBuildings.push({
+              ...simple,
+              geometry: simple.geometry,
+              properties: {
+                ...simple.properties,
+                color: colored.properties.color
+              }
+            })
+            toRemove.push(j)
+          }
+        })
+      })
+      toRemove.reverse().forEach(i => simpleBuildings.splice(i, 1))
+
+      coloredBuildingsSource.setData({ 'type': 'FeatureCollection', 'features': coloredBuildings })
+      simpleBuildingsSource.setData({ 'type': 'FeatureCollection', 'features': simpleBuildings })
+    }
+  }
 
   useEffect(() => {
     modeRef.current = mode
@@ -303,53 +353,14 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
           const marker = e.features?.[0]?.properties as Marker | undefined
           marker && mapState.setSelectedBuilding(buildingsRef.current[marker.originIndex])
         })
-      const coloredBuildingsSource = map.getSource('colored-buildings') as GeoJSONSource
-      const simpleBuildingsSource = map.getSource('simple-buildings') as GeoJSONSource
-      map.on('move', debounce(() => {
-        const buildings = map.queryRenderedFeatures(undefined, { layers: ['building'], filter: ['==', 'extrude', 'true'] })
-        const markers = map.queryRenderedFeatures(undefined, { layers: ['markers'] }).sort()
-        const mask = buildings.map(x =>
-          markers.find(y =>
-            inside(
-              (y.geometry as GeoJSON.Point).coordinates as [number, number],
-              (x.geometry as GeoJSON.Polygon).coordinates[0] as [number, number][]
-            )
-          )
-        )
-        const coloredBuildings = buildings
-          .map((x, i) => ({ ...x, geometry: x.geometry, properties: { ...x.properties, ...mask[i]?.properties } }))
-          .filter((_, i) => mask[i])
-        const simpleBuildings = buildings.filter((_, i) => !mask[i])
-
-        const toRemove: number[] = []
-        coloredBuildings.forEach((colored, i) => {
-          simpleBuildings.forEach((simple, j) => {
-            if (intersect({
-              type: 'FeatureCollection',
-              features: [
-                colored as GeoJSON.Feature<GeoJSON.Polygon>,
-                simple as GeoJSON.Feature<GeoJSON.Polygon>
-              ]
-            })) {
-              coloredBuildings.push({
-                ...simple,
-                geometry: simple.geometry,
-                properties: {
-                  ...simple.properties,
-                  color: colored.properties.color
-                }
-              })
-              toRemove.push(j)
-            }
-          })
-        })
-        toRemove.reverse().forEach(i => simpleBuildings.splice(i, 1))
-
-        coloredBuildingsSource.setData({ 'type': 'FeatureCollection', 'features': coloredBuildings })
-        simpleBuildingsSource.setData({ 'type': 'FeatureCollection', 'features': simpleBuildings })
-      }))
+      map.on('move', debounce(updateBuildings(map)))
     })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (mapRef.current?.isStyleLoaded())
+      updateBuildings(mapRef.current)()
+  }, [filters])
 
   useEffect(() => {
     const map = mapRef.current
