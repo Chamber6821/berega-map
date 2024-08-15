@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { useEffect, useState } from "react";
 import PrimaryButton from "../components/PrimaryButton";
 import Modal from "../components/Modal";
-import { FilterFrames, FilterGroups, FilterRooms, FilterStatuses, Range, useFilters } from "./useFilters";
+import { FilterFrames, FilterGroup, FilterGroups, FilterRooms, FilterStatuses, Range, useFilters } from "./useFilters";
 
 const Input = styled.input`
   border: 2px solid #EEF5F8;
@@ -76,7 +76,10 @@ const PressedVariantButton = styled.button`
 
 const Filter = ({ name, children }: { name: string, children: any }) =>
   <tr className="filter__line">
-    <td style={{ paddingRight: '20px' }}>
+    <td style={{
+      paddingRight: '20px',
+      wordBreak: 'break-all'
+    }}>
       <h2>{name}</h2>
     </td>
     <td>{children}</td>
@@ -180,25 +183,36 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
   const [[rooms, setRooms], RoomsInput] = useVariantInput([...FilterRooms])
   const [[status, setStatus], StatusInput] = useVariantInput([...FilterStatuses])
   const [[frame, setFrame], FrameInput] = useVariantInput([...FilterFrames])
+  const [[agricultures, setAgricultures], AgriculturesInput] = useVariantInput(['Сельхоз', 'Не сельхоз'])
   const [[priceRange, setPrice], PriceInput] = useRangeInput()
   const [[floorRange, setFloor], FloorInput] = useRangeInput()
   const [[areaRange, setArea], AreaInput] = useRangeInput()
   const [showAllFilters, setShowAllFilters] = useState(false)
   const filters = useFilters()
+  const resetRooms = (['Дома, коттеджи, таунхаусы', 'Земельные участки', 'Коммерческая'] as FilterGroup[]).some(x => groups.includes(x))
+  const resetStatus = (['Земельные участки'] as FilterGroup[]).some(x => groups.includes(x))
+  const resetFrame = (['Земельные участки'] as FilterGroup[]).some(x => groups.includes(x))
+  const resetAgricultures = !groups.includes('Земельные участки')
+  const resetFloor = (['Дома, коттеджи, таунхаусы', 'Земельные участки'] as FilterGroup[]).some(x => groups.includes(x))
   const handleClose = () => {
     setShowAllFilters(false)
     filters.set({
       country, city,
       groups,
-      rooms,
-      status,
-      frame,
+      rooms: resetRooms ? [] : rooms,
+      status: resetStatus ? [] : status,
+      frame: resetFrame ? [] : frame,
+      agriculturals: resetAgricultures ? [] : agricultures.map(x => x === 'Сельхоз' ? true : false),
       priceRange,
-      floorRange,
+      floorRange: resetFloor ? [undefined, undefined] : floorRange,
       areaRange,
     })
     onClose()
   }
+  useEffect(() => {
+    if (groups.length > 1)
+      setGroups(groups.splice(-1))
+  }, [setGroups, groups])
   useEffect(() => {
     setCountry(filters.country || '')
     setCity(filters.city || '')
@@ -206,6 +220,7 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
     setRooms(filters.rooms)
     setStatus(filters.status)
     setFrame(filters.frame)
+    setAgricultures(filters.agriculturals.map(x => x ? 'Сельхоз' : 'Не сельхоз'))
     setPrice(filters.priceRange)
     setFloor(filters.floorRange)
     setArea(filters.areaRange)
@@ -218,7 +233,8 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
           {/* <Filter name="Выбор страны">{CountryInput}</Filter> */}
           {/* <Filter name="Выбор города">{CityInput}</Filter> */}
           <Filter name="Тип">{TypesInput}</Filter>
-          <Filter name="Кол-во комнат">{RoomsInput}</Filter>
+          {!resetRooms && <Filter name="Кол-во комнат">{RoomsInput}</Filter>}
+          {!resetAgricultures && <Filter name="Местность">{AgriculturesInput}</Filter>}
           <Filter name="Цена, $">{PriceInput}</Filter>
         </FiltersContainer>
       </div>
@@ -226,9 +242,9 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
         <h2 className="filter__title filter__title-more">Дополнительные фильтры</h2>
         <div className="filter__table filter__table-more">
           <FiltersContainer>
-            <Filter name="Статус">{StatusInput}</Filter>
-            <Filter name="Этаж">{FloorInput}</Filter>
-            <Filter name="Ремонт">{FrameInput}</Filter>
+            {!resetStatus && <Filter name="Статус">{StatusInput}</Filter>}
+            {!resetFloor && <Filter name="Этаж">{FloorInput}</Filter>}
+            {!resetFrame && <Filter name="Ремонт">{FrameInput}</Filter>}
             <Filter name="Площадь, м²">{AreaInput}</Filter>
           </FiltersContainer>
         </div>
