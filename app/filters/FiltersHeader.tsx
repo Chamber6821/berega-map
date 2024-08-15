@@ -254,6 +254,12 @@ export default function FiltersHeader() {
     setTypes(filters.groups)
     setAgriculturals(filters.agriculturals.map(x => x ? 'Сельхоз' : 'Не сельхоз'))
   }, [filters])
+
+  // Инициализация фильтров
+  useEffect(() => {
+    filters.set({ groups: ['Новостройки'] })
+  }, [])
+
   return <Filters>
     <Filter>{TypesInput}</Filter>
     {width > 685 && <Filter>{PriceInput}</Filter>}

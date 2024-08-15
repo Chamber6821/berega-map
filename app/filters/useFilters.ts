@@ -47,11 +47,14 @@ export const filterOf = (filters: Filters) => (building: Building) =>
   && matchByRange(filters.floorRange, building.floor)
   && matchByRange(filters.areaRange, building.area)
 
+// Из-за кривости FiltersHeader
+// здесь нельзя менять значения по умолчанию (они должны совпадать со значениями в FiltersHeader)
+// Инициализация фильтров сделана в FiltersHeader
 export const useFilters = create<Filters & {
   set: (part: Partial<Filters>) => void,
 }>((set) => ({
   rooms: [],
-  groups: ['Вторичное жилье'],
+  groups: [],
   status: [],
   frame: [],
   agriculturals: [],
