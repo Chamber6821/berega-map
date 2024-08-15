@@ -226,7 +226,8 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
           {/* <Filter name="Выбор страны">{CountryInput}</Filter> */}
           {/* <Filter name="Выбор города">{CityInput}</Filter> */}
           <Filter name="Тип">{TypesInput}</Filter>
-          <Filter name="Кол-во комнат">{RoomsInput}</Filter>
+          {!resetRooms && <Filter name="Кол-во комнат">{RoomsInput}</Filter>}
+          {!resetAgricultures && <Filter name="Местность">{AgriculturesInput}</Filter>}
           <Filter name="Цена, $">{PriceInput}</Filter>
         </FiltersContainer>
       </div>
@@ -234,9 +235,9 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
         <h2 className="filter__title filter__title-more">Дополнительные фильтры</h2>
         <div className="filter__table filter__table-more">
           <FiltersContainer>
-            <Filter name="Статус">{StatusInput}</Filter>
-            <Filter name="Этаж">{FloorInput}</Filter>
-            <Filter name="Ремонт">{FrameInput}</Filter>
+            {!resetStatus && <Filter name="Статус">{StatusInput}</Filter>}
+            {!resetFloor && <Filter name="Этаж">{FloorInput}</Filter>}
+            {!resetFrame && <Filter name="Ремонт">{FrameInput}</Filter>}
             <Filter name="Площадь, м²">{AreaInput}</Filter>
           </FiltersContainer>
         </div>
