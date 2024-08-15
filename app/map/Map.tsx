@@ -75,6 +75,54 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
   const buildingsRef = useRef(buildings)
   buildingsRef.current = buildings
 
+  const updateBuildings = (map: MapboxMap) => {
+    const coloredBuildingsSource = map.getSource('colored-buildings') as GeoJSONSource
+    const simpleBuildingsSource = map.getSource('simple-buildings') as GeoJSONSource
+    return () => {
+      const buildings = map.queryRenderedFeatures(undefined, { layers: ['building'], filter: ['==', 'extrude', 'true'] })
+      const markers = map.queryRenderedFeatures(undefined, { layers: ['markers'] }).sort()
+      const mask = buildings.map(x =>
+        markers.find(y =>
+          inside(
+            (y.geometry as GeoJSON.Point).coordinates as [number, number],
+            (x.geometry as GeoJSON.Polygon).coordinates[0] as [number, number][]
+          )
+        )
+      )
+      const coloredBuildings = buildings
+        .map((x, i) => ({ ...x, geometry: x.geometry, properties: { ...x.properties, ...mask[i]?.properties } }))
+        .filter((_, i) => mask[i])
+      const simpleBuildings = buildings.filter((_, i) => !mask[i])
+
+      const toRemove: number[] = []
+      coloredBuildings.forEach((colored, i) => {
+        simpleBuildings.forEach((simple, j) => {
+          if (intersect({
+            type: 'FeatureCollection',
+            features: [
+              colored as GeoJSON.Feature<GeoJSON.Polygon>,
+              simple as GeoJSON.Feature<GeoJSON.Polygon>
+            ]
+          })) {
+            coloredBuildings.push({
+              ...simple,
+              geometry: simple.geometry,
+              properties: {
+                ...simple.properties,
+                color: colored.properties.color
+              }
+            })
+            toRemove.push(j)
+          }
+        })
+      })
+      toRemove.reverse().forEach(i => simpleBuildings.splice(i, 1))
+
+      coloredBuildingsSource.setData({ 'type': 'FeatureCollection', 'features': coloredBuildings })
+      simpleBuildingsSource.setData({ 'type': 'FeatureCollection', 'features': simpleBuildings })
+    }
+  }
+
   useEffect(() => {
     modeRef.current = mode
     switch (mode) {
@@ -303,51 +351,13 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
           const marker = e.features?.[0]?.properties as Marker | undefined
           marker && mapState.setSelectedBuilding(buildingsRef.current[marker.originIndex])
         })
-      const coloredBuildingsSource = map.getSource('colored-buildings') as GeoJSONSource
-      const simpleBuildingsSource = map.getSource('simple-buildings') as GeoJSONSource
-      map.on('move', debounce(() => {
-        const buildings = map.queryRenderedFeatures(undefined, { layers: ['building'], filter: ['==', 'extrude', 'true'] })
-        const markers = map.queryRenderedFeatures(undefined, { layers: ['markers'] }).sort()
-        const mask = buildings.map(x =>
-          markers.find(y =>
-            inside(
-              (y.geometry as GeoJSON.Point).coordinates as [number, number],
-              (x.geometry as GeoJSON.Polygon).coordinates[0] as [number, number][]
-            )
-          )
-        )
-        const coloredBuildings = buildings
-          .map((x, i) => ({ ...x, geometry: x.geometry, properties: { ...x.properties, ...mask[i]?.properties } }))
-          .filter((_, i) => mask[i])
-        const simpleBuildings = buildings.filter((_, i) => !mask[i])
-
-        const toRemove: number[] = []
-        coloredBuildings.forEach((colored, i) => {
-          simpleBuildings.forEach((simple, j) => {
-            if (intersect({
-              type: 'FeatureCollection',
-              features: [
-                colored as GeoJSON.Feature<GeoJSON.Polygon>,
-                simple as GeoJSON.Feature<GeoJSON.Polygon>
-              ]
-            })) {
-              coloredBuildings.push({
-                ...simple,
-                geometry: simple.geometry,
-                properties: {
-                  ...simple.properties,
-                  color: colored.properties.color
-                }
-              })
-              toRemove.push(j)
-            }
-          })
+      const update = updateBuildings(map)
+      map
+        .on('move', debounce(update))
+        .on('sourcedata', e => {
+          if (e.sourceId !== 'markers') return
+          update()
         })
-        toRemove.reverse().forEach(i => simpleBuildings.splice(i, 1))
-
-        coloredBuildingsSource.setData({ 'type': 'FeatureCollection', 'features': coloredBuildings })
-        simpleBuildingsSource.setData({ 'type': 'FeatureCollection', 'features': simpleBuildings })
-      }))
     })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
