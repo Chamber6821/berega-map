@@ -236,12 +236,14 @@ export default function FiltersHeader() {
   const [[types, setTypes], TypesInput] = useOptions('Тип недвижимости', ['Новостройки', 'Вторичное жилье', 'Дома, коттеджи, таунхаусы', 'Земельные участки', 'Коммерческая'] as const)
   const [[agriculturals, setAgriculturals], AgriculturalsInput] = useVariantInput(['Сельхоз', 'Не сельхоз'] as const)
   useEffect(() => {
+    const resetRooms = types.includes('Земельные участки')
+    const resetAgriculturals = !types.includes('Земельные участки')
     filters.set({
       priceRange: price,
       areaRange: area,
-      rooms,
+      rooms: resetRooms ? [] : rooms,
       groups: types,
-      agriculturals: agriculturals.map(x => x === 'Сельхоз' ? true : false)
+      agriculturals: resetAgriculturals ? [] : agriculturals.map(x => x === 'Сельхоз' ? true : false)
     })
   }, [...price, ...area, rooms.length, ...types, types.length, agriculturals.length])
   useEffect(() => {
