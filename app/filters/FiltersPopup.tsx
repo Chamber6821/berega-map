@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { useEffect, useState } from "react";
 import PrimaryButton from "../components/PrimaryButton";
 import Modal from "../components/Modal";
-import { FilterFrames, FilterGroups, FilterRooms, FilterStatuses, Range, useFilters } from "./useFilters";
+import { FilterFrames, FilterGroup, FilterGroups, FilterRooms, FilterStatuses, Range, useFilters } from "./useFilters";
 
 const Input = styled.input`
   border: 2px solid #EEF5F8;
@@ -180,21 +180,28 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
   const [[rooms, setRooms], RoomsInput] = useVariantInput([...FilterRooms])
   const [[status, setStatus], StatusInput] = useVariantInput([...FilterStatuses])
   const [[frame, setFrame], FrameInput] = useVariantInput([...FilterFrames])
+  const [[agricultures, setAgricultures], AgriculturesInput] = useVariantInput(['Сельхоз', 'Не сельхоз'])
   const [[priceRange, setPrice], PriceInput] = useRangeInput()
   const [[floorRange, setFloor], FloorInput] = useRangeInput()
   const [[areaRange, setArea], AreaInput] = useRangeInput()
   const [showAllFilters, setShowAllFilters] = useState(false)
   const filters = useFilters()
+  const resetRooms = (['Дома, коттеджи, таунхаусы', 'Земельные участки', 'Коммерческая'] as FilterGroup[]).some(x => groups.includes(x))
+  const resetStatus = (['Земельные участки'] as FilterGroup[]).some(x => groups.includes(x))
+  const resetFrame = (['Земельные участки'] as FilterGroup[]).some(x => groups.includes(x))
+  const resetAgricultures = !groups.includes('Земельные участки')
+  const resetFloor = (['Дома, коттеджи, таунхаусы', 'Земельные участки'] as FilterGroup[]).some(x => groups.includes(x))
   const handleClose = () => {
     setShowAllFilters(false)
     filters.set({
       country, city,
       groups,
-      rooms,
-      status,
-      frame,
+      rooms: resetRooms ? [] : rooms,
+      status: resetStatus ? [] : status,
+      frame: resetFrame ? [] : frame,
+      agriculturals: resetAgricultures ? [] : agricultures.map(x => x === 'Сельхоз' ? true : false),
       priceRange,
-      floorRange,
+      floorRange: resetFloor ? [undefined, undefined] : floorRange,
       areaRange,
     })
     onClose()
@@ -206,6 +213,7 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
     setRooms(filters.rooms)
     setStatus(filters.status)
     setFrame(filters.frame)
+    setAgricultures(filters.agriculturals.map(x => x ? 'Сельхоз' : 'Не сельхоз'))
     setPrice(filters.priceRange)
     setFloor(filters.floorRange)
     setArea(filters.areaRange)
