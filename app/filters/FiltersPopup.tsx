@@ -207,6 +207,10 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
     onClose()
   }
   useEffect(() => {
+    if (groups.length > 1)
+      setGroups(groups.splice(-1))
+  }, [setGroups, groups])
+  useEffect(() => {
     setCountry(filters.country || '')
     setCity(filters.city || '')
     setGroups(filters.groups)
