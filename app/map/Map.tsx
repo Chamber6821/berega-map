@@ -18,10 +18,10 @@ export type Bounds = LngLatBounds
 
 export const useMap = create<{
   bounds?: Bounds, selectedArea?: Polygon,
-  selectedBuilding?: Building
+  selectedBuilding?: Building[]
   setBounds: (bounds?: Bounds) => void,
   setSelectedArea: (selectedArea?: Polygon) => void
-  setSelectedBuilding: (building: Building | undefined) => void
+  setSelectedBuilding: (building: Building[] | undefined) => void
 }>(set => ({
   setBounds: (bounds) => set({ bounds }),
   setSelectedArea: (selectedArea) => set({ selectedArea }),
@@ -82,7 +82,7 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
       const buildings = map.queryRenderedFeatures(undefined, { layers: ['building'], filter: ['==', 'extrude', 'true'] })
       const markers = map.queryRenderedFeatures(undefined, { layers: ['markers'] }).sort()
       const mask = buildings.map(x =>
-        markers.find(y =>
+        markers.filter(y =>
           inside(
             (y.geometry as GeoJSON.Point).coordinates as [number, number],
             (x.geometry as GeoJSON.Polygon).coordinates[0] as [number, number][]
@@ -90,12 +90,20 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
         )
       )
       const coloredBuildings = buildings
-        .map((x, i) => ({ ...x, geometry: x.geometry, properties: { ...x.properties, ...mask[i]?.properties } }))
-        .filter((_, i) => mask[i])
-      const simpleBuildings = buildings.filter((_, i) => !mask[i])
+        .map((x, i) => ({
+          ...x,
+          geometry: x.geometry,
+          properties: {
+            ...x.properties,
+            color: mask[i][0]?.properties?.color,
+            originIndexes: mask[i].map(x => x?.properties?.originIndex)
+          }
+        }))
+        .filter((_, i) => mask[i].length > 0)
+      const simpleBuildings = buildings.filter((_, i) => mask[i].length === 0)
 
       const toRemove: number[] = []
-      coloredBuildings.forEach((colored, i) => {
+      coloredBuildings.forEach((colored) => {
         simpleBuildings.forEach((simple, j) => {
           if (intersect({
             type: 'FeatureCollection',
@@ -109,6 +117,7 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
               geometry: simple.geometry,
               properties: {
                 ...simple.properties,
+                ...colored.properties,
                 color: colored.properties.color
               }
             })
@@ -294,7 +303,7 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
       map.moveLayer('markers', 'selected-marker')
       map.on('click', 'markers', (e) => {
         const marker = e.features?.[0]?.properties as Marker | undefined
-        marker && mapState.setSelectedBuilding(buildingsRef.current[marker.originIndex])
+        marker && mapState.setSelectedBuilding([buildingsRef.current[marker.originIndex]])
       })
       map
         .on('mouseenter', 'markers', () => ['view', 'filtered'].includes(modeRef.current) && (map.getCanvas().style.cursor = 'pointer'))
@@ -335,8 +344,8 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
           },
         }, labelLayerId)
         .on('click', 'colored-buildings', (e) => {
-          const marker = e.features?.[0]?.properties as Marker | undefined
-          marker && mapState.setSelectedBuilding(buildingsRef.current[marker.originIndex])
+          const marker = e.features?.[0]?.properties as { originIndexes: number[] } | undefined
+          marker && mapState.setSelectedBuilding(marker.originIndexes.map(i => buildingsRef.current[i]))
         })
       const update = updateBuildings(map)
       map
@@ -358,18 +367,17 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
       console.log('select building', building)
       selectedMarker.setData({
         'type': 'FeatureCollection',
-        'features': [
-          {
-            'type': 'Feature',
-            'geometry': {
-              'type': 'Point',
-              'coordinates': [building.location.lng, building.location.lat]
-            },
-            'properties': {
-              'color': '#ff8000'
-            }
+        'features': building.map(x => ({
+          'type': 'Feature',
+          'geometry': {
+            'type': 'Point',
+            'coordinates': [x.location.lng, x.location.lat]
+          },
+          'properties': {
+            'color': '#ff8000'
           }
-        ]
+        })
+        )
       })
     } else {
       console.log('deselect building')
