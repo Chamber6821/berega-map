@@ -140,9 +140,11 @@ export default function Content({ buildings }:
           </ShowCardsButton>
           {showCards && <div className="cards__wrapper" >
             <Cards buildings={
-              matchedBuildings
-                .filter(x => bounds === undefined || bounds.contains(x.location))
-                .filter(x => selectedArea === undefined || selectedArea.contains(new LngLat(x.location.lng, x.location.lat)))
+              popupBuilding && popupBuilding.length > 1
+                ? popupBuilding
+                : matchedBuildings
+                  .filter(x => bounds === undefined || bounds.contains(x.location))
+                  .filter(x => selectedArea === undefined || selectedArea.contains(new LngLat(x.location.lng, x.location.lat)))
             }
             />
           </div>}
