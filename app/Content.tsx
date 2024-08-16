@@ -82,7 +82,6 @@ export default function Content({ buildings }:
   const selectedArea = useMap(x => x.selectedArea)
   const filters = useFilters()
   const matchedBuildings = buildings.filter(filterOf(filters))
-  console.log(popupBuilding)
 
   useEffect(() => {
     setShowCards(!!selectedArea)
@@ -150,7 +149,7 @@ export default function Content({ buildings }:
         </div>
       </MapAndCards>
       {showFiltersPopup && <FiltersPopup onClose={() => setShowFiltersPopup(false)} />}
-      {popupBuilding && <Popup building={popupBuilding} onClose={() => setPopupBuilding(undefined)} />}
+      {popupBuilding && popupBuilding.length === 1 && <Popup building={popupBuilding[0]} onClose={() => setPopupBuilding(undefined)} />}
       {showHelpPopup && <HelpPopup onClose={() => setShowHelpPopup(false)} />}
     </div >
   )
