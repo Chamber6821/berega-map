@@ -96,7 +96,7 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
           properties: {
             ...x.properties,
             color: mask[i][0]?.properties?.color,
-            originIndexes: mask[i].map(x => x?.properties?.originIndex)
+            originIndexes: JSON.stringify(mask[i].map(x => x?.properties?.originIndex))
           }
         }))
         .filter((_, i) => mask[i].length > 0)
@@ -344,8 +344,8 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
           },
         }, labelLayerId)
         .on('click', 'colored-buildings', (e) => {
-          const marker = e.features?.[0]?.properties as { originIndexes: number[] } | undefined
-          marker && mapState.setSelectedBuilding(marker.originIndexes.map(i => buildingsRef.current[i]))
+          const marker = e.features?.[0]?.properties
+          marker && mapState.setSelectedBuilding(JSON.parse(marker.originIndexes).map((i: number) => buildingsRef.current[i]))
         })
       const update = updateBuildings(map)
       map
