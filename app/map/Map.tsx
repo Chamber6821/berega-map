@@ -266,20 +266,8 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
         source: 'markers',
         paint: {
           'circle-color': ['get', 'color'],
-          'circle-opacity': [
-            'step',
-            ['zoom'],
-            ['get', 'opacity'],
-            15,
-            0
-          ],
-          'circle-stroke-opacity': [
-            'step',
-            ['zoom'],
-            ['get', 'opacity'],
-            15,
-            0
-          ],
+          'circle-opacity': ['get', 'opacity'],
+          'circle-stroke-opacity': ['get', 'opacity'],
           'circle-radius': markerRadius,
           'circle-stroke-width': 1,
           'circle-stroke-color': '#fff'
@@ -296,7 +284,6 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
         id: 'selected-marker',
         type: 'circle',
         source: 'selected-marker',
-        maxzoom: 15,
         paint: {
           'circle-color': ['get', 'color'],
           'circle-radius': markerRadius,
