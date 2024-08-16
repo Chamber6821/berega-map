@@ -64,6 +64,7 @@ const markerRadius = 5
 export default function Map({ center, zoom, buildings, onClickInfo }:
   { center: [number, number], zoom: number, buildings: Building[], onClickInfo?: () => void }) {
   const mapState = useMap()
+  const mapStateRef = useRef(mapState)
   const setSelectedArea = useMap(x => x.setSelectedArea)
   const mapContainer = useRef<HTMLDivElement>(null)
   const mapRef = useRef<mapboxgl.Map>()
@@ -74,6 +75,7 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
   const modeRef = useRef(mode)
   const buildingsRef = useRef(buildings)
   buildingsRef.current = buildings
+  mapStateRef.current = mapState
 
   const updateBuildings = (map: MapboxMap) => {
     const coloredBuildingsSource = map.getSource('colored-buildings') as GeoJSONSource
@@ -345,7 +347,17 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
         }, labelLayerId)
         .on('click', 'colored-buildings', (e) => {
           const marker = e.features?.[0]?.properties
-          marker && mapState.setSelectedBuilding(JSON.parse(marker.originIndexes).map((i: number) => buildingsRef.current[i]))
+          if (!marker) return
+          const newMarkers = JSON.parse(marker.originIndexes).map((i: number) => buildingsRef.current[i]) as Building[]
+          const currentData = JSON.stringify(mapStateRef.current.selectedBuilding?.flatMap(x => [x.location.lat, x.location.lng]))
+          const newData = JSON.stringify(newMarkers.flatMap(x => [x.location.lat, x.location.lng]))
+          console.log(currentData)
+          console.log(newData)
+          if (currentData === newData) {
+            mapState.setSelectedBuilding(undefined)
+          } else {
+            mapState.setSelectedBuilding(newMarkers)
+          }
         })
       const update = updateBuildings(map)
       map
