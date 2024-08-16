@@ -101,7 +101,7 @@ export async function fetchResidentionalComplexes(): Promise<Building[]> {
       },
       page: `https://berega.team/residential_complex/${x._id}`,
       rooms: '2', // Просто потому что
-      group: ['Таунхаус', 'Коттедж', 'Вилла'].some(y => x.Type.includes(y)) ? 'Дома, коттеджи, таунхаусы' : 'Новостройки',
+      group: ['Таунхаус', 'Коттедж', 'Вилла'].some(y => x.Type.includes(y)) ? 'Дома, коттеджи' : 'Новостройки',
       created: new Date(x['Created Date'])
     };
   });
@@ -115,7 +115,7 @@ export async function fetchSecondHomes(): Promise<Building[]> {
   const featureMap = idMap(features);
   const groupFor = (x: any): FilterGroup => ({
     'Коммерческая недвижимость': 'Коммерческая',
-    'Земельный участок': 'Земельные участки',
+    'Земельный участок': 'Зем. участки',
   } as const)[x.Type as string] || 'Вторичное жилье'
   return homes.map((x: any): Building => ({
     title: x.name,

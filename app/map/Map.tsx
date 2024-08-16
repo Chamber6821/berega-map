@@ -38,8 +38,8 @@ const colorFor = (x: Building) => {
   switch (x.group) {
     case 'Новостройки': return '#df11ff'
     case 'Вторичное жилье': return '#0000ff'
-    case 'Дома, коттеджи, таунхаусы': return '#009c1a'
-    case 'Земельные участки': return '#994009'
+    case 'Дома, коттеджи': return '#009c1a'
+    case 'Зем. участки': return '#994009'
     case 'Коммерческая': return '#ffa640'
   }
 }
@@ -53,8 +53,8 @@ const opacityFor = (x: Building) => {
   switch (x.group) {
     case 'Новостройки': return 1
     case 'Вторичное жилье': return gradient2(1)(point)
-    case 'Дома, коттеджи, таунхаусы': return gradient2(3)(point)
-    case 'Земельные участки': return gradient2(6)(point)
+    case 'Дома, коттеджи': return gradient2(3)(point)
+    case 'Зем. участки': return gradient2(6)(point)
     case 'Коммерческая': return 1
   }
 }
