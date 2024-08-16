@@ -2,7 +2,7 @@ import { useWindowWidth } from "@react-hook/window-size"
 import { useEffect, useState } from "react"
 import { ChevronDownOutline, ChevronUpOutline } from "react-ionicons"
 import styled from "styled-components"
-import { FilterGroup, FilterRooms, Range, useFilters } from "./useFilters"
+import { FilterGroup, FilterGroups, FilterRooms, Range, useFilters } from "./useFilters"
 
 const Filter = styled.div`
   position: relative;
@@ -233,11 +233,11 @@ export default function FiltersHeader() {
   const [[price, setPrice], PriceInput] = useRangeInput('Цена', '$')
   const [[area, setArea], AreaInput] = useRangeInput('Площадь', 'м²')
   const [[rooms, setRooms], RoomsInput] = useVariantInput([...FilterRooms])
-  const [[types, setTypes], TypesInput] = useOptions('Тип недвижимости', ['Новостройки', 'Вторичное жилье', 'Дома, коттеджи, таунхаусы', 'Земельные участки', 'Коммерческая'] as const)
+  const [[types, setTypes], TypesInput] = useOptions('Тип недвижимости', [...FilterGroups])
   const [[agriculturals, setAgriculturals], AgriculturalsInput] = useVariantInput(['Сельхоз', 'Не сельхоз'] as const)
   useEffect(() => {
-    const resetRooms = types.includes('Земельные участки')
-    const resetAgriculturals = !types.includes('Земельные участки')
+    const resetRooms = types.includes('Зем. участки')
+    const resetAgriculturals = !types.includes('Зем. участки')
     filters.set({
       priceRange: price,
       areaRange: area,
@@ -270,7 +270,7 @@ export default function FiltersHeader() {
     }
     {
       width > 900
-      && types.some(x => (['Земельные участки'] as FilterGroup[]).includes(x))
+      && types.some(x => (['Зем. участки'] as FilterGroup[]).includes(x))
       && < Filter > {AgriculturalsInput}</Filter>
     }
     {width > 1215 && <Filter>{AreaInput}</Filter>}
