@@ -204,7 +204,7 @@ const useOptions = <T,>(label: string, variants: T[]): [State<T[]>, React.ReactE
   const [selected, setSelected] = useState<T[]>([])
   return [[selected, setSelected], <>
     <SelectButton onClick={() => setOpened(!opened)}>
-      {label}
+      {selected.length > 0 ? selected.join(', ') : label}
       {
         opened
           ? <ChevronUpOutline height="15px" width="15px" />
