@@ -105,7 +105,7 @@ export default function HelpPopup({ onClose }: { onClose?: () => void }) {
               marginLeft: '5px',
               padding: '10px',
               borderRadius: '50%',
-              background: '#009c1a',
+              background: '#ff0000',
             }}></span></td>
             <td>- цвет бледнеет в течение 3-ех месяцев с момента размещения.</td>
           </tr>

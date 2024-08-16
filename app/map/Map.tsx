@@ -38,7 +38,7 @@ const colorFor = (x: Building) => {
   switch (x.group) {
     case 'Новостройки': return '#df11ff'
     case 'Вторичное жилье': return '#0000ff'
-    case 'Дома, коттеджи': return '#009c1a'
+    case 'Дома, коттеджи': return '#ff0000'
     case 'Зем. участки': return '#994009'
     case 'Коммерческая': return '#ffa640'
   }
