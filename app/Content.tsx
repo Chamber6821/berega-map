@@ -88,6 +88,11 @@ export default function Content({ buildings }:
   }, [selectedArea])
 
   useEffect(() => {
+    if (popupBuilding && popupBuilding.length > 1)
+      setShowCards(true)
+  }, [popupBuilding])
+
+  useEffect(() => {
     setTimeout(() => setShowPreloader(false), 1000)
   }, [])
 
