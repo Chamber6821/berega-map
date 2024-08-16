@@ -82,11 +82,15 @@ export default function Content({ buildings }:
   const selectedArea = useMap(x => x.selectedArea)
   const filters = useFilters()
   const matchedBuildings = buildings.filter(filterOf(filters))
-  console.log(popupBuilding)
 
   useEffect(() => {
     setShowCards(!!selectedArea)
   }, [selectedArea])
+
+  useEffect(() => {
+    if (popupBuilding && popupBuilding.length > 1)
+      setShowCards(true)
+  }, [popupBuilding])
 
   useEffect(() => {
     setTimeout(() => setShowPreloader(false), 1000)
@@ -141,16 +145,18 @@ export default function Content({ buildings }:
           </ShowCardsButton>
           {showCards && <div className="cards__wrapper" >
             <Cards buildings={
-              matchedBuildings
-                .filter(x => bounds === undefined || bounds.contains(x.location))
-                .filter(x => selectedArea === undefined || selectedArea.contains(new LngLat(x.location.lng, x.location.lat)))
+              popupBuilding && popupBuilding.length > 1
+                ? popupBuilding
+                : matchedBuildings
+                  .filter(x => bounds === undefined || bounds.contains(x.location))
+                  .filter(x => selectedArea === undefined || selectedArea.contains(new LngLat(x.location.lng, x.location.lat)))
             }
             />
           </div>}
         </div>
       </MapAndCards>
       {showFiltersPopup && <FiltersPopup onClose={() => setShowFiltersPopup(false)} />}
-      {popupBuilding && <Popup building={popupBuilding} onClose={() => setPopupBuilding(undefined)} />}
+      {popupBuilding && popupBuilding.length === 1 && <Popup building={popupBuilding[0]} onClose={() => setPopupBuilding(undefined)} />}
       {showHelpPopup && <HelpPopup onClose={() => setShowHelpPopup(false)} />}
     </div >
   )
