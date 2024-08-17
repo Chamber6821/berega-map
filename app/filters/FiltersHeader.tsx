@@ -19,6 +19,7 @@ const Filters = styled.div`
 const SelectButton = styled.button`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 7px;
   border: 1px solid rgb(164, 170, 180);
   border-radius: 8px;
@@ -203,7 +204,7 @@ const useOptions = <T,>(label: string, variants: T[]): [State<T[]>, React.ReactE
   const [opened, setOpened] = useState(false)
   const [selected, setSelected] = useState<T[]>([])
   return [[selected, setSelected], <>
-    <SelectButton onClick={() => setOpened(!opened)}>
+    <SelectButton style={{ width: '200px' }} onClick={() => setOpened(!opened)}>
       {selected.length > 0 ? selected.join(', ') : label}
       {
         opened
@@ -212,7 +213,7 @@ const useOptions = <T,>(label: string, variants: T[]): [State<T[]>, React.ReactE
       }
     </SelectButton>
     {opened &&
-      <SelectBody>
+      <SelectBody style={{ width: '200px' }}>
         <Options>
           {
             variants.map(x =>
