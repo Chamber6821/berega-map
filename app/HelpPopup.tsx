@@ -1,4 +1,3 @@
-import { Padding } from "@maptiler/sdk";
 import Modal from "./components/Modal";
 import Image from "next/image";
 
@@ -39,9 +38,9 @@ export default function HelpPopup({ onClose }: { onClose?: () => void }) {
         </tbody>
       </table>
       <div style={{
-            padding: '10px 0',
-            width: '100%',
-          }}><strong>Обозначение палитры маркеров недвижимости на карте</strong></div>
+        padding: '10px 0',
+        width: '100%',
+      }}><strong>Обозначение палитры маркеров недвижимости на карте</strong></div>
       <table>
         <tbody style={{
           display: 'flex',
@@ -50,9 +49,9 @@ export default function HelpPopup({ onClose }: { onClose?: () => void }) {
           width: '100%',
         }}>
           <tr style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              columnGap: '10px',
+            display: 'flex',
+            alignItems: 'flex-start',
+            columnGap: '10px',
           }}>
             <td style={{
               display: 'flex',
@@ -70,9 +69,9 @@ export default function HelpPopup({ onClose }: { onClose?: () => void }) {
             <td>- новостройки (первичное жилье), цвет никогда не изменяется.</td>
           </tr>
           <tr style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              columnGap: '10px',
+            display: 'flex',
+            alignItems: 'flex-start',
+            columnGap: '10px',
           }}>
             <td style={{
               display: 'flex',
@@ -90,9 +89,9 @@ export default function HelpPopup({ onClose }: { onClose?: () => void }) {
             <td>- объекты вторичного жилья, цвет бледнеет в течение месяца с момента размещения.</td>
           </tr>
           <tr style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              columnGap: '10px',
+            display: 'flex',
+            alignItems: 'flex-start',
+            columnGap: '10px',
           }}>
             <td style={{
               display: 'flex',
@@ -110,9 +109,9 @@ export default function HelpPopup({ onClose }: { onClose?: () => void }) {
             <td>- цвет бледнеет в течение 3-ех месяцев с момента размещения.</td>
           </tr>
           <tr style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              columnGap: '10px',
+            display: 'flex',
+            alignItems: 'flex-start',
+            columnGap: '10px',
           }}>
             <td style={{
               display: 'flex',
@@ -130,9 +129,9 @@ export default function HelpPopup({ onClose }: { onClose?: () => void }) {
             <td>- земельные участки, цвет бледнеет в течение 6-ти месяцев.</td>
           </tr>
           <tr style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              columnGap: '10px',
+            display: 'flex',
+            alignItems: 'flex-start',
+            columnGap: '10px',
           }}>
             <td style={{
               display: 'flex',
