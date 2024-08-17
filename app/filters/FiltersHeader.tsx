@@ -25,9 +25,11 @@ const SelectButton = styled.button`
   border-radius: 8px;
   padding: 7px 10px;
   font-weight: 500;
+  width: 210px;
 
   @media(max-width: 360px) {
     & {
+      width: 185px;
       font-size: 12px;
       padding: 10px 10px;
     }
@@ -38,6 +40,8 @@ const SelectBody = styled.div`
   position: absolute;
   z-index: 2900;
   bottom: -5px;
+  left: 0;
+  right: 0;
   transform: translateY(100%);
   background: white;
   padding: 15px;
@@ -204,7 +208,7 @@ const useOptions = <T,>(label: string, variants: T[]): [State<T[]>, React.ReactE
   const [opened, setOpened] = useState(false)
   const [selected, setSelected] = useState<T[]>([])
   return [[selected, setSelected], <>
-    <SelectButton style={{ width: '200px' }} onClick={() => setOpened(!opened)}>
+    <SelectButton onClick={() => setOpened(!opened)}>
       {selected.length > 0 ? selected.join(', ') : label}
       {
         opened
@@ -213,7 +217,7 @@ const useOptions = <T,>(label: string, variants: T[]): [State<T[]>, React.ReactE
       }
     </SelectButton>
     {opened &&
-      <SelectBody style={{ width: '200px' }}>
+      <SelectBody>
         <Options>
           {
             variants.map(x =>
