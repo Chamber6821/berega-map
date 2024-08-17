@@ -74,37 +74,39 @@ export async function fetchResidentionalComplexes(): Promise<Building[]> {
   ]);
   const developerMap = idMap(developers);
   const featureMap = idMap(features);
-  return complexes.map((x: any): Building => {
-    const apartmentsInfo: DescriptionLine = [
-      `${x.apartments?.length || 0} апартаментов`,
-      `от ${price(x.price_from)} до ${price(x.price_to)}`,
-    ];
-    return {
-      title: x.name,
-      tag: featureMap?.[x.features?.[0]]?.name || "",
-      image: x.pictures?.[0] ? `https:${x.pictures?.[0]}` : undefined,
-      shortDescription: apartmentsInfo,
-      description: [
-        apartmentsInfo,
-        ['Цена за м²', `от ${price(x.price_per_meter_from)} до ${price(x.price_per_meter_to)}`],
-        [`Дата сдачи • ${x["due_date (OS)"] || "Не известно"}`],
-        [`Застройщик • ${developerMap[x["Developer"]]?.name || "Не известен"}`],
-      ],
-      price: x.price_from,
-      area: 0,
-      floor: 0,
-      frame: 'С ремонтом',
-      location: {
-        lat: x.address?.lat || 0,
-        lng: x.address?.lng || 0,
-        address: `${x.address?.address || "Нет адреса"} (${x.address?.lat || 0}, ${x.address?.lng || 0})`
-      },
-      page: `https://berega.team/residential_complex/${x._id}`,
-      rooms: '2', // Просто потому что
-      group: ['Таунхаус', 'Коттедж', 'Вилла'].some(y => x.Type.includes(y)) ? 'Дома, коттеджи' : 'Новостройки',
-      created: new Date(x['Created Date'])
-    };
-  });
+  return complexes
+    .filter((x: any) => !('hide' in x) || x.hide)
+    .map((x: any): Building => {
+      const apartmentsInfo: DescriptionLine = [
+        `${x.apartments?.length || 0} апартаментов`,
+        `от ${price(x.price_from)} до ${price(x.price_to)}`,
+      ];
+      return {
+        title: x.name,
+        tag: featureMap?.[x.features?.[0]]?.name || "",
+        image: x.pictures?.[0] ? `https:${x.pictures?.[0]}` : undefined,
+        shortDescription: apartmentsInfo,
+        description: [
+          apartmentsInfo,
+          ['Цена за м²', `от ${price(x.price_per_meter_from)} до ${price(x.price_per_meter_to)}`],
+          [`Дата сдачи • ${x["due_date (OS)"] || "Не известно"}`],
+          [`Застройщик • ${developerMap[x["Developer"]]?.name || "Не известен"}`],
+        ],
+        price: x.price_from,
+        area: 0,
+        floor: 0,
+        frame: 'С ремонтом',
+        location: {
+          lat: x.address?.lat || 0,
+          lng: x.address?.lng || 0,
+          address: `${x.address?.address || "Нет адреса"} (${x.address?.lat || 0}, ${x.address?.lng || 0})`
+        },
+        page: `https://berega.team/residential_complex/${x._id}`,
+        rooms: '2', // Просто потому что
+        group: ['Таунхаус', 'Коттедж', 'Вилла'].some(y => x.Type.includes(y)) ? 'Дома, коттеджи' : 'Новостройки',
+        created: new Date(x['Created Date'])
+      };
+    });
 }
 
 export async function fetchSecondHomes(): Promise<Building[]> {
