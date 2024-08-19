@@ -371,7 +371,7 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
 
   useEffect(() => {
     const map = mapRef.current
-    if (!map || !map.isStyleLoaded()) return
+    if (!map) return
     const selectedMarker = map.getSource<GeoJSONSource>('selected-marker')
     if (!selectedMarker) return
     const building = mapState.selectedBuilding

@@ -83,9 +83,8 @@ export default function Content({ buildings }:
   const filters = useFilters()
   const matchedBuildings = buildings.filter(filterOf(filters))
 
-  useEffect(() => {
-    setShowCards(!!selectedArea)
-  }, [selectedArea])
+  useEffect(() => setShowCards(!!selectedArea), [selectedArea])
+  useEffect(() => selectedArea && setPopupBuilding(undefined), [selectedArea, setPopupBuilding])
 
   useEffect(() => {
     if (popupBuilding && popupBuilding.length > 1)
