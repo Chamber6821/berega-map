@@ -46,7 +46,7 @@ input[type="number"]::-webkit-outer-spin-button {
 .filter__wrapper {
   justify-content: space-between;
   align-items: center;
-  padding: 10px 15px;
+  padding: 10px 5px;
   font-weight: 500;
 }
 

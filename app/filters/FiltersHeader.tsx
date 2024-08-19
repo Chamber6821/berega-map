@@ -29,7 +29,7 @@ const SelectButton = styled.button`
 
   @media(max-width: 360px) {
     & {
-      width: 160px;
+      width: 185px;
       font-size: 12px;
       padding: 10px 10px;
     }
