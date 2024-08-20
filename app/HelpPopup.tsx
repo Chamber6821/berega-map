@@ -66,7 +66,7 @@ export default function HelpPopup({ onClose }: { onClose?: () => void }) {
               borderRadius: '50%',
               background: '#df11ff',
             }}></span></td>
-            <td>- новостройки (первичное жилье), цвет никогда не изменяется.</td>
+            <td>- розовым цветом обозначаются новостройки (первичное жилье).</td>
           </tr>
           <tr style={{
             display: 'flex',
@@ -86,7 +86,7 @@ export default function HelpPopup({ onClose }: { onClose?: () => void }) {
               borderRadius: '50%',
               background: '#0000ff',
             }}></span></td>
-            <td>- объекты вторичного жилья, цвет бледнеет в течение месяца с момента размещения.</td>
+            <td>- синим цветом обозначаются объекты вторичного жилья.</td>
           </tr>
           <tr style={{
             display: 'flex',
@@ -106,7 +106,7 @@ export default function HelpPopup({ onClose }: { onClose?: () => void }) {
               borderRadius: '50%',
               background: '#ff0000',
             }}></span></td>
-            <td>- цвет бледнеет в течение 3-ех месяцев с момента размещения.</td>
+            <td>- красным цветом обозначаются дома, коттеджи, танхаусы, виллы.</td>
           </tr>
           <tr style={{
             display: 'flex',
@@ -126,7 +126,7 @@ export default function HelpPopup({ onClose }: { onClose?: () => void }) {
               borderRadius: '50%',
               background: '#994009',
             }}></span></td>
-            <td>- земельные участки, цвет бледнеет в течение 6-ти месяцев.</td>
+            <td>- коричневым цветом обозначаются земельные участки.</td>
           </tr>
           <tr style={{
             display: 'flex',
@@ -146,7 +146,7 @@ export default function HelpPopup({ onClose }: { onClose?: () => void }) {
               borderRadius: '50%',
               background: '#ffa640',
             }}></span></td>
-            <td>- коммерческая недвижимость, цвет никогда не изменяется.</td>
+            <td>- оранжевым цветом обозначается коммерческая недвижимость.</td>
           </tr>
         </tbody>
       </table>
