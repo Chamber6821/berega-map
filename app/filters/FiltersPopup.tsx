@@ -184,6 +184,12 @@ const useSingleVariantInput = <T extends string>(variants: T[]): [State<T | unde
 
 const groupArrayOf = (x: FilterGroup[]): (FilterGroup | undefined)[] => x
 
+const monthAgo = (n: number = 1) => {
+  const now = new Date()
+  now.setMonth(now.getMonth() - n)
+  return now
+}
+
 export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => void }) {
   const [[country, setCountry], CountryInput] = useInputText()
   const [[city, setCity], CityInput] = useInputText()
@@ -207,6 +213,11 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
     setShowAllFilters(false)
     filters.set({
       country, city,
+      createdAfter: time && {
+        'Месяц': monthAgo(1),
+        'Пол года': monthAgo(6),
+        'Год': monthAgo(12),
+      }[time],
       groups: group ? [group] : [],
       rooms: resetRooms ? [] : rooms,
       status: resetStatus ? [] : status,
@@ -229,6 +240,16 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
     setPrice(filters.priceRange)
     setFloor(filters.floorRange)
     setArea(filters.areaRange)
+
+    if (filters.createdAfter) {
+      const createdAfter = filters.createdAfter.getTime()
+      if (createdAfter <= monthAgo(12).getTime()) setTime('Год')
+      else if (createdAfter <= monthAgo(6).getTime()) setTime('Пол года')
+      else if (createdAfter <= monthAgo(1).getTime()) setTime('Месяц')
+      else setTime(undefined)
+    } else {
+      setTime(undefined)
+    }
   }, [filters])
   return (
     <Modal onClose={handleClose}>
