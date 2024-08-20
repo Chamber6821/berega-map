@@ -21,6 +21,7 @@ export type Range = [number | undefined, number | undefined]
 export type Filters = {
   country?: string,
   city?: string,
+  createdAfter?: Date,
   groups: FilterGroup[],
   rooms: FilterRoom[],
   status: FilterStatus[],
@@ -37,7 +38,8 @@ const matchByRange = (range: Range, value: number) =>
   && (range[1] === undefined || value <= range[1])
 
 export const filterOf = (filters: Filters) => (building: Building) =>
-  matchByVariants(filters.rooms, building.rooms)
+  (!filters.createdAfter || filters.createdAfter.getTime() < building.created.getTime())
+  && matchByVariants(filters.rooms, building.rooms)
   && matchByVariants(filters.groups, building.group)
   && matchByVariants(filters.frame, building.frame)
   && matchByVariants(filters.agriculturals, building.agricultural)
