@@ -28,12 +28,6 @@ export const useMap = create<{
   setSelectedBuilding: (building) => set({ selectedBuilding: building })
 }))
 
-const monthAgo = (n: number = 1) => {
-  const now = new Date()
-  now.setMonth(now.getMonth() - n)
-  return now
-}
-
 const colorFor = (x: Building) => {
   switch (x.group) {
     case 'Новостройки': return '#df11ff'
@@ -41,21 +35,6 @@ const colorFor = (x: Building) => {
     case 'Дома, коттеджи': return '#ff0000'
     case 'Зем. участки': return '#994009'
     case 'Коммерческая': return '#ffa640'
-  }
-}
-
-// Названия отвратительны, нужно переструктурировать стилизацию маркеров как-то в объекты
-const gradient = (min: number, max: number) => (point: number) => clamp((point - min) / (max - min), 0.4, 1)
-const gradient2 = (months: number) => gradient(monthAgo(months).getTime(), new Date().getTime())
-
-const opacityFor = (x: Building) => {
-  const point = x.created.getTime()
-  switch (x.group) {
-    case 'Новостройки': return 1
-    case 'Вторичное жилье': return gradient2(1)(point)
-    case 'Дома, коттеджи': return gradient2(3)(point)
-    case 'Зем. участки': return gradient2(6)(point)
-    case 'Коммерческая': return 1
   }
 }
 
@@ -245,7 +224,6 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
 
     type Marker = {
       color: string,
-      opacity: number,
       originIndex: number,
     }
     const geoJsonMarkers: GeoJSON.FeatureCollection<GeoJSON.Point, Marker> = {
@@ -259,7 +237,6 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
           },
           'properties': {
             'color': colorFor(x),
-            'opacity': opacityFor(x),
             'originIndex': i
           }
         })
@@ -277,8 +254,6 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
         source: 'markers',
         paint: {
           'circle-color': ['get', 'color'],
-          'circle-opacity': ['get', 'opacity'],
-          'circle-stroke-opacity': ['get', 'opacity'],
           'circle-radius': markerRadius,
           'circle-stroke-width': 1,
           'circle-stroke-color': '#fff'
@@ -416,7 +391,6 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
           },
           'properties': {
             'color': colorFor(x),
-            'opacity': opacityFor(x),
             'originIndex': i
           }
         })
