@@ -189,7 +189,7 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
   const [[areaRange, setArea], AreaInput] = useRangeInput()
   const [showAllFilters, setShowAllFilters] = useState(false)
   const filters = useFilters()
-  const resetRooms = (['Дома, коттеджи', 'Земельные участки', 'Коммерческая'] as FilterGroup[]).some(x => groups.includes(x))
+  const resetRooms = (['Дома, коттеджи', 'Зем. участки', 'Коммерческая'] as FilterGroup[]).some(x => groups.includes(x))
   const resetStatus = (['Зем. участки'] as FilterGroup[]).some(x => groups.includes(x))
   const resetFrame = (['Зем. участки'] as FilterGroup[]).some(x => groups.includes(x))
   const resetAgricultures = !groups.includes('Зем. участки')
