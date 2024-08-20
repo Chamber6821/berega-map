@@ -176,29 +176,38 @@ const useInputText = (): [State<string>, React.ReactElement] => {
   return [[text || '', setText], group]
 }
 
+const useSingleVariantInput = <T extends string>(variants: T[]): [State<T | undefined>, React.ReactElement] => {
+  const [[selected, setSelected], Input] = useVariantInput(variants)
+  useEffect(() => { selected.length > 1 && setSelected(selected.splice(-1)) }, [selected, setSelected])
+  return [[selected[0], (x: T | undefined) => setSelected(x === undefined ? [] : [x])], Input]
+}
+
+const groupArrayOf = (x: FilterGroup[]): (FilterGroup | undefined)[] => x
+
 export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => void }) {
   const [[country, setCountry], CountryInput] = useInputText()
   const [[city, setCity], CityInput] = useInputText()
-  const [[groups, setGroups], TypesInput] = useVariantInput([...FilterGroups])
+  const [[group, setGroup], GroupInput] = useSingleVariantInput([...FilterGroups])
   const [[rooms, setRooms], RoomsInput] = useVariantInput([...FilterRooms])
   const [[status, setStatus], StatusInput] = useVariantInput([...FilterStatuses])
   const [[frame, setFrame], FrameInput] = useVariantInput([...FilterFrames])
   const [[agricultures, setAgricultures], AgriculturesInput] = useVariantInput(['Сельхоз', 'Не сельхоз'])
+  const [[time, setTime], TimeInput] = useSingleVariantInput(['Месяц', 'Пол года', 'Год'])
   const [[priceRange, setPrice], PriceInput] = useRangeInput()
   const [[floorRange, setFloor], FloorInput] = useRangeInput()
   const [[areaRange, setArea], AreaInput] = useRangeInput()
   const [showAllFilters, setShowAllFilters] = useState(false)
   const filters = useFilters()
-  const resetRooms = (['Дома, коттеджи', 'Зем. участки', 'Коммерческая'] as FilterGroup[]).some(x => groups.includes(x))
-  const resetStatus = (['Зем. участки'] as FilterGroup[]).some(x => groups.includes(x))
-  const resetFrame = (['Зем. участки'] as FilterGroup[]).some(x => groups.includes(x))
-  const resetAgricultures = !groups.includes('Зем. участки')
-  const resetFloor = (['Дома, коттеджи', 'Зем. участки'] as FilterGroup[]).some(x => groups.includes(x))
+  const resetRooms = groupArrayOf(['Дома, коттеджи', 'Зем. участки', 'Коммерческая']).includes(group)
+  const resetStatus = groupArrayOf(['Зем. участки']).includes(group)
+  const resetFrame = groupArrayOf(['Зем. участки']).includes(group)
+  const resetAgricultures = group == 'Зем. участки'
+  const resetFloor = groupArrayOf(['Дома, коттеджи', 'Зем. участки']).includes(group)
   const handleClose = () => {
     setShowAllFilters(false)
     filters.set({
       country, city,
-      groups,
+      groups: group ? [group] : [],
       rooms: resetRooms ? [] : rooms,
       status: resetStatus ? [] : status,
       frame: resetFrame ? [] : frame,
@@ -210,13 +219,9 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
     onClose()
   }
   useEffect(() => {
-    if (groups.length > 1)
-      setGroups(groups.splice(-1))
-  }, [setGroups, groups])
-  useEffect(() => {
     setCountry(filters.country || '')
     setCity(filters.city || '')
-    setGroups(filters.groups)
+    setGroup(filters.groups[0])
     setRooms(filters.rooms)
     setStatus(filters.status)
     setFrame(filters.frame)
@@ -232,7 +237,7 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
         <FiltersContainer>
           {/* <Filter name="Выбор страны">{CountryInput}</Filter> */}
           {/* <Filter name="Выбор города">{CityInput}</Filter> */}
-          <Filter name="Тип">{TypesInput}</Filter>
+          <Filter name="Тип">{GroupInput}</Filter>
           {!resetRooms && <Filter name="Кол-во комнат">{RoomsInput}</Filter>}
           {!resetAgricultures && <Filter name="Местность">{AgriculturesInput}</Filter>}
           <Filter name="Цена, $">{PriceInput}</Filter>
@@ -246,6 +251,7 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
             {!resetFloor && <Filter name="Этаж">{FloorInput}</Filter>}
             {!resetFrame && <Filter name="Ремонт">{FrameInput}</Filter>}
             <Filter name="Площадь, м²">{AreaInput}</Filter>
+            <Filter name="Объявлен не позже чем">{TimeInput}</Filter>
           </FiltersContainer>
         </div>
       </>}
