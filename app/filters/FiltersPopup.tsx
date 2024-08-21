@@ -262,6 +262,7 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
           {!resetRooms && <Filter name="Кол-во комнат">{RoomsInput}</Filter>}
           {!resetAgricultures && <Filter name="Местность">{AgriculturesInput}</Filter>}
           <Filter name="Цена, $">{PriceInput}</Filter>
+          <Filter name="Объявлен не позже чем">{TimeInput}</Filter>
         </FiltersContainer>
       </div>
       {showAllFilters && <>
@@ -272,7 +273,6 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
             {!resetFloor && <Filter name="Этаж">{FloorInput}</Filter>}
             {!resetFrame && <Filter name="Ремонт">{FrameInput}</Filter>}
             <Filter name="Площадь, м²">{AreaInput}</Filter>
-            <Filter name="Объявлен не позже чем">{TimeInput}</Filter>
           </FiltersContainer>
         </div>
       </>}
