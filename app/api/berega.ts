@@ -75,7 +75,7 @@ export async function fetchResidentionalComplexes(): Promise<Building[]> {
   const developerMap = idMap(developers);
   const featureMap = idMap(features);
   return complexes
-    .filter((x: any) => !('hide' in x) || x.hide)
+    .filter((x: any) => !x.hide)
     .map((x: any): Building => {
       const apartmentsInfo: DescriptionLine = [
         `${x.apartments?.length || 0} апартаментов`,
