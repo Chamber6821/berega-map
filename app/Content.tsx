@@ -84,6 +84,9 @@ export default function Content() {
   const filters = useFilters()
   const matchedBuildings = buildings.filter(filterOf(filters))
 
+  const load = useBuildings(x => x.loadFromBerega)
+  useEffect(() => load(), [load])
+
   useEffect(() => setShowCards(!!selectedArea), [selectedArea])
   useEffect(() => selectedArea && setPopupBuilding(undefined), [selectedArea, setPopupBuilding])
 
