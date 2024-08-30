@@ -13,6 +13,7 @@ import { LngLat } from "mapbox-gl";
 import HelpPopup from "./HelpPopup";
 import FiltersHeader from "./filters/FiltersHeader";
 import { filterOf, useFilters } from "./filters/useFilters";
+import { useBuildings } from "./useBuildings";
 
 const ShowFiltersButton = styled.button`
   display: flex;
@@ -70,8 +71,8 @@ const MapAndCards = styled.div`
   }
 `
 
-export default function Content({ buildings }:
-  { buildings: Building[] }) {
+export default function Content() {
+  const buildings = useBuildings(x => x.buildings)
   const [showFiltersPopup, setShowFiltersPopup] = useState(false)
   const [showHelpPopup, setShowHelpPopup] = useState(false)
   const [showCards, setShowCards] = useState(false)
