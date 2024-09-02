@@ -1,21 +1,24 @@
 'use client'
 
-import { useEffect, useState } from "react"
-import { Building } from "./api/berega"
-import Cards from "./Cards"
-import { Map } from "./map"
-import Popup from "./Popup"
-import FiltersPopup from "./filters/FiltersPopup"
-import { Bounds, Marker } from "./map/Map"
-import styled from "styled-components"
-import { CaretBackOutline, CaretForwardOutline, FilterOutline } from "react-ionicons"
-import { LngLat, LngLatBounds } from "mapbox-gl"
-import HelpPopup from "./HelpPopup"
-import FiltersHeader from "./filters/FiltersHeader"
-import Polygon from "./map/Polygon"
-import { OriginType, useMarkers } from "./hooks/useMarkers"
-import FilterApi from "./filters/FilterApi"
-import { useBuildingMap } from "@/app/storages/useBuildingMap"
+import { useEffect, useState } from "react";
+import { Building } from "./api/berega";
+import Cards from "./Cards";
+import { Map } from "./map";
+import Popup from "./Popup";
+import FiltersPopup from "./filters/FiltersPopup";
+import styled from "styled-components";
+import { CaretBackOutline, CaretForwardOutline, FilterOutline } from "react-ionicons";
+import { LngLat, LngLatBounds } from "mapbox-gl";
+import HelpPopup from "./HelpPopup";
+import FiltersHeader from "./filters/FiltersHeader";
+import { OriginType, useMarkers } from "./hooks/useMarkers";
+import { Bounds, Marker } from "./map/Map";
+import { useBuildingMap } from "./storages/useBuildingMap";
+import Polygon from "./map/Polygon";
+import FilterApi from "./filters/FilterApi";
+import Chat from "./components/chat/Chat";
+import CompanionMessage from "./components/chat/CompanionMessage";
+import MyMessage from "./components/chat/MyMessage";
 
 const ShowFiltersButton = styled.button`
   display: flex;
@@ -271,6 +274,10 @@ export default function Content() {
         />
       }
       {showHelpPopup && <HelpPopup onClose={() => setShowHelpPopup(false)} />}
+      <Chat>
+        <CompanionMessage>ПРрив=======тивапролщшгн</CompanionMessage>
+        <MyMessage>ПРрив=======тивапролщшгн</MyMessage>
+      </Chat>
     </div>
   )
 }
