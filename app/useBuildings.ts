@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import { Building, fetchAllBuildings } from "./api/berega"
+import { Building } from "./api/berega"
 
 export type BuildingsStorage = {
   buildings: Building[],
@@ -8,9 +8,5 @@ export type BuildingsStorage = {
 
 export const useBuildings = create<BuildingsStorage>(set => ({
   buildings: [],
-  loadFromBerega: async () => {
-    set({
-      buildings: await fetchAllBuildings()
-    })
-  },
+  loadFromBerega: () => { throw new Error("useBuildings().loadFromBerega not initialized on server") },
 }))
