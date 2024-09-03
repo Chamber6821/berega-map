@@ -1,7 +1,7 @@
 import { CloseOutline, SendOutline } from "react-ionicons"
 import styled from "styled-components"
 import Logo from "../Logo"
-import { useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 const Popup = styled.div`
 position: absolute;
@@ -34,7 +34,7 @@ border-top-right-radius: 8px;
 border-bottom-right-radius: 8px;
 `
 
-const InputGroup = styled.div`
+const InputGroup = styled.form`
 display: flex;
 width: 100%;
 gap: 10px;
@@ -55,21 +55,15 @@ border-radius: 5px;
 padding: 8px;
 `
 
-const MessagesBox = styled.div`
+const Messages = styled.div`
 display: flex;
 flex-direction: column;
-justify-content: end;
+gap: 20px;
 width: 100%;
 height: 300px;
 overflow: scroll;
 margin-top: 10px;
 margin-bottom: 20px;
-`
-
-const Messages = styled.div`
-display: flex;
-flex-direction: column;
-gap: 20px;
 `
 
 const Center = styled.div`
@@ -105,27 +99,35 @@ export default function Chat(
       children?: any,
     }) {
   const [input, setInput] = useState('')
+  const chatBottom = useRef<HTMLDivElement>(null)
+  const handleSubmit = useCallback(() => {
+    if (input === '') return
+    onSend(input)
+    setInput('')
+  }, [onSend, input, setInput])
+  useEffect(() => chatBottom.current?.scrollIntoView(), [chatBottom, input])
   return <Popup>
     <Paper>
       <CloseButton onClick={onClose}>
         <CloseOutline style={{ blockSize: 'fit-content', scale: '1.3' }} />
       </CloseButton>
       <Header />
-      <MessagesBox>
-        <Messages>{children}</Messages>
-      </MessagesBox>
+      <Messages>
+        {children}
+        <div ref={chatBottom} />
+      </Messages>
       <Center>
         <Logo short color="#F1F1F1" />
       </Center>
-      <InputGroup>
-        <Input value={input} onChange={e => setInput(e.target.value)} />
+      <InputGroup onSubmit={e => { e.preventDefault(); handleSubmit() }}>
+        <Input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+        />
         <SendButton
-          onClick={
-            () => {
-              onSend(input)
-              setInput('')
-            }
-          }>
+          type="submit"
+          onClick={handleSubmit}
+        >
           <SendOutline color={'#fff'} width="10px" height="10px" />
         </SendButton>
       </InputGroup>
