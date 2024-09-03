@@ -16,9 +16,7 @@ import { Bounds, Marker } from "./map/Map";
 import { useBuildingMap } from "./storages/useBuildingMap";
 import Polygon from "./map/Polygon";
 import FilterApi from "./filters/FilterApi";
-import Chat from "./components/chat/Chat";
-import CompanionMessage from "./components/chat/CompanionMessage";
-import MyMessage from "./components/chat/MyMessage";
+import ChatBot from "./components/chat/ChatBot";
 
 const ShowFiltersButton = styled.button`
   display: flex;
@@ -274,10 +272,7 @@ export default function Content() {
         />
       }
       {showHelpPopup && <HelpPopup onClose={() => setShowHelpPopup(false)} />}
-      <Chat>
-        <CompanionMessage>ПРрив=======тивапролщшгн</CompanionMessage>
-        <MyMessage>ПРрив=======тивапролщшгн</MyMessage>
-      </Chat>
+      <ChatBot />
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import { CloseOutline, SendOutline } from "react-ionicons"
 import styled from "styled-components"
 import Logo from "../Logo"
+import { useState } from "react"
 
 const Popup = styled.div`
 position: absolute;
@@ -103,6 +104,7 @@ export default function Chat(
       onClose?: () => void,
       children?: any,
     }) {
+  const [input, setInput] = useState('')
   return <Popup>
     <Paper>
       <CloseButton onClick={onClose}>
@@ -116,8 +118,14 @@ export default function Chat(
         <Logo short color="#F1F1F1" />
       </Center>
       <InputGroup>
-        <Input />
-        <SendButton onClick={() => onSend('my message')}>
+        <Input value={input} onChange={e => setInput(e.target.value)} />
+        <SendButton
+          onClick={
+            () => {
+              onSend(input)
+              setInput('')
+            }
+          }>
           <SendOutline color={'#fff'} width="10px" height="10px" />
         </SendButton>
       </InputGroup>
