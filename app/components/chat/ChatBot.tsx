@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Chat from "./Chat";
 import MyMessage from "./MyMessage";
 import CompanionMessage from "./CompanionMessage";
@@ -10,7 +10,22 @@ type Message = {
 
 export default function ChatBot({ onClose }: { onClose?: () => void }) {
   const [history, setHistory] = useState<Message[]>([])
-  return <Chat onClose={onClose} onSend={x => setHistory([...history, { author: 'user', text: x }])}>
+  const [blocked, setBlocked] = useState(false)
+  useEffect(() => {
+    setBlocked(true)
+    const timeout = setTimeout(
+      () => {
+        setHistory([...history, { author: 'bot', text: 'Bot answer' }])
+        setBlocked(false)
+      },
+      1000)
+    return () => clearTimeout(timeout)
+  }, [history])
+  return <Chat
+    inputStyle={blocked ? { pointerEvents: 'none' } : undefined}
+    onClose={onClose}
+    onSend={x => setHistory([...history, { author: 'user', text: x }])}
+  >
     {
       history.map(x =>
         x.author === 'user'

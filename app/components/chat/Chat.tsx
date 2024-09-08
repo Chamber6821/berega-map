@@ -1,7 +1,7 @@
 import { CloseOutline, SendOutline } from "react-ionicons"
 import styled from "styled-components"
 import Logo from "../Logo"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { CSSProperties, useCallback, useEffect, useRef, useState } from "react"
 
 const Popup = styled.div`
 position: absolute;
@@ -92,12 +92,17 @@ const Header = () => <VerticalLayout>
 </VerticalLayout >
 
 export default function Chat(
-  { onSend = () => { }, onClose = () => { }, children }:
-    {
-      onSend?: (message: string) => void,
-      onClose?: () => void,
-      children?: any,
-    }) {
+  {
+    onSend = () => { },
+    onClose = () => { },
+    inputStyle,
+    children
+  }: {
+    onSend?: (message: string) => void,
+    onClose?: () => void,
+    inputStyle?: CSSProperties,
+    children?: any,
+  }) {
   const [input, setInput] = useState('')
   const chatBottom = useRef<HTMLDivElement>(null)
   const handleSubmit = useCallback(() => {
@@ -119,7 +124,10 @@ export default function Chat(
       <Center>
         <Logo short color="#F1F1F1" />
       </Center>
-      <InputGroup onSubmit={e => { e.preventDefault(); handleSubmit() }}>
+      <InputGroup
+        style={inputStyle}
+        onSubmit={e => { e.preventDefault(); handleSubmit() }}
+      >
         <Input
           value={input}
           onChange={e => setInput(e.target.value)}
