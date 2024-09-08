@@ -16,7 +16,7 @@ export default function ChatBot({ onClose }: { onClose?: () => void }) {
     setBlocked(true)
     setTimeout(
       () => {
-        setHistory([...history, { author: 'bot', text: 'Bot answer' }])
+        setHistory(history => [...history, { author: 'bot', text: 'Bot answer' }])
         setBlocked(false)
       },
       1000
