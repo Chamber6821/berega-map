@@ -95,12 +95,12 @@ export default function Chat(
   {
     onSend = () => { },
     onClose = () => { },
-    inputStyle,
+    inputDisabled = false,
     children
   }: {
     onSend?: (message: string) => void,
     onClose?: () => void,
-    inputStyle?: CSSProperties,
+    inputDisabled?: boolean,
     children?: any,
   }) {
   const [input, setInput] = useState('')
@@ -124,21 +124,20 @@ export default function Chat(
       <Center>
         <Logo short color="#F1F1F1" />
       </Center>
-      <InputGroup
-        style={inputStyle}
-        onSubmit={e => { e.preventDefault(); handleSubmit() }}
-      >
+      <InputGroup onSubmit={e => { e.preventDefault(); handleSubmit() }}>
         <Input
           value={input}
           onChange={e => setInput(e.target.value)}
+          disabled={inputDisabled}
         />
         <SendButton
           type="submit"
           onClick={handleSubmit}
+          disabled={inputDisabled}
         >
           <SendOutline color={'#fff'} width="10px" height="10px" />
         </SendButton>
       </InputGroup>
     </Paper>
-  </Popup>
+  </Popup >
 }

@@ -23,7 +23,7 @@ export default function ChatBot({ onClose }: { onClose?: () => void }) {
     )
   }
   return <Chat
-    inputStyle={blocked ? { pointerEvents: 'none' } : undefined}
+    inputDisabled={blocked}
     onClose={onClose}
     onSend={handleSend}
   >
