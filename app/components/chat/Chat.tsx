@@ -105,12 +105,14 @@ export default function Chat(
   }) {
   const [input, setInput] = useState('')
   const chatBottom = useRef<HTMLDivElement>(null)
+  const messageInput = useRef<HTMLInputElement>(null)
   const handleSubmit = useCallback(() => {
     if (input === '') return
     onSend(input)
     setInput('')
   }, [onSend, input, setInput])
   useEffect(() => chatBottom.current?.scrollIntoView(), [chatBottom, input])
+  useEffect(() => { !inputDisabled && messageInput.current?.focus() }, [inputDisabled])
   return <Popup>
     <Paper>
       <CloseButton onClick={onClose}>
@@ -126,6 +128,7 @@ export default function Chat(
       </Center>
       <InputGroup onSubmit={e => { e.preventDefault(); handleSubmit() }}>
         <Input
+          ref={messageInput}
           value={input}
           onChange={e => setInput(e.target.value)}
           disabled={inputDisabled}
