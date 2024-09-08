@@ -11,20 +11,21 @@ type Message = {
 export default function ChatBot({ onClose }: { onClose?: () => void }) {
   const [history, setHistory] = useState<Message[]>([])
   const [blocked, setBlocked] = useState(false)
-  useEffect(() => {
+  const handleSend = (message: string) => {
+    setHistory([...history, { author: 'user', text: message }])
     setBlocked(true)
-    const timeout = setTimeout(
+    setTimeout(
       () => {
         setHistory([...history, { author: 'bot', text: 'Bot answer' }])
         setBlocked(false)
       },
-      1000)
-    return () => clearTimeout(timeout)
-  }, [history])
+      1000
+    )
+  }
   return <Chat
     inputStyle={blocked ? { pointerEvents: 'none' } : undefined}
     onClose={onClose}
-    onSend={x => setHistory([...history, { author: 'user', text: x }])}
+    onSend={handleSend}
   >
     {
       history.map(x =>
