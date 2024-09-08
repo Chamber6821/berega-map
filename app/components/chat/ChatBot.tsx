@@ -14,13 +14,24 @@ export default function ChatBot({ onClose }: { onClose?: () => void }) {
   const handleSend = (message: string) => {
     setHistory([...history, { author: 'user', text: message }])
     setBlocked(true)
-    setTimeout(
-      () => {
-        setHistory(history => [...history, { author: 'bot', text: 'Bot answer' }])
-        setBlocked(false)
-      },
-      1000
-    )
+    const ask = async () => {
+      const response = await fetch('http://198.199.64.195:7771/filter_data', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          history: history.map(x => x.text),
+          text: message,
+          language: 'ru'
+        })
+      })
+      const answer = await response.json()
+      setHistory(x => [...x, { author: 'bot', text: answer.text }])
+      setBlocked(false)
+    }
+    ask()
   }
   return <Chat
     inputDisabled={blocked}
