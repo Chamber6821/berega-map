@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Chat from "./Chat";
 import MyMessage from "./MyMessage";
 import CompanionMessage from "./CompanionMessage";
