@@ -111,7 +111,7 @@ export default function Chat(
     onSend(input)
     setInput('')
   }, [onSend, input, setInput])
-  useEffect(() => chatBottom.current?.scrollIntoView(), [chatBottom, input])
+  useEffect(() => chatBottom.current?.scrollIntoView(), [chatBottom, input, children])
   useEffect(() => { !inputDisabled && messageInput.current?.focus() }, [inputDisabled])
   return <Popup>
     <Paper>
