@@ -66,7 +66,8 @@ margin-top: 10px;
 margin-bottom: 20px;
 `
 
-const Center = styled.div`
+const CenteredBackground = styled.div`
+z-index: -100;
 position: absolute;
 transform: translate(50%, -50%);
 top: 50%;
@@ -123,9 +124,9 @@ export default function Chat(
         {children}
         <div ref={chatBottom} />
       </Messages>
-      <Center>
+      <CenteredBackground>
         <Logo short color="#F1F1F1" />
-      </Center>
+      </CenteredBackground>
       <InputGroup onSubmit={e => { e.preventDefault(); handleSubmit() }}>
         <Input
           ref={messageInput}
