@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import Card from "./Card";
 import { Building } from "./api/berega";
 import { PointsTypeOpenApi, fetchBuilding } from "@/app/api/openApi";
@@ -12,41 +12,12 @@ export default function Cards({ buildings, points }: CardsProps) {
   const [visibleBuildings, setVisibleBuildings] = useState<Building[]>([]);
   const [loadedBuildingsFromPoints, setLoadedBuildingsFromPoints] = useState<Building[]>([]);
   const [hasMore, setHasMore] = useState(true);
-  const observer = useRef<IntersectionObserver | null>(null);
-  const lastCardRef = useRef<HTMLDivElement | null>(null);
+  const lastCardRef = useRef<HTMLDivElement>(null);
 
   const ITEMS_PER_BATCH = 10;
   const loadedBuildingCountRef = useRef(0);
   const loadedPointsCountRef = useRef(0);
 
-  useEffect(() => {
-  }, [buildings, points]);
-
-
-  const loadInitialItems = async () => {
-    const initialBuildings = buildings.slice(0, ITEMS_PER_BATCH);
-    const uniqueBuildings = initialBuildings.filter(
-        (newBuilding) => !visibleBuildings.some((existingBuilding) => existingBuilding.page === newBuilding.page)
-    );
-    if (uniqueBuildings.length > 0) {
-      setVisibleBuildings((prevBuildings) => [...prevBuildings, ...uniqueBuildings]);
-      loadedBuildingCountRef.current += uniqueBuildings.length;
-    }
-    const initialPoints = points.slice(0, ITEMS_PER_BATCH);
-    const loadedBuildingsFromPoints = await Promise.all(
-        initialPoints.map((point) => fetchBuilding(point.id))
-    );
-    const uniqueBuildingsFromPoints = loadedBuildingsFromPoints.filter(
-        (newBuilding) => !loadedBuildingsFromPoints.some((existingBuilding) => existingBuilding.page === newBuilding.page)
-    );
-    if (uniqueBuildingsFromPoints.length > 0) {
-      setLoadedBuildingsFromPoints((prevLoaded) => [
-        ...prevLoaded,
-        ...uniqueBuildingsFromPoints,
-      ]);
-      loadedPointsCountRef.current += uniqueBuildingsFromPoints.length;
-    }
-  };
 
   const loadMoreItems = async () => {
     const currentLoadedBuildingCount = loadedBuildingCountRef.current;
@@ -84,9 +55,7 @@ export default function Cards({ buildings, points }: CardsProps) {
   };
 
   useEffect(() => {
-    if (observer.current) observer.current.disconnect();
-
-    observer.current = new IntersectionObserver(
+    const observer = new IntersectionObserver(
         (entries) => {
           if (entries[0].isIntersecting && hasMore) {
             loadMoreItems();
@@ -96,19 +65,24 @@ export default function Cards({ buildings, points }: CardsProps) {
     );
 
     if (lastCardRef.current) {
-      observer.current.observe(lastCardRef.current);
+      observer.observe(lastCardRef.current);
     }
 
     return () => {
-      if (observer.current) observer.current.disconnect();
+      observer.disconnect();
     };
   }, [hasMore]);
 
+  const combinedBuildings = useMemo(
+      () => [...visibleBuildings, ...loadedBuildingsFromPoints],
+      [visibleBuildings, loadedBuildingsFromPoints]
+  );
+
   return (
       <div className="cards-container">
-        {visibleBuildings.map((building, index) => (
+        {combinedBuildings.map((building) => (
             <Card
-                key={`building-${index}`}
+                key={building.page}
                 image={building.image || ""}
                 title={building.title}
                 description={
@@ -120,21 +94,7 @@ export default function Cards({ buildings, points }: CardsProps) {
             />
         ))}
 
-        {loadedBuildingsFromPoints.map((building, index) => (
-            <Card
-                key={`point-${index}`}
-                image={building.image || ""}
-                title={building.title}
-                description={
-                  building.shortDescription.length === 1
-                      ? [building.shortDescription[0], ""]
-                      : building.shortDescription
-                }
-                page={building.page}
-            />
-        ))}
-
-        <div ref={lastCardRef} style={{ height: "1px", marginBottom: "20px" }}></div>
+        <div ref={lastCardRef} style={{height: "1px", marginBottom: "20px"}}></div>
         {hasMore && <p>Загрузка...</p>}
       </div>
   );
