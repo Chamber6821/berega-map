@@ -1,5 +1,5 @@
 import {Building, DescriptionLine} from "./berega";
-import {FilterGroup, Filters, FilterStatus} from "../filters/useFilters";
+import {FilterGroup, Filters} from "../filters/useFilters";
 
 export type PointsTypeOpenApi = {
     id: string;
@@ -88,7 +88,7 @@ const popularPlaces = [
     {centerLatitude: 42.5088, centerLongitude: 41.8709}  // Зугдиди
 ]
 
-export async function convertBuilding(building: BuildingTypeOpenApi): Promise<Building> {
+export const convertBuilding = async (building: BuildingTypeOpenApi): Promise<Building> => {
     const shortDescription: DescriptionLine = [
         ''
     ];
@@ -179,9 +179,9 @@ const urlForFilteredPoints = (
     return `${baseOpenApiUrl()}/filter?${params.toString()}`;
 };
 
-export async function fetchPointsCounter(
+export const fetchPointsCounter = async (
     filters: Filters
-): Promise<PointsCountTypeOpenApi[]> {
+): Promise<PointsCountTypeOpenApi[]>  => {
     const params = new URLSearchParams({
         radiusKm: '5',
     });
@@ -251,32 +251,32 @@ export async function fetchPointsCounter(
     return pointsCount;
 }
 
+const chooseHouseStatus = (filters: Filters) : string => {
+    if (filters.groups.includes('Новостройки') || filters.status.includes('Новостройки')) {
+        return 'Новостройки';
+    } else if (filters.groups.includes('Вторичное жилье') || filters.status.includes('Вторичное жильё')) {
+        return 'Вторичное жилье';
+    } else if (filters.groups.includes('Дома, коттеджи')) {
+        return 'Дома, коттеджи';
+    } else if (filters.groups.includes('Зем. участки')) {
+        return 'Зем. участки';
+    } else if (filters.groups.includes('Коммерческая')) {
+        return 'Коммерческая';
+    } else {
+        return '';
+    }
+}
 
-export async function fetchFilteredPoints(
+export const fetchFilteredPoints = async (
     center: [number, number],
     size: number,
     filters: Filters
-): Promise<PointsTypeOpenApi[]> {
+): Promise<PointsTypeOpenApi[]> => {
     const url = urlForFilteredPoints(center, size, filters);
     const response = await fetch(url, { cache: 'no-store' });
     const points : PointsTypeOpenApi[] = await response.json();
     return points.map((point) => {
-        let houseStatus = '';
-
-        if (filters.groups.includes('Новостройки') || filters.status.includes('Новостройки')) {
-            houseStatus = 'Новостройки';
-        } else if (filters.groups.includes('Вторичное жилье') || filters.status.includes('Вторичное жильё')) {
-            houseStatus = 'Вторичное жилье';
-        } else if (filters.groups.includes('Дома, коттеджи')) {
-            houseStatus = 'Дома, коттеджи';
-        } else if (filters.groups.includes('Зем. участки')) {
-            houseStatus = 'Зем. участки';
-        } else if (filters.groups.includes('Коммерческая')) {
-            houseStatus = 'Коммерческая';
-        } else {
-            houseStatus = '';
-        }
-
+        const houseStatus = chooseHouseStatus(filters);
         return {
             ...point,
             houseStatus,
@@ -284,12 +284,10 @@ export async function fetchFilteredPoints(
     });
 }
 
-export async function fetchBuildingById(id : string) : Promise<BuildingTypeOpenApi> {
-    const response = await fetch(`${baseOpenApiUrl()}/${id}`, {cache: 'no-store'});
-    return response.json();
-}
+export const fetchBuildingById = async (id: string): Promise<BuildingTypeOpenApi> => {
+    return (await fetch(`${baseOpenApiUrl()}/${id}`, { cache: 'no-store' })).json();
+};
 
-export async function fetchBuilding(id : string) : Promise<Building> {
-    const buildingFromOpenApi = await fetchBuildingById(id);
-    return await convertBuilding(buildingFromOpenApi);
+export const fetchBuilding = async (id : string) : Promise<Building> => {
+    return await convertBuilding(await fetchBuildingById(id));
 }

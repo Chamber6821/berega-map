@@ -15,6 +15,7 @@ import FiltersHeader from "./filters/FiltersHeader";
 import FilterApi from "./filters/FilterApi";
 import { filterOf, useFilters } from "./filters/useFilters";
 import {fetchFilteredPoints, fetchPointsCounter, PointsCountTypeOpenApi, PointsTypeOpenApi} from "./api/openApi";
+import { useBuildings } from "./useBuildings";
 
 const ShowFiltersButton = styled.button`
   display: flex;
@@ -73,7 +74,7 @@ const MapAndCards = styled.div`
 `
 
 export default function Content() {
-  const [buildings, setBuildings] = useState<Building[]>([])
+  const [buildings, setBuildings] = useState<Building[]>(useBuildings(x => x.buildings))
   const [showFiltersPopup, setShowFiltersPopup] = useState(false)
   const [showHelpPopup, setShowHelpPopup] = useState(false)
   const [showCards, setShowCards] = useState(false)
@@ -115,6 +116,11 @@ export default function Content() {
     }
     loadBuildings();
   }, [filters.api]);
+
+
+
+  const load = useBuildings(x => x.loadFromBerega)
+  useEffect(() => load(), [load])
 
   useEffect(() => {
     async function loadBuildingsFromOpenApi() {
@@ -180,7 +186,7 @@ export default function Content() {
           Фильтры
         </ShowFiltersButton>
       </div>
-      <FilterApi/>
+        <FilterApi/>
       <MapAndCards>
         <Map
           center={[41.65, 41.65]}

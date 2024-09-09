@@ -96,7 +96,6 @@ const useSwitchInput = <T extends string,>(prefix : string, variants: T[]): [Sta
     return [[selected, setSelected], group];
 };
 
-
 export default function FilterApi() {
     const [[api, setApi], ApiInput] = useSwitchInput('Api недвижимости', [...FilterApies])
     const filters = useFilters()
