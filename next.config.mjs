@@ -12,6 +12,16 @@ const nextConfig = {
         hostname: "img.icons8.com",
         port: "",
       },
+      {
+        protocol: "https",
+        hostname: "api-statements.tnet.ge",
+        port: "",
+      },
+      {
+        protocol: "https",
+        hostname: "static.my.ge",
+        port: "",
+      },
     ]
   }
 };

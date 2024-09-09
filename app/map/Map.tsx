@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Building } from "../api/berega";
+import {PointsTypeOpenApi, fetchBuilding, PointsCountTypeOpenApi} from "../api/openApi";
 
 import mapbox, { GeoJSONSource, LngLatBounds, Map as MapboxMap, MapMouseEvent, MapTouchEvent, NavigationControl } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -19,14 +20,23 @@ export type Bounds = LngLatBounds
 export const useMap = create<{
   bounds?: Bounds, selectedArea?: Polygon,
   selectedBuilding?: Building[]
+  selectedPointId?: string
   setBounds: (bounds?: Bounds) => void,
   setSelectedArea: (selectedArea?: Polygon) => void
   setSelectedBuilding: (building: Building[] | undefined) => void
+  setSelectedPointId: (pointId: string | undefined) => void
 }>(set => ({
   setBounds: (bounds) => set({ bounds }),
   setSelectedArea: (selectedArea) => set({ selectedArea }),
-  setSelectedBuilding: (building) => set({ selectedBuilding: building })
+  setSelectedBuilding: (building) => set({ selectedBuilding: building }),
+  setSelectedPointId: (pointId) => set({selectedPointId: pointId}),
 }))
+
+const monthAgo = (n: number = 1) => {
+  const now = new Date()
+  now.setMonth(now.getMonth() - n)
+  return now
+}
 
 const colorFor = (x: Building) => {
   switch (x.group) {
@@ -38,10 +48,30 @@ const colorFor = (x: Building) => {
   }
 }
 
+const colorForPoints = (x : string) => {
+  switch (x) {
+    case 'Новостройки': return '#df11ff'
+    case 'Вторичное жилье': return '#0000ff'
+    case 'Дома, коттеджи': return '#ff0000'
+    case 'Зем. участки': return '#994009'
+    case 'Коммерческая': return '#ffa640'
+    default: return '#0000ff'
+  }
+}
+
 const markerRadius = 5
 
-export default function Map({ center, zoom, buildings, onClickInfo }:
-  { center: [number, number], zoom: number, buildings: Building[], onClickInfo?: () => void }) {
+export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, points, onZoomChange, pointsCounter }:
+  {
+    center: [number, number],
+    zoom: number,
+    buildings: Building[],
+    onClickInfo?: () => void,
+    onMapMove?: (center: [number, number]) => void,
+    points: PointsTypeOpenApi[],
+    onZoomChange?: (zoom: number) => void,
+    pointsCounter: PointsCountTypeOpenApi[]})
+  {
   const mapState = useMap()
   const mapStateRef = useRef(mapState)
   const setSelectedArea = useMap(x => x.setSelectedArea)
@@ -345,6 +375,42 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const handleMoveEnd = () => {
+      if (onMapMove) {
+        const newCenter: [number, number] = [map.getCenter().lng, map.getCenter().lat];
+        onMapMove(newCenter);
+      }
+    };
+
+    map.on('moveend', handleMoveEnd);
+
+    return () => {
+      map.off('moveend', handleMoveEnd);
+    };
+  }, [onMapMove]);
+
+    useEffect(() => {
+      const map = mapRef.current;
+      if (!map) return;
+
+      const handleZoomChange = () => {
+        const zoom = map.getZoom();
+        if (onZoomChange) {
+          onZoomChange(zoom);
+        }
+      };
+
+      map.on('zoomend', handleZoomChange);
+
+      return () => {
+        map.off('zoomend', handleZoomChange);
+      };
+    }, [onZoomChange]);
+
+  useEffect(() => {
     const map = mapRef.current
     if (!map) return
     const selectedMarker = map.getSource<GeoJSONSource>('selected-marker')
@@ -376,28 +442,199 @@ export default function Map({ center, zoom, buildings, onClickInfo }:
     console.log(map.getSource<GeoJSONSource>('selected-marker')?._data)
   }, [mapState.selectedBuilding])
 
-  useEffect(() => {
-    console.log('UPDATE MARKERS!')
-    if (!mapRef.current) return
-    const map = mapRef.current
-    map.getSource<GeoJSONSource>('markers')?.setData({
-      'type': 'FeatureCollection',
-      'features': buildings.map(
-        (x, i) => ({
-          'type': 'Feature',
-          'geometry': {
-            'type': 'Point',
-            'coordinates': [x.location.lng, x.location.lat]
+    useEffect(() => {
+      const map = mapRef.current;
+      if (!map || !map.isStyleLoaded()) return;
+
+      map.getSource<GeoJSONSource>('markers')?.setData({
+        'type': 'FeatureCollection',
+        'features': buildings.map(
+            (x, i) => ({
+              'type': 'Feature',
+              'geometry': {
+                'type': 'Point',
+                'coordinates': [x.location.lng, x.location.lat]
+              },
+              'properties': {
+                'color': colorFor(x),
+                'originIndex': i
+              }
+            })
+        )
+      });
+
+    }, [buildings.length]);
+
+    useEffect(() => {
+      const map = mapRef.current;
+      if (!map || !map.isStyleLoaded()) return;
+
+      if (points && points.length > 0) {
+        const pointsGeoJson: GeoJSON.FeatureCollection<GeoJSON.Point> = {
+          type: 'FeatureCollection',
+          features: points.map((point) => ({
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [point.longitude, point.latitude],
+            },
+            properties: {
+              color: colorForPoints(point.houseStatus),
+              houseStatus: point.houseStatus,
+              postDate: point.postDate,
+              id: point.id,
+            },
+          })),
+        };
+
+        if (map.getSource('points')) {
+          map.getSource<GeoJSONSource>('points')?.setData(pointsGeoJson);
+        } else {
+          map.addSource('points', { type: 'geojson', data: pointsGeoJson });
+          map.addLayer({
+            id: 'points',
+            type: 'circle',
+            source: 'points',
+            paint: {
+              'circle-color': ['get', 'color'],
+              'circle-radius': markerRadius,
+              'circle-stroke-width': 1,
+              'circle-stroke-color': '#fff',
+            },
+          });
+
+          map.on('click', 'points', async (e) => {
+            const pointId = e.features?.[0]?.properties?.id;
+            if (pointId) {
+              try {
+                const buildingData = await fetchBuilding(pointId);
+                mapState.setSelectedBuilding([buildingData]);
+                mapState.setSelectedPointId(pointId);
+              } catch (error) {
+                console.error('Error fetching building data:', error);
+              }
+            }
+          });
+
+          map.on('mouseenter', 'points', () => {
+            map.getCanvas().style.cursor = 'pointer';
+          });
+
+          map.on('mouseleave', 'points', () => {
+            map.getCanvas().style.cursor = '';
+          });
+        }
+      } else if (map.getLayer('points')) {
+        map.removeLayer('points');
+        if (map.getSource('points')) {
+          map.removeSource('points');
+        }
+      }
+
+      if (pointsCounter && pointsCounter.length > 0) {
+        const pointsCounterGeoJson: GeoJSON.FeatureCollection<GeoJSON.Point> = {
+          type: 'FeatureCollection',
+          features: pointsCounter.map((point) => ({
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [point.longitude, point.latitude],
+            },
+            properties: {
+              color: colorForPoints(point.houseStatus),
+              houseStatus: point.houseStatus,
+              radius: Math.max(10, point.counter * 0.01 > 20 ? 20 : point.counter * 0.01),
+              counter: point.counter,
+            },
+          })),
+        };
+
+        if (map.getSource('pointsCounter')) {
+          map.getSource<GeoJSONSource>('pointsCounter')?.setData(pointsCounterGeoJson);
+        } else {
+          map.addSource('pointsCounter', { type: 'geojson', data: pointsCounterGeoJson });
+          map.addLayer({
+            id: 'pointsCounter',
+            type: 'circle',
+            source: 'pointsCounter',
+            paint: {
+              'circle-color': ['get', 'color'],
+              'circle-radius': ['get', 'radius'],
+              'circle-stroke-width': 1,
+              'circle-stroke-color': '#fff',
+            },
+          });
+
+          map.on('mouseenter', 'pointsCounter', () => {
+            map.getCanvas().style.cursor = 'pointer';
+          });
+
+          map.on('mouseleave', 'pointsCounter', () => {
+            map.getCanvas().style.cursor = '';
+          });
+
+          map.on('click', 'pointsCounter', (e) => {
+            if (!e.features) return;
+
+            const feature = e.features[0];
+            if (feature.geometry.type === 'Point') {
+              const coordinates = feature.geometry.coordinates;
+              map.flyTo({
+                center: [coordinates[0], coordinates[1]],
+                zoom: 12,
+                essential: true,
+              });
+
+              const zoom = map.getZoom();
+              if (onZoomChange) {
+                onZoomChange(zoom);
+              }
+            }
+          });
+        }
+      } else if (map.getLayer('pointsCounter')) {
+        map.removeLayer('pointsCounter');
+        if (map.getSource('pointsCounter')) {
+          map.removeSource('pointsCounter');
+        }
+      }
+    }, [points, pointsCounter]);
+
+    useEffect(() => {
+      const map = mapRef.current;
+
+      const currentPointId = mapState.selectedPointId;
+
+      const updatedPoints = points.map((point) => {
+        return {
+          ...point,
+          color: point.id === currentPointId ? '#ff8000' : colorForPoints(point.houseStatus)
+        };
+      });
+
+      const pointsGeoJson : GeoJSON.FeatureCollection<GeoJSON.Point> = {
+        type: 'FeatureCollection',
+        features: updatedPoints.map((point) => ({
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [point.longitude, point.latitude],
           },
-          'properties': {
-            'color': colorFor(x),
-            'originIndex': i
-          }
-        })
-      )
-    })
-  }, [buildings.length])
+          properties: {
+            color: point.color,
+            houseStatus: point.houseStatus,
+            postDate: point.postDate,
+            id: point.id,
+          },
+        })),
+      };
+
+      if (map?.getSource('points')) {
+        map?.getSource<GeoJSONSource>('points')?.setData(pointsGeoJson);
+      }
+    }, [mapState.selectedPointId, points]);
 
 
-  return <div className="map" ref={mapContainer}></div>
+
+    return <div className="map" ref={mapContainer}></div>
 }

@@ -2,7 +2,15 @@ import styled from "styled-components";
 import { useEffect, useState } from "react";
 import PrimaryButton from "../components/PrimaryButton";
 import Modal from "../components/Modal";
-import { FilterFrames, FilterGroup, FilterGroups, FilterRooms, FilterStatuses, Range, useFilters } from "./useFilters";
+import {
+    FilterFrames,
+    FilterGroup,
+    FilterGroups,
+    FilterRooms,
+    FilterStatuses,
+    Range,
+    useFilters
+} from "./useFilters";
 
 const Input = styled.input`
   border: 2px solid #EEF5F8;
@@ -222,10 +230,10 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
       rooms: resetRooms ? [] : rooms,
       status: resetStatus ? [] : status,
       frame: resetFrame ? [] : frame,
-      agriculturals: resetAgricultures ? [] : agricultures.map(x => x === 'Сельхоз' ? true : false),
+      agriculturals: resetAgricultures ? [] : agricultures.map(x => x === 'Сельхоз'),
       priceRange,
       floorRange: resetFloor ? [undefined, undefined] : floorRange,
-      areaRange,
+      areaRange
     })
     onClose()
   }
@@ -260,7 +268,7 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
           {/* <Filter name="Выбор города">{CityInput}</Filter> */}
           <Filter name="Тип">{GroupInput}</Filter>
           {!resetRooms && <Filter name="Кол-во комнат">{RoomsInput}</Filter>}
-          {!resetAgricultures && <Filter name="Местность">{AgriculturesInput}</Filter>}
+          {resetAgricultures && <Filter name="Местность">{AgriculturesInput}</Filter>}
           <Filter name="Цена, $">{PriceInput}</Filter>
           <Filter name="Объявлен не позже чем">{TimeInput}</Filter>
         </FiltersContainer>

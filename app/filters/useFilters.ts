@@ -10,6 +10,9 @@ export type FilterRoom = typeof FilterRooms[number]
 export const FilterStatuses = ['Новостройки', 'Вторичное жильё']
 export type FilterStatus = typeof FilterStatuses[number]
 
+export const FilterApies = ['Встроенное', 'Внешнее']
+export type FilterApi = typeof FilterApies[number]
+
 export const FilterFrames = ['Черный каркас', 'Белый каркас', 'С ремонтом', 'Под ключ']
 export type FilterFrame = typeof FilterFrames[number]
 
@@ -30,6 +33,7 @@ export type Filters = {
   priceRange: Range,
   floorRange: Range,
   areaRange: Range,
+  api: FilterApi
 }
 
 const matchByVariants = <T,>(variants: T[], value?: T) => variants.length === 0 || value !== undefined && variants.includes(value)
@@ -63,5 +67,6 @@ export const useFilters = create<Filters & {
   priceRange: [undefined, undefined],
   floorRange: [undefined, undefined],
   areaRange: [undefined, undefined],
+  api: 'Встроенное',
   set,
 }))

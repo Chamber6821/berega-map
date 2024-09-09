@@ -2,7 +2,7 @@ import { useWindowWidth } from "@react-hook/window-size"
 import { useEffect, useState } from "react"
 import { ChevronDownOutline, ChevronUpOutline } from "react-ionicons"
 import styled from "styled-components"
-import { FilterGroup, FilterGroups, FilterRooms, Range, useFilters } from "./useFilters"
+import {FilterGroup, FilterGroups, FilterRooms, Range, useFilters} from "./useFilters"
 
 const Filter = styled.div`
   position: relative;
@@ -89,7 +89,6 @@ const SelectedOption = styled.div`
 const VariantGroup = styled.div`
   display: flex;
   gap: 4px;
-  border-radius: 10px;
   overflow: hidden;
   border: 1px solid rgb(164, 170, 180);
   padding: 7px;
@@ -179,6 +178,7 @@ const useRangeInput = (prefix: string, postfix: string): [State<Range>, React.Re
   }], group]
 }
 
+
 const useVariantInput = <T extends string,>(variants: T[]): [State<T[]>, React.ReactElement] => {
   const [selected, setSelected] = useState<T[]>([])
   const group =
@@ -203,6 +203,7 @@ const useVariantInput = <T extends string,>(variants: T[]): [State<T[]>, React.R
     </VariantGroup>
   return [[selected, setSelected], group]
 }
+
 
 const useOptions = <T,>(label: string, variants: T[]): [State<T[]>, React.ReactElement] => {
   const [opened, setOpened] = useState(false)

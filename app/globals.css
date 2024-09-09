@@ -222,6 +222,8 @@ p {
   color: #494949;
   width: 150px;
   text-align: end;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .filter__table-more .input-container {
