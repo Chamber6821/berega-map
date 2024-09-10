@@ -93,7 +93,6 @@ export default function Content() {
   const matchedBuildings = buildings.filter(filterOf(filters))
   const [isPointsCounterShowed, setIsPointsCounterShowed] = useState<boolean>(false);
 
-
   useEffect(() => setShowCards(!!selectedArea), [selectedArea])
   useEffect(() => selectedArea && setPopupBuilding(undefined), [selectedArea, setPopupBuilding])
 
@@ -116,8 +115,6 @@ export default function Content() {
     }
     loadBuildings();
   }, [filters.api]);
-
-
 
   const load = useBuildings(x => x.loadFromBerega)
   useEffect(() => load(), [load])
@@ -226,7 +223,7 @@ export default function Content() {
                   .filter(x => bounds === undefined || bounds.contains(x.location))
                   .filter(x => selectedArea === undefined || selectedArea.contains(new LngLat(x.location.lng, x.location.lat)))
             }
-                   points={points.filter(x => selectedArea === undefined || selectedArea.contains(new LngLat(x.longitude, x.latitude)))}
+             points={points.filter(x => selectedArea === undefined || selectedArea.contains(new LngLat(x.longitude, x.latitude)))}
             />
           </div>}
         </div>
