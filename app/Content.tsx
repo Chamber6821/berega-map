@@ -1,7 +1,7 @@
 'use client'
 
-import {useCallback, useEffect, useState} from "react";
-import {Building, fetchAllBuildings} from "./api/berega";
+import { useCallback, useEffect, useState } from "react";
+import { Building, fetchAllBuildings } from "./api/berega";
 import Cards from "./Cards";
 import { Map } from "./map";
 import Popup from "./Popup";
@@ -14,7 +14,7 @@ import HelpPopup from "./HelpPopup";
 import FiltersHeader from "./filters/FiltersHeader";
 import FilterApi from "./filters/FilterApi";
 import { filterOf, useFilters } from "./filters/useFilters";
-import {fetchFilteredPoints, fetchPointsCounter, PointsCountTypeOpenApi, PointsTypeOpenApi} from "./api/openApi";
+import { fetchFilteredPoints, fetchPointsCounter, PointsCountTypeOpenApi, PointsTypeOpenApi } from "./api/openApi";
 import { useBuildings } from "./useBuildings";
 
 const ShowFiltersButton = styled.button`

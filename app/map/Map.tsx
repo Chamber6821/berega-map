@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Building } from "../api/berega";
-import {PointsTypeOpenApi, fetchBuilding, PointsCountTypeOpenApi} from "../api/openApi";
+import { PointsTypeOpenApi, fetchBuilding, PointsCountTypeOpenApi } from "../api/openApi";
 
 import mapbox, { GeoJSONSource, LngLatBounds, Map as MapboxMap, MapMouseEvent, MapTouchEvent, NavigationControl } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css';

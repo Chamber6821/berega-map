@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useRef, useState} from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Card from "./Card";
 import { Building } from "./api/berega";
 import { PointsTypeOpenApi, fetchBuilding } from "@/app/api/openApi";
