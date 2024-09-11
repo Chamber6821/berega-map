@@ -132,155 +132,152 @@ export const convertBuilding = async (building: BuildingTypeOpenApi): Promise<Bu
 }
 
 const urlForFilteredPoints = (
-    center: [number, number],
-    size: number,
-    filters: Filters
+  center: [number, number],
+  size: number,
+  filters: Filters
 ) => {
-    const params = new URLSearchParams({
-        centerLatitude: center[1].toString(),
-        centerLongitude: center[0].toString(),
-        radiusKm: radiusKm.toString(),
-        page: '0',
-        size: size.toString(),
-    });
-    if (filters.priceRange[0]) params.append('minPriceUsd', filters.priceRange[0].toString());
-    if (filters.priceRange[1]) params.append('maxPriceUsd', filters.priceRange[1].toString());
-    if (filters.areaRange[0]) params.append('minArea', filters.areaRange[0].toString());
-    if (filters.areaRange[1]) params.append('maxArea', filters.areaRange[1].toString());
-    if (filters.floorRange[0]) params.append('minFloor', filters.floorRange[0].toString());
-    if (filters.floorRange[1]) params.append('maxFloor', filters.floorRange[1].toString());
-    if (filters.rooms.length > 0) {
-        filters.rooms.map((item) => {
-            params.append('rooms', item.toString());
-        })
-    }
-    if (filters.groups.includes('Новостройки') || filters.status.includes('Новостройки')) {
-        params.append('houseStatus', 'New building');
-    }
-    if (filters.groups.includes('Вторичное жилье') || filters.status.includes('Вторичное жильё')) {
-        params.append('houseStatus', 'Old building');
-    }
-    if (filters.groups.includes('Дома, коттеджи')) {
-        params.append('houseStatus', 'Finished');
-    }
-    if (filters.groups.includes('Зем. участки')) {
-        params.append('houseStatus', 'Investment / for construction');
-    }
-    if (filters.groups.includes('Коммерческая')) {
-        params.append('houseStatus', 'Commercial');
-    }
-    if (filters.frame.length > 0) params.append('frame', filters.frame.join(','));
-    if (filters.createdAfter) {
-        params.append('startPostDate', new Date(filters.createdAfter).toISOString().replace('Z', '+04:00'));
-    }
-    return `${baseOpenApiUrl()}/filter?${params.toString()}`;
+  const params = new URLSearchParams({
+    centerLatitude: center[1].toString(),
+    centerLongitude: center[0].toString(),
+    radiusKm: radiusKm.toString(),
+    page: '0',
+    size: size.toString(),
+  });
+  if (filters.priceRange[0]) params.append('minPriceUsd', filters.priceRange[0].toString());
+  if (filters.priceRange[1]) params.append('maxPriceUsd', filters.priceRange[1].toString());
+  if (filters.areaRange[0]) params.append('minArea', filters.areaRange[0].toString());
+  if (filters.areaRange[1]) params.append('maxArea', filters.areaRange[1].toString());
+  if (filters.floorRange[0]) params.append('minFloor', filters.floorRange[0].toString());
+  if (filters.floorRange[1]) params.append('maxFloor', filters.floorRange[1].toString());
+  if (filters.rooms.length > 0) {
+    filters.rooms.map((item) => {
+      params.append('rooms', item.toString());
+    })
+  }
+  if (filters.groups.includes('Новостройки') || filters.status.includes('Новостройки')) {
+    params.append('houseStatus', 'New building');
+  }
+  if (filters.groups.includes('Вторичное жилье') || filters.status.includes('Вторичное жильё')) {
+    params.append('houseStatus', 'Old building');
+  }
+  if (filters.groups.includes('Дома, коттеджи')) {
+    params.append('houseStatus', 'Finished');
+  }
+  if (filters.groups.includes('Зем. участки')) {
+    params.append('houseStatus', 'Investment / for construction');
+  }
+  if (filters.groups.includes('Коммерческая')) {
+    params.append('houseStatus', 'Commercial');
+  }
+  if (filters.frame.length > 0) params.append('frame', filters.frame.join(','));
+  if (filters.createdAfter) {
+    params.append('startPostDate', new Date(filters.createdAfter).toISOString().replace('Z', '+04:00'));
+  }
+  return `${baseOpenApiUrl()}/filter?${params.toString()}`;
 };
 
 export const fetchPointsCounter = async (
-    filters: Filters
+  filters: Filters
 ): Promise<PointsCountTypeOpenApi[]>  => {
-    const params = new URLSearchParams({
-        radiusKm: '5',
+  const params = new URLSearchParams({
+    radiusKm: '5',
+  });
+  const houseStatus: string[] = [];
+  if (filters.priceRange[0]) params.append('minPriceUsd', filters.priceRange[0].toString());
+  if (filters.priceRange[1]) params.append('maxPriceUsd', filters.priceRange[1].toString());
+  if (filters.areaRange[0]) params.append('minArea', filters.areaRange[0].toString());
+  if (filters.areaRange[1]) params.append('maxArea', filters.areaRange[1].toString());
+  if (filters.floorRange[0]) params.append('minFloor', filters.floorRange[0].toString());
+  if (filters.floorRange[1]) params.append('maxFloor', filters.floorRange[1].toString());
+  if (filters.rooms.length > 0) {
+    filters.rooms.forEach((room) => {
+      params.append('rooms', room.toString());
     });
-    const houseStatus: string[] = [];
-    if (filters.priceRange[0]) params.append('minPriceUsd', filters.priceRange[0].toString());
-    if (filters.priceRange[1]) params.append('maxPriceUsd', filters.priceRange[1].toString());
-    if (filters.areaRange[0]) params.append('minArea', filters.areaRange[0].toString());
-    if (filters.areaRange[1]) params.append('maxArea', filters.areaRange[1].toString());
-    if (filters.floorRange[0]) params.append('minFloor', filters.floorRange[0].toString());
-    if (filters.floorRange[1]) params.append('maxFloor', filters.floorRange[1].toString());
-    if (filters.rooms.length > 0) {
-        filters.rooms.forEach((room) => {
-            params.append('rooms', room.toString());
-        });
+  }
+  if (filters.groups.includes('Новостройки') || filters.status.includes('Новостройки')) {
+    params.append('houseStatus', 'New building');
+    houseStatus.push('Новостройки');
+  }
+  if (filters.groups.includes('Вторичное жилье') || filters.status.includes('Вторичное жильё')) {
+    params.append('houseStatus', 'Old building');
+    houseStatus.push('Вторичное жилье');
+  }
+  if (filters.groups.includes('Дома, коттеджи')) {
+    params.append('houseStatus', 'Finished');
+    houseStatus.push('Дома, коттеджи');
+  }
+  if (filters.groups.includes('Зем. участки')) {
+    params.append('houseStatus', 'Investment / for construction');
+    houseStatus.push('Зем. участки');
+  }
+  if (filters.groups.includes('Коммерческая')) {
+    params.append('houseStatus', 'Commercial');
+    houseStatus.push('Коммерческая');
+  }
+  if (filters.frame.length > 0) {
+    params.append('frame', filters.frame.join(','));
+  }
+  if (filters.createdAfter) {
+    params.append('startPostDate', new Date(filters.createdAfter).toISOString().replace('Z', '+04:00'));
+  }
+  const fetchPromises = popularPlaces.map(async (place) => {
+    const centerParams = new URLSearchParams(params.toString());
+    centerParams.append('centerLatitude', place.centerLatitude.toString());
+    centerParams.append('centerLongitude', place.centerLongitude.toString());
+    const response = await fetch(`${baseOpenApiUrl()}/count?${centerParams.toString()}`, { cache: 'no-store' });
+    const data: number = await response.json();
+    if (data > 0) {
+      return {
+        counter: data,
+        latitude: place.centerLatitude,
+        longitude: place.centerLongitude,
+        houseStatus: houseStatus[0],
+      } as PointsCountTypeOpenApi;
     }
-    if (filters.groups.includes('Новостройки') || filters.status.includes('Новостройки')) {
-        params.append('houseStatus', 'New building');
-        houseStatus.push('Новостройки');
-    }
-    if (filters.groups.includes('Вторичное жилье') || filters.status.includes('Вторичное жильё')) {
-        params.append('houseStatus', 'Old building');
-        houseStatus.push('Вторичное жилье');
-    }
-    if (filters.groups.includes('Дома, коттеджи')) {
-        params.append('houseStatus', 'Finished');
-        houseStatus.push('Дома, коттеджи');
-    }
-    if (filters.groups.includes('Зем. участки')) {
-        params.append('houseStatus', 'Investment / for construction');
-        houseStatus.push('Зем. участки');
-    }
-    if (filters.groups.includes('Коммерческая')) {
-        params.append('houseStatus', 'Commercial');
-        houseStatus.push('Коммерческая');
-    }
-    if (filters.frame.length > 0) {
-        params.append('frame', filters.frame.join(','));
-    }
-    if (filters.createdAfter) {
-        params.append('startPostDate', new Date(filters.createdAfter).toISOString().replace('Z', '+04:00'));
-    }
-    const fetchPromises = popularPlaces.map(async (place) => {
-        const centerParams = new URLSearchParams(params.toString());
-        centerParams.append('centerLatitude', place.centerLatitude.toString());
-        centerParams.append('centerLongitude', place.centerLongitude.toString());
-
-        const response = await fetch(`${baseOpenApiUrl()}/count?${centerParams.toString()}`, { cache: 'no-store' });
-        const data: number = await response.json();
-
-        if (data > 0) {
-            return {
-                counter: data,
-                latitude: place.centerLatitude,
-                longitude: place.centerLongitude,
-                houseStatus: houseStatus[0],
-            } as PointsCountTypeOpenApi;
-        }
-
-        return null;
-    });
-    const results = await Promise.all(fetchPromises);
-    const pointsCount = results.filter((result) => result !== null) as PointsCountTypeOpenApi[];
-    return pointsCount;
+    return null;
+  });
+  const results = await Promise.all(fetchPromises);
+  const pointsCount = results.filter((result) => result !== null) as PointsCountTypeOpenApi[];
+  return pointsCount;
 }
 
 const chooseHouseStatus = (filters: Filters) : string => {
-    if (filters.groups.includes('Новостройки') || filters.status.includes('Новостройки')) {
-        return 'Новостройки';
-    } else if (filters.groups.includes('Вторичное жилье') || filters.status.includes('Вторичное жильё')) {
-        return 'Вторичное жилье';
-    } else if (filters.groups.includes('Дома, коттеджи')) {
-        return 'Дома, коттеджи';
-    } else if (filters.groups.includes('Зем. участки')) {
-        return 'Зем. участки';
-    } else if (filters.groups.includes('Коммерческая')) {
-        return 'Коммерческая';
-    } else {
-        return '';
-    }
+  if (filters.groups.includes('Новостройки') || filters.status.includes('Новостройки')) {
+    return 'Новостройки';
+  } else if (filters.groups.includes('Вторичное жилье') || filters.status.includes('Вторичное жильё')) {
+    return 'Вторичное жилье';
+  } else if (filters.groups.includes('Дома, коттеджи')) {
+    return 'Дома, коттеджи';
+  } else if (filters.groups.includes('Зем. участки')) {
+    return 'Зем. участки';
+  } else if (filters.groups.includes('Коммерческая')) {
+    return 'Коммерческая';
+  } else {
+    return '';
+  }
 }
 
 export const fetchFilteredPoints = async (
-    center: [number, number],
-    size: number,
-    filters: Filters
+  center: [number, number],
+  size: number,
+  filters: Filters
 ): Promise<PointsTypeOpenApi[]> => {
-    const url = urlForFilteredPoints(center, size, filters);
-    const response = await fetch(url, { cache: 'no-store' });
-    const points : PointsTypeOpenApi[] = await response.json();
-    return points.map((point) => {
-        const houseStatus = chooseHouseStatus(filters);
-        return {
-            ...point,
-            houseStatus,
-        };
-    });
+  const url = urlForFilteredPoints(center, size, filters);
+  const response = await fetch(url, { cache: 'no-store' });
+  const points : PointsTypeOpenApi[] = await response.json();
+  return points.map((point) => {
+    const houseStatus = chooseHouseStatus(filters);
+    return {
+      ...point,
+      houseStatus,
+    };
+  });
 }
 
 export const fetchBuildingById = async (id: string): Promise<BuildingTypeOpenApi> => {
-    return (await fetch(`${baseOpenApiUrl()}/${id}`, { cache: 'no-store' })).json();
+  return (await fetch(`${baseOpenApiUrl()}/${id}`, { cache: 'no-store' })).json();
 };
 
 export const fetchBuilding = async (id : string) : Promise<Building> => {
-    return await convertBuilding(await fetchBuildingById(id));
+  return await convertBuilding(await fetchBuildingById(id));
 }

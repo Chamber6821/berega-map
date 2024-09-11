@@ -366,11 +366,11 @@ export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, p
         })
       const update = updateBuildings(map)
       map
-          .on('move', debounce(update))
-          .on('sourcedata', e => {
-            if (e.sourceId !== 'markers') return
-            update()
-          })
+        .on('move', debounce(update))
+        .on('sourcedata', e => {
+          if (e.sourceId !== 'markers') return
+          update()
+        })
     })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -385,15 +385,15 @@ export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, p
       selectedMarker.setData({
         'type': 'FeatureCollection',
         'features': building.map(x => ({
-              'type': 'Feature',
-              'geometry': {
-                'type': 'Point',
-                'coordinates': [x.location.lng, x.location.lat]
-              },
-              'properties': {
-                'color': '#ff8000'
-              }
-            })
+          'type': 'Feature',
+          'geometry': {
+            'type': 'Point',
+            'coordinates': [x.location.lng, x.location.lat]
+          },
+          'properties': {
+            'color': '#ff8000'
+          }
+        })
         )
       })
     } else {
@@ -448,9 +448,7 @@ export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, p
     if (!map) return;
     const handleZoomChange = () => {
       const zoom = map.getZoom();
-      if (onZoomChange) {
-        onZoomChange(zoom);
-      }
+      onZoomChange && onZoomChange(zoom);
     };
     map.on('zoomend', handleZoomChange);
     return () => {

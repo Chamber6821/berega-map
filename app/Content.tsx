@@ -85,13 +85,13 @@ export default function Content() {
   const bounds = useMap(x => x.bounds)
   const selectedArea = useMap(x => x.selectedArea)
   const [mapCenter, setMapCenter] = useState<[number, number]>([41.65, 41.65]);
-  const [size, setSize] = useState<number>(50000);
-  const [zoom, setZoom] = useState<number>(10);
+  const [size, setSize] = useState(50000);
+  const [zoom, setZoom] = useState(10);
   const [points, setPoints] = useState<PointsTypeOpenApi[]>([]);
   const [pointsCounter, setPointsCounter] = useState<PointsCountTypeOpenApi[]>([]);
   const filters = useFilters()
   const matchedBuildings = buildings.filter(filterOf(filters))
-  const [isPointsCounterShowed, setIsPointsCounterShowed] = useState<boolean>(false);
+  const [isPointsCounterShowed, setIsPointsCounterShowed] = useState(false);
 
   useEffect(() => setShowCards(!!selectedArea), [selectedArea])
   useEffect(() => selectedArea && setPopupBuilding(undefined), [selectedArea, setPopupBuilding])
@@ -123,12 +123,10 @@ export default function Content() {
     async function loadBuildingsFromOpenApi() {
       if (filters.api === 'Внешнее' && zoom >= 11) {
         setBuildings([]);
+        setPointsCounter([]);
         const fetchingPoints = await fetchFilteredPoints(mapCenter, size, filters);
-        if(zoom >= 11) {
-          setPointsCounter([]);
-          setPoints(fetchingPoints);
-          setIsPointsCounterShowed(false);
-        }
+        setPoints(fetchingPoints);
+        setIsPointsCounterShowed(false);
       }
     }
     loadBuildingsFromOpenApi();
@@ -161,7 +159,6 @@ export default function Content() {
   const handleZoomChange = (newZoom: number) => {
     setZoom(newZoom);
   };
-
 
   return (
     <div style={{
