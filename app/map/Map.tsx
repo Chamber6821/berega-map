@@ -431,16 +431,13 @@ export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, p
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-
     const handleMoveEnd = () => {
       if (onMapMove) {
         const newCenter: [number, number] = [map.getCenter().lng, map.getCenter().lat];
         onMapMove(newCenter);
       }
     };
-
     map.on('moveend', handleMoveEnd);
-
     return () => {
       map.off('moveend', handleMoveEnd);
     };
@@ -449,16 +446,13 @@ export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, p
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-
     const handleZoomChange = () => {
       const zoom = map.getZoom();
       if (onZoomChange) {
         onZoomChange(zoom);
       }
     };
-
     map.on('zoomend', handleZoomChange);
-
     return () => {
       map.off('zoomend', handleZoomChange);
     };
@@ -467,7 +461,6 @@ export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, p
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !map.isStyleLoaded()) return;
-
     if (points && points.length > 0) {
       const pointsGeoJson: GeoJSON.FeatureCollection<GeoJSON.Point> = {
         type: 'FeatureCollection',
@@ -485,7 +478,6 @@ export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, p
           },
         })),
       };
-
       if (map.getSource('points')) {
         map.getSource<GeoJSONSource>('points')?.setData(pointsGeoJson);
       } else {
@@ -501,7 +493,6 @@ export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, p
             'circle-stroke-color': '#fff',
           },
         });
-
         map.on('click', 'points', async (e) => {
           const pointId = e.features?.[0]?.properties?.id;
           if (pointId) {
@@ -514,11 +505,9 @@ export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, p
             }
           }
         });
-
         map.on('mouseenter', 'points', () => {
           map.getCanvas().style.cursor = 'pointer';
         });
-
         map.on('mouseleave', 'points', () => {
           map.getCanvas().style.cursor = '';
         });
@@ -547,7 +536,6 @@ export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, p
           },
         })),
       };
-
       if (map.getSource('pointsCounter')) {
         map.getSource<GeoJSONSource>('pointsCounter')?.setData(pointsCounterGeoJson);
       } else {
@@ -563,18 +551,14 @@ export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, p
             'circle-stroke-color': '#fff',
           },
         });
-
         map.on('mouseenter', 'pointsCounter', () => {
           map.getCanvas().style.cursor = 'pointer';
         });
-
         map.on('mouseleave', 'pointsCounter', () => {
           map.getCanvas().style.cursor = '';
         });
-
         map.on('click', 'pointsCounter', (e) => {
           if (!e.features) return;
-
           const feature = e.features[0];
           if (feature.geometry.type === 'Point') {
             const coordinates = feature.geometry.coordinates;
@@ -583,7 +567,6 @@ export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, p
               zoom: 12,
               essential: true,
             });
-
             const zoom = map.getZoom();
             if (onZoomChange) {
               onZoomChange(zoom);
@@ -601,16 +584,13 @@ export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, p
 
   useEffect(() => {
     const map = mapRef.current;
-
     const currentPointId = mapState.selectedPointId;
-
     const updatedPoints = points.map((point) => {
       return {
         ...point,
         color: point.id === currentPointId ? '#ff8000' : colorForPoints(point.houseStatus)
       };
     });
-
     const pointsGeoJson : GeoJSON.FeatureCollection<GeoJSON.Point> = {
       type: 'FeatureCollection',
       features: updatedPoints.map((point) => ({
@@ -627,13 +607,10 @@ export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, p
         },
       })),
     };
-
     if (map?.getSource('points')) {
       map?.getSource<GeoJSONSource>('points')?.setData(pointsGeoJson);
     }
   }, [mapState.selectedPointId, points]);
-
-
 
   return <div className="map" ref={mapContainer}></div>
 }

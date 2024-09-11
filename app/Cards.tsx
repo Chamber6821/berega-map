@@ -13,7 +13,6 @@ export default function Cards({ buildings, points }: CardsProps) {
   const [loadedBuildingsFromPoints, setLoadedBuildingsFromPoints] = useState<Building[]>([]);
   const [hasMore, setHasMore] = useState(true);
   const lastCardRef = useRef<HTMLDivElement>(null);
-
   const ITEMS_PER_BATCH = 10;
   const loadedBuildingCountRef = useRef(0);
   const loadedPointsCountRef = useRef(0);
@@ -21,7 +20,6 @@ export default function Cards({ buildings, points }: CardsProps) {
   const loadMoreItems = async () => {
     const currentLoadedBuildingCount = loadedBuildingCountRef.current;
     const currentLoadedPointsCount = loadedPointsCountRef.current;
-
     const nextBuildings = buildings.slice(
       currentLoadedBuildingCount,
       currentLoadedBuildingCount + ITEMS_PER_BATCH
@@ -30,12 +28,9 @@ export default function Cards({ buildings, points }: CardsProps) {
       currentLoadedPointsCount,
       currentLoadedPointsCount + ITEMS_PER_BATCH
     );
-
-
     const nextLoadedBuildings = await Promise.all(
       nextPoints.map((point) => fetchBuilding(point.id))
     );
-
     setVisibleBuildings((prevBuildings) => [
       ...prevBuildings,
       ...nextBuildings,
@@ -44,10 +39,8 @@ export default function Cards({ buildings, points }: CardsProps) {
       ...prevLoaded,
       ...nextLoadedBuildings,
     ]);
-
     loadedBuildingCountRef.current += nextBuildings.length;
     loadedPointsCountRef.current += nextPoints.length;
-
     if (nextBuildings.length === 0 && nextLoadedBuildings.length === 0) {
       setHasMore(false);
     }
@@ -92,7 +85,6 @@ export default function Cards({ buildings, points }: CardsProps) {
           page={building.page}
         />
       ))}
-
       <div ref={lastCardRef} style={{height: "1px", marginBottom: "20px"}}></div>
       {hasMore && <p>Загрузка...</p>}
     </div>

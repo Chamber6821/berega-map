@@ -80,6 +80,7 @@ export type BuildingTypeOpenApi = {
 const baseOpenApiUrl = () => "https://berega.tech/api/real-estate";
 
 const radiusKm =  10;
+
 const popularPlaces = [
   {centerLatitude: 41.7151, centerLongitude: 44.8271}, // Тбилиси
   {centerLatitude: 42.2679, centerLongitude: 42.6946}, // Кутаиси
@@ -142,7 +143,6 @@ const urlForFilteredPoints = (
         page: '0',
         size: size.toString(),
     });
-
     if (filters.priceRange[0]) params.append('minPriceUsd', filters.priceRange[0].toString());
     if (filters.priceRange[1]) params.append('maxPriceUsd', filters.priceRange[1].toString());
     if (filters.areaRange[0]) params.append('minArea', filters.areaRange[0].toString());
@@ -169,12 +169,10 @@ const urlForFilteredPoints = (
     if (filters.groups.includes('Коммерческая')) {
         params.append('houseStatus', 'Commercial');
     }
-
     if (filters.frame.length > 0) params.append('frame', filters.frame.join(','));
     if (filters.createdAfter) {
         params.append('startPostDate', new Date(filters.createdAfter).toISOString().replace('Z', '+04:00'));
     }
-
     return `${baseOpenApiUrl()}/filter?${params.toString()}`;
 };
 
@@ -185,7 +183,6 @@ export const fetchPointsCounter = async (
         radiusKm: '5',
     });
     const houseStatus: string[] = [];
-
     if (filters.priceRange[0]) params.append('minPriceUsd', filters.priceRange[0].toString());
     if (filters.priceRange[1]) params.append('maxPriceUsd', filters.priceRange[1].toString());
     if (filters.areaRange[0]) params.append('minArea', filters.areaRange[0].toString());
@@ -223,7 +220,6 @@ export const fetchPointsCounter = async (
     if (filters.createdAfter) {
         params.append('startPostDate', new Date(filters.createdAfter).toISOString().replace('Z', '+04:00'));
     }
-
     const fetchPromises = popularPlaces.map(async (place) => {
         const centerParams = new URLSearchParams(params.toString());
         centerParams.append('centerLatitude', place.centerLatitude.toString());
@@ -243,10 +239,8 @@ export const fetchPointsCounter = async (
 
         return null;
     });
-
     const results = await Promise.all(fetchPromises);
     const pointsCount = results.filter((result) => result !== null) as PointsCountTypeOpenApi[];
-
     return pointsCount;
 }
 
