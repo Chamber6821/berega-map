@@ -27,9 +27,9 @@ const SelectButton = styled.button`
   font-weight: 500;
   width: 210px;
 
-  @media (max-width: 360px) {
+  @media(max-width: 360px) {
     & {
-      width: 185px; 
+      width: 185px;
       font-size: 12px;
       padding: 10px 10px;
     }
@@ -58,6 +58,7 @@ const SelectBody = styled.div`
   @media(max-width: 400px) {
     & {
       bottom: -10px;
+
       button {
         padding: 8px 5px;
         width: 135px;
@@ -78,8 +79,7 @@ const Option = styled.div`
       color: rgb(0, 156, 26);
       cursor: pointer;
     }
-  }
-`
+  }`
 
 const SelectedOption = styled.div`
   color: #009C1A;
@@ -149,7 +149,7 @@ const InputGroup = styled.div`
 type State<T> = [T, (value: T) => void]
 
 const useInput = <T,>({ type, placeholder = '', validator = x => x as T }:
-  { type: React.HTMLInputTypeAttribute, placeholder?: string, validator?: (value: string) => T | undefined }):
+                        { type: React.HTMLInputTypeAttribute, placeholder?: string, validator?: (value: string) => T | undefined }):
   [State<T | undefined>, React.ReactElement] => {
   const [value, setValue] = useState<T>()
   const input =
@@ -198,7 +198,7 @@ const useVariantInput = <T extends string,>(variants: T[]): [State<T[]>, React.R
             >
               {x}
             </Variant>
-          )
+        )
       }
     </VariantGroup>
   return [[selected, setSelected], group]

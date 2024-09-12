@@ -5,73 +5,73 @@ import Modal from "../components/Modal";
 import { FilterFrames, FilterGroup, FilterGroups, FilterRooms, FilterStatuses, Range, useFilters } from "./useFilters";
 
 const Input = styled.input`
-    border: 2px solid #EEF5F8;
-    border-radius: 8px;
-    padding: 10px;
-    max-height: 33px;
-    max-width: 110px;
-    outline: none;
-    font-weight: 500;
+  border: 2px solid #EEF5F8;
+  border-radius: 8px;
+  padding: 10px;
+  max-height: 33px;
+  max-width: 110px;
+  outline: none;
+  font-weight: 500;
 
-    &::placeholder {
-        font-size: 14px;
-        font-weight: 500;
-    }
+  &::placeholder {
+    font-size: 14px;
+    font-weight: 500;
+  }
 `
 
 const InputGroup = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    flex-wrap: wrap;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
 `
 
 const ResetButton = styled.button`
-    margin: 0px 0px 0px 14px;
-    font-size: 12px;
-    font-weight: 600;
-    color: rgb(73, 73, 73);
-    opacity: 0.2;
-    cursor: pointer;
-    @media(max-width: 400px){
-        &{
-            font-size: 10px
-        }
+  margin: 0px 0px 0px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgb(73, 73, 73);
+  opacity: 0.2;
+  cursor: pointer;
+  @media(max-width: 400px){
+    &{
+      font-size: 10px
     }
+  }
 `
 
 const AllFiltersButton = PrimaryButton
 
 const VariantButton = styled.button`
-    background-color: rgb(255, 255, 255);
-    overflow: visible;
-    padding: 0px 8px;
-    cursor: pointer;
-    align-self: center;
-    width: max-content;
-    height: 33px;
-    font-weight: 500;
-    border-radius: 8px;
+  background-color: rgb(255, 255, 255);
+  overflow: visible;
+  padding: 0px 8px;
+  cursor: pointer;
+  align-self: center;
+  width: max-content;
+  height: 33px;
+  font-weight: 500;
+  border-radius: 8px;
 
-    @media(hover: hover) {
-        &:hover {
-            color: rgb(0, 156, 26)
-        }
+  @media(hover: hover) {
+    &:hover {
+      color: rgb(0, 156, 26)
     }
+  }
 `
 
 const PressedVariantButton = styled.button`
-    color: rgba(0, 156, 26, 1);
-    background-color: rgb(255, 255, 255);
-    overflow: visible;
-    border-color: rgb(238, 245, 248);
-    border-radius: 8px;
-    padding: 0px 8px;
-    cursor: pointer;
-    align-self: center;
-    width: max-content;
-    height: 33px;
-    font-weight: 500;
+  color: rgba(0, 156, 26, 1);
+  background-color: rgb(255, 255, 255);
+  overflow: visible;
+  border-color: rgb(238, 245, 248);
+  border-radius: 8px;
+  padding: 0px 8px;
+  cursor: pointer;
+  align-self: center;
+  width: max-content;
+  height: 33px;
+  font-weight: 500;
 `
 
 const Filter = ({ name, children }: { name: string, children: any }) =>
