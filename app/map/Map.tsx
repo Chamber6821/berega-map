@@ -432,10 +432,7 @@ export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, p
     const map = mapRef.current;
     if (!map) return;
     const handleMoveEnd = () => {
-      if (onMapMove) {
-        const newCenter: [number, number] = [map.getCenter().lng, map.getCenter().lat];
-        onMapMove(newCenter);
-      }
+      onMapMove && onMapMove([map.getCenter().lng, map.getCenter().lat]);
     };
     map.on('moveend', handleMoveEnd);
     return () => {
@@ -447,8 +444,7 @@ export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, p
     const map = mapRef.current;
     if (!map) return;
     const handleZoomChange = () => {
-      const zoom = map.getZoom();
-      onZoomChange && onZoomChange(zoom);
+      onZoomChange && onZoomChange(map.getZoom());
     };
     map.on('zoomend', handleZoomChange);
     return () => {
@@ -459,7 +455,12 @@ export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, p
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !map.isStyleLoaded()) return;
-    if (points && points.length > 0) {
+    const handlePoints = () => {
+      if (!points || points.length === 0) {
+        removeLayerAndSource(map, 'points');
+        removeLayerAndSource(map, 'markers');
+        return;
+      }
       const pointsGeoJson: GeoJSON.FeatureCollection<GeoJSON.Point> = {
         type: 'FeatureCollection',
         features: points.map((point) => ({
@@ -476,48 +477,21 @@ export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, p
           },
         })),
       };
+      removeLayerAndSource(map, 'pointsCounter');
+      removeLayerAndSource(map, 'markers');
+
       if (map.getSource('points')) {
         map.getSource<GeoJSONSource>('points')?.setData(pointsGeoJson);
       } else {
-        map.addSource('points', { type: 'geojson', data: pointsGeoJson });
-        map.addLayer({
-          id: 'points',
-          type: 'circle',
-          source: 'points',
-          paint: {
-            'circle-color': ['get', 'color'],
-            'circle-radius': markerRadius,
-            'circle-stroke-width': 1,
-            'circle-stroke-color': '#fff',
-          },
-        });
-        map.on('click', 'points', async (e) => {
-          const pointId = e.features?.[0]?.properties?.id;
-          if (pointId) {
-            try {
-              const buildingData = await fetchBuilding(pointId);
-              mapState.setSelectedBuilding([buildingData]);
-              mapState.setSelectedPointId(pointId);
-            } catch (error) {
-              console.error('Error fetching building data:', error);
-            }
-          }
-        });
-        map.on('mouseenter', 'points', () => {
-          map.getCanvas().style.cursor = 'pointer';
-        });
-        map.on('mouseleave', 'points', () => {
-          map.getCanvas().style.cursor = '';
-        });
+        addSourceAndLayer(map, 'points', pointsGeoJson);
       }
-    } else if (map.getLayer('points')) {
-      map.removeLayer('points');
-      if (map.getSource('points')) {
-        map.removeSource('points');
+    };
+    const handlePointsCounter = () => {
+      if (!pointsCounter || pointsCounter.length === 0) {
+        removeLayerAndSource(map, 'pointsCounter');
+        removeLayerAndSource(map, 'markers');
+        return;
       }
-    }
-
-    if (pointsCounter && pointsCounter.length > 0) {
       const pointsCounterGeoJson: GeoJSON.FeatureCollection<GeoJSON.Point> = {
         type: 'FeatureCollection',
         features: pointsCounter.map((point) => ({
@@ -534,81 +508,58 @@ export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, p
           },
         })),
       };
+      removeLayerAndSource(map, 'points');
+      removeLayerAndSource(map, 'markers');
       if (map.getSource('pointsCounter')) {
         map.getSource<GeoJSONSource>('pointsCounter')?.setData(pointsCounterGeoJson);
       } else {
-        map.addSource('pointsCounter', { type: 'geojson', data: pointsCounterGeoJson });
-        map.addLayer({
-          id: 'pointsCounter',
-          type: 'circle',
-          source: 'pointsCounter',
-          paint: {
-            'circle-color': ['get', 'color'],
-            'circle-radius': ['get', 'radius'],
-            'circle-stroke-width': 1,
-            'circle-stroke-color': '#fff',
-          },
-        });
-        map.on('mouseenter', 'pointsCounter', () => {
-          map.getCanvas().style.cursor = 'pointer';
-        });
-        map.on('mouseleave', 'pointsCounter', () => {
-          map.getCanvas().style.cursor = '';
-        });
-        map.on('click', 'pointsCounter', (e) => {
-          if (!e.features) return;
-          const feature = e.features[0];
-          if (feature.geometry.type === 'Point') {
-            const coordinates = feature.geometry.coordinates;
-            map.flyTo({
-              center: [coordinates[0], coordinates[1]],
-              zoom: 12,
-              essential: true,
-            });
-            const zoom = map.getZoom();
-            if (onZoomChange) {
-              onZoomChange(zoom);
-            }
+        addSourceAndLayer(map, 'pointsCounter', pointsCounterGeoJson);
+      }
+    };
+    const removeLayerAndSource = (mapInstance: MapboxMap, layerId: string) => {
+      if (mapInstance.getLayer(layerId)) {
+        mapInstance.removeLayer(layerId);
+      }
+      if (mapInstance.getSource(layerId)) {
+        mapInstance.removeSource(layerId);
+      }
+    };
+    const addSourceAndLayer = (mapInstance: MapboxMap, layerId: string, data: GeoJSON.FeatureCollection<GeoJSON.Point>) => {
+      mapInstance.addSource(layerId, { type: 'geojson', data });
+      mapInstance.addLayer({
+        id: layerId,
+        type: 'circle',
+        source: layerId,
+        paint: {
+          'circle-color': ['get', 'color'],
+          'circle-radius': layerId === 'points' ? markerRadius : ['get', 'radius'],
+          'circle-stroke-width': 1,
+          'circle-stroke-color': '#fff',
+        },
+      });
+      if (layerId === 'points') {
+        mapInstance.on('click', layerId, async (e) => {
+          const pointId = e.features?.[0]?.properties?.id;
+          if (pointId) {
+            const buildingData = await fetchBuilding(pointId);
+            mapState.setSelectedBuilding([buildingData]);
+            mapState.setSelectedPointId(pointId);
           }
         });
       }
-    } else if (map.getLayer('pointsCounter')) {
-      map.removeLayer('pointsCounter');
-      if (map.getSource('pointsCounter')) {
-        map.removeSource('pointsCounter');
-      }
+      mapInstance.on('mouseenter', layerId, () => {
+        mapInstance.getCanvas().style.cursor = 'pointer';
+      });
+      mapInstance.on('mouseleave', layerId, () => {
+        mapInstance.getCanvas().style.cursor = '';
+      });
+    };
+    if (pointsCounter && pointsCounter.length > 0) {
+      handlePointsCounter();
+    } else {
+      handlePoints();
     }
   }, [points, pointsCounter]);
 
-  useEffect(() => {
-    const map = mapRef.current;
-    const currentPointId = mapState.selectedPointId;
-    const updatedPoints = points.map((point) => {
-      return {
-        ...point,
-        color: point.id === currentPointId ? '#ff8000' : colorForPoints(point.houseStatus)
-      };
-    });
-    const pointsGeoJson : GeoJSON.FeatureCollection<GeoJSON.Point> = {
-      type: 'FeatureCollection',
-      features: updatedPoints.map((point) => ({
-        type: 'Feature',
-        geometry: {
-          type: 'Point',
-          coordinates: [point.longitude, point.latitude],
-        },
-        properties: {
-          color: point.color,
-          houseStatus: point.houseStatus,
-          postDate: point.postDate,
-          id: point.id,
-        },
-      })),
-    };
-    if (map?.getSource('points')) {
-      map?.getSource<GeoJSONSource>('points')?.setData(pointsGeoJson);
-    }
-  }, [mapState.selectedPointId, points]);
-
-  return <div className="map" ref={mapContainer}></div>
+    return <div className="map" ref={mapContainer}></div>
 }

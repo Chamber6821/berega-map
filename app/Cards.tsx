@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import Card from "./Card";
 import { Building } from "./api/berega";
-import { PointsTypeOpenApi, fetchBuilding } from "@/app/api/openApi";
+import { PointsTypeOpenApi } from "@/app/api/openApi";
+import { useBuildings } from "./useBuildings";
 
 interface CardsProps {
   buildings: Building[];
@@ -9,65 +10,29 @@ interface CardsProps {
 }
 
 export default function Cards({ buildings, points }: CardsProps) {
-  const [visibleBuildings, setVisibleBuildings] = useState<Building[]>([]);
-  const [loadedBuildingsFromPoints, setLoadedBuildingsFromPoints] = useState<Building[]>([]);
-  const [hasMore, setHasMore] = useState(true);
   const lastCardRef = useRef<HTMLDivElement>(null);
-  const ITEMS_PER_BATCH = 10;
-  const loadedBuildingCountRef = useRef(0);
-  const loadedPointsCountRef = useRef(0);
-
-  const loadMoreItems = async () => {
-    const currentLoadedBuildingCount = loadedBuildingCountRef.current;
-    const currentLoadedPointsCount = loadedPointsCountRef.current;
-    const nextBuildings = buildings.slice(
-      currentLoadedBuildingCount,
-      currentLoadedBuildingCount + ITEMS_PER_BATCH
-    );
-    const nextPoints = points.slice(
-      currentLoadedPointsCount,
-      currentLoadedPointsCount + ITEMS_PER_BATCH
-    );
-    const nextLoadedBuildings = await Promise.all(
-      nextPoints.map((point) => fetchBuilding(point.id))
-    );
-    setVisibleBuildings((prevBuildings) => [
-      ...prevBuildings,
-      ...nextBuildings,
-    ]);
-    setLoadedBuildingsFromPoints((prevLoaded) => [
-      ...prevLoaded,
-      ...nextLoadedBuildings,
-    ]);
-    loadedBuildingCountRef.current += nextBuildings.length;
-    loadedPointsCountRef.current += nextPoints.length;
-    if (nextBuildings.length === 0 && nextLoadedBuildings.length === 0) {
-      setHasMore(false);
-    }
-  };
+  const { buildings: visibleBuildings, loadedBuildingsFromPoints, hasMore, loadMoreItems } = useBuildings();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasMore) {
-          loadMoreItems();
+          loadMoreItems(buildings, points);
         }
       },
       { threshold: 1 }
     );
-
     if (lastCardRef.current) {
       observer.observe(lastCardRef.current);
     }
-
     return () => {
       observer.disconnect();
     };
-  }, [hasMore]);
+  }, [hasMore, buildings, points, loadMoreItems]);
 
   const combinedBuildings = useMemo(
-  () => [...visibleBuildings, ...loadedBuildingsFromPoints],
-  [visibleBuildings, loadedBuildingsFromPoints]
+    () => [...visibleBuildings, ...loadedBuildingsFromPoints],
+    [visibleBuildings, loadedBuildingsFromPoints]
   );
 
   return (
@@ -85,7 +50,7 @@ export default function Cards({ buildings, points }: CardsProps) {
           page={building.page}
         />
       ))}
-      <div ref={lastCardRef} style={{height: "1px", marginBottom: "20px"}}></div>
+      <div ref={lastCardRef} style={{ height: "1px", marginBottom: "20px" }}></div>
       {hasMore && <p>Загрузка...</p>}
     </div>
   );

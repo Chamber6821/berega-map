@@ -122,9 +122,9 @@ export default function Content() {
   useEffect(() => {
     async function loadBuildingsFromOpenApi() {
       if (filters.api === 'Внешнее' && zoom >= 11) {
+        const fetchingPoints = await fetchFilteredPoints(mapCenter, size, filters);
         setBuildings([]);
         setPointsCounter([]);
-        const fetchingPoints = await fetchFilteredPoints(mapCenter, size, filters);
         setPoints(fetchingPoints);
         setIsPointsCounterShowed(false);
       }
@@ -135,13 +135,11 @@ export default function Content() {
   useEffect(() => {
     async function loadBuildingsFromOpenApi() {
       if (filters.api === 'Внешнее' && zoom < 11 && !isPointsCounterShowed) {
-        setBuildings([]);
         const fetchingPointsCounter = await fetchPointsCounter(filters);
-        if(zoom < 11) {
-          setPoints([]);
-          setPointsCounter(fetchingPointsCounter);
-          setIsPointsCounterShowed(true);
-        }
+        setBuildings([]);
+        setPoints([]);
+        setPointsCounter(fetchingPointsCounter);
+        setIsPointsCounterShowed(true);
       }
     }
     loadBuildingsFromOpenApi();
