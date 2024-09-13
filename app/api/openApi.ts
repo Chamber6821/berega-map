@@ -5,15 +5,14 @@ export type PointsTypeOpenApi = {
   id: string;
   latitude: number;
   longitude: number;
-  postDate: string;
-  houseStatus: string
+  houseStatus: FilterGroup;
 };
 
 export type PointsCountTypeOpenApi = {
   counter: number,
   latitude: number,
   longitude: number,
-  houseStatus: string
+  houseStatus: FilterGroup;
 }
 
 export type BuildingTypeOpenApi = {
@@ -241,22 +240,6 @@ export const fetchPointsCounter = async (
   return pointsCount;
 }
 
-const chooseHouseStatus = (filters: Filters) : string => {
-  if (filters.groups.includes('Новостройки') || filters.status.includes('Новостройки')) {
-    return 'Новостройки';
-  } else if (filters.groups.includes('Вторичное жилье') || filters.status.includes('Вторичное жильё')) {
-    return 'Вторичное жилье';
-  } else if (filters.groups.includes('Дома, коттеджи')) {
-    return 'Дома, коттеджи';
-  } else if (filters.groups.includes('Зем. участки')) {
-    return 'Зем. участки';
-  } else if (filters.groups.includes('Коммерческая')) {
-    return 'Коммерческая';
-  } else {
-    return '';
-  }
-}
-
 export const fetchFilteredPoints = async (
   center: [number, number],
   size: number,
@@ -266,7 +249,7 @@ export const fetchFilteredPoints = async (
   const response = await fetch(url, { cache: 'no-store' });
   const points : PointsTypeOpenApi[] = await response.json();
   return points.map((point) => {
-    const houseStatus = chooseHouseStatus(filters);
+    const houseStatus = filters.groups[0];
     return {
       ...point,
       houseStatus,
