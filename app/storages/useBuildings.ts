@@ -1,12 +1,8 @@
 import { create } from "zustand";
-import { Building } from "./api/berega";
-import { PointsTypeOpenApi, fetchBuilding } from "@/app/api/openApi";
+import { Building } from "../api/berega";
 
 export type BuildingsStorage = {
   buildings: Building[],
-  loadedBuildingsFromPoints: Building[],
-  hasMore: boolean,
-  loadMoreItems: (buildings: Building[], points: PointsTypeOpenApi[]) => Promise<void>,
   loadFromBerega: (filter: (x: Building) => boolean) => void,
 };
 
