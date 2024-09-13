@@ -7,7 +7,7 @@ export type BuildingsStorage = {
   loadedBuildingsFromPoints: Building[],
   hasMore: boolean,
   loadMoreItems: (buildings: Building[], points: PointsTypeOpenApi[]) => Promise<void>,
-  loadFromBerega: () => void,
+  loadFromBerega: (filter: (x: Building) => boolean) => void,
 };
 
 export const useBuildings = create<BuildingsStorage>((set, get) => {

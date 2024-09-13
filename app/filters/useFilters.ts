@@ -10,7 +10,7 @@ export type FilterRoom = typeof FilterRooms[number]
 export const FilterStatuses = ['Новостройки', 'Вторичное жильё']
 export type FilterStatus = typeof FilterStatuses[number]
 
-export const FilterApies = ['Встроенное', 'Внешнее']
+export const FilterApies = ['Встроенное', 'Внешнее'] as const
 export type FilterApi = typeof FilterApies[number]
 
 export const FilterFrames = ['Черный каркас', 'Белый каркас', 'С ремонтом', 'Под ключ']

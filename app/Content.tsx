@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Building, fetchAllBuildings } from "./api/berega";
 import Cards from "./Cards";
 import { Map } from "./map";
@@ -74,7 +74,6 @@ const MapAndCards = styled.div`
 `
 
 export default function Content() {
-  const [buildings, setBuildings] = useState<Building[]>(useBuildings(x => x.buildings))
   const [showFiltersPopup, setShowFiltersPopup] = useState(false)
   const [showHelpPopup, setShowHelpPopup] = useState(false)
   const [showCards, setShowCards] = useState(false)
@@ -85,13 +84,23 @@ export default function Content() {
   const bounds = useMap(x => x.bounds)
   const selectedArea = useMap(x => x.selectedArea)
   const [mapCenter, setMapCenter] = useState<[number, number]>([41.65, 41.65]);
-  const [size, setSize] = useState(50000);
   const [zoom, setZoom] = useState(10);
   const [points, setPoints] = useState<PointsTypeOpenApi[]>([]);
   const [pointsCounter, setPointsCounter] = useState<PointsCountTypeOpenApi[]>([]);
+
+  const buildings = useBuildings(x => x.buildings)
+  const pointsFromBuildings = useMemo(() =>
+    buildings.map((x): PointsTypeOpenApi => ({
+      id: x.page,
+      latitude: x.location.lat,
+      longitude: x.location.lng,
+      houseStatus: x.group
+    })), [buildings])
+  const load = useBuildings(x => x.loadFromBerega)
   const filters = useFilters()
-  const matchedBuildings = buildings.filter(filterOf(filters))
-  const [isPointsCounterShowed, setIsPointsCounterShowed] = useState(false);
+  useEffect(() => load(filterOf(filters)), [load, filters])
+
+  useEffect(() => { setTimeout(() => setShowPreloader(false), 1000) }, [])
 
   useEffect(() => setShowCards(!!selectedArea), [selectedArea])
   useEffect(() => selectedArea && setPopupBuilding(undefined), [selectedArea, setPopupBuilding])
@@ -102,53 +111,15 @@ export default function Content() {
   }, [popupBuilding])
 
   useEffect(() => {
-    async function loadBuildings() {
-      if (filters.api === 'Встроенное') {
-        setPoints([]);
-        setPointsCounter([]);
-        const data = await fetchAllBuildings();
-        if (filters.api === 'Встроенное') {
-          setBuildings(data);
-        }
-        setIsPointsCounterShowed(false);
-      }
-    }
-    loadBuildings();
-  }, [filters.api]);
-
-  const load = useBuildings(x => x.loadFromBerega)
-  useEffect(() => load(), [load])
-
-  useEffect(() => {
-    async function loadBuildingsFromOpenApi() {
-      if (filters.api === 'Внешнее' && zoom >= 11) {
-        const fetchingPoints = await fetchFilteredPoints(mapCenter, size, filters);
-        setBuildings([]);
-        setPointsCounter([]);
-        setPoints(fetchingPoints);
-        setIsPointsCounterShowed(false);
-      }
-    }
-    loadBuildingsFromOpenApi();
+    filters.api === 'Внешнее' && zoom >= 11 && (async () => {
+      setPoints(await fetchFilteredPoints(mapCenter, 100000, filters));
+    })()
   }, [filters, mapCenter, zoom]);
 
   useEffect(() => {
-    async function loadBuildingsFromOpenApi() {
-      if (filters.api === 'Внешнее' && zoom < 11 && !isPointsCounterShowed) {
-        const fetchingPointsCounter = await fetchPointsCounter(filters);
-        setBuildings([]);
-        setPoints([]);
-        setPointsCounter(fetchingPointsCounter);
-        setIsPointsCounterShowed(true);
-      }
-    }
-    loadBuildingsFromOpenApi();
-  }, [filters, zoom]);
-
-
-  useEffect(() => {
-    setTimeout(() => setShowPreloader(false), 1000)
-  }, [])
+    filters.api === 'Внешнее' && (async () =>
+      setPointsCounter(await fetchPointsCounter(filters)))()
+  }, [filters]);
 
   const handleMapMove = useCallback((center: [number, number]) => {
     setMapCenter(center);
@@ -178,17 +149,16 @@ export default function Content() {
           Фильтры
         </ShowFiltersButton>
       </div>
-        <FilterApi/>
+      <FilterApi />
       <MapAndCards>
         <Map
           center={[41.65, 41.65]}
           zoom={zoom}
-          buildings={matchedBuildings}
+          buildings={pointsFromBuildings}
+          clusters={pointsCounter}
           onClickInfo={() => setShowHelpPopup(true)}
           onMapMove={handleMapMove}
-          points={points}
           onZoomChange={handleZoomChange}
-          pointsCounter={pointsCounter}
         />
         <div
           style={{ position: 'relative' }}
@@ -211,20 +181,21 @@ export default function Content() {
             </div>
           </ShowCardsButton>
           {showCards && <div className="cards__wrapper" >
-            <Cards buildings={
-              popupBuilding && popupBuilding.length > 1
-                ? popupBuilding
-                : matchedBuildings
-                  .filter(x => bounds === undefined || bounds.contains(x.location))
-                  .filter(x => selectedArea === undefined || selectedArea.contains(new LngLat(x.location.lng, x.location.lat)))
-            }
-             points={points.filter(x => selectedArea === undefined || selectedArea.contains(new LngLat(x.longitude, x.latitude)))}
+            <Cards
+              buildings={
+                popupBuilding && popupBuilding.length > 1
+                  ? popupBuilding
+                  : matchedBuildings
+                    .filter(x => bounds === undefined || bounds.contains(x.location))
+                    .filter(x => selectedArea === undefined || selectedArea.contains(new LngLat(x.location.lng, x.location.lat)))
+              }
+              points={points.filter(x => selectedArea === undefined || selectedArea.contains(new LngLat(x.longitude, x.latitude)))}
             />
           </div>}
         </div>
       </MapAndCards>
       {showFiltersPopup && <FiltersPopup onClose={() => setShowFiltersPopup(false)} />}
-      {popupBuilding && popupBuilding.length === 1 && <Popup building={popupBuilding[0]} onClose={() => {setPopupBuilding(undefined); setPoputBuildingFromPoints(undefined)}} />}
+      {popupBuilding && popupBuilding.length === 1 && <Popup building={popupBuilding[0]} onClose={() => { setPopupBuilding(undefined); setPoputBuildingFromPoints(undefined) }} />}
       {showHelpPopup && <HelpPopup onClose={() => setShowHelpPopup(false)} />}
     </div >
   )

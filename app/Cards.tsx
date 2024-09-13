@@ -1,43 +1,24 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 import Card from "./Card";
 import { Building } from "./api/berega";
-import { PointsTypeOpenApi } from "@/app/api/openApi";
-import { useBuildings } from "./useBuildings";
 
-interface CardsProps {
-  buildings: Building[];
-  points: PointsTypeOpenApi[];
-}
-
-export default function Cards({ buildings, points }: CardsProps) {
-  const lastCardRef = useRef<HTMLDivElement>(null);
-  const { buildings: visibleBuildings, loadedBuildingsFromPoints, hasMore, loadMoreItems } = useBuildings();
+export default function Cards({ buildings, hasMore = false, showMore }:
+  { buildings: Building[], hasMore?: boolean, showMore: () => void }) {
+  const endOfCards = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!hasMore) return
     const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          loadMoreItems(buildings, points);
-        }
-      },
+      (entries) => entries[0].isIntersecting && showMore && showMore(),
       { threshold: 1 }
     );
-    if (lastCardRef.current) {
-      observer.observe(lastCardRef.current);
-    }
-    return () => {
-      observer.disconnect();
-    };
-  }, [hasMore, buildings, points, loadMoreItems]);
-
-  const combinedBuildings = useMemo(
-    () => [...visibleBuildings, ...loadedBuildingsFromPoints],
-    [visibleBuildings, loadedBuildingsFromPoints]
-  );
+    endOfCards.current && observer.observe(endOfCards.current)
+    return () => observer.disconnect();
+  }, [hasMore, showMore]);
 
   return (
     <div className="cards-container">
-      {combinedBuildings.map((building) => (
+      {buildings.map((building) => (
         <Card
           key={building.page}
           image={building.image || ""}
@@ -50,7 +31,7 @@ export default function Cards({ buildings, points }: CardsProps) {
           page={building.page}
         />
       ))}
-      <div ref={lastCardRef} style={{ height: "1px", marginBottom: "20px" }}></div>
+      <div ref={endOfCards} style={{ height: "1px", marginBottom: "20px" }}></div>
       {hasMore && <p>Загрузка...</p>}
     </div>
   );

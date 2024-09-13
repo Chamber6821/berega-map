@@ -14,64 +14,47 @@ import ViewButtonControl from "./ViewButtonControl";
 import { clamp, inside } from "../utils";
 import debounce from "debounce";
 import intersect from "@turf/intersect";
+import { FilterGroup } from "../filters/useFilters";
 
 export type Bounds = LngLatBounds
 
 export const useMap = create<{
   bounds?: Bounds, selectedArea?: Polygon,
-  selectedBuilding?: Building[]
+  selectedBuilding?: PointsTypeOpenApi[]
   selectedPointId?: string
   setBounds: (bounds?: Bounds) => void,
   setSelectedArea: (selectedArea?: Polygon) => void
-  setSelectedBuilding: (building: Building[] | undefined) => void
+  setSelectedBuilding: (building: PointsTypeOpenApi[] | undefined) => void
   setSelectedPointId: (pointId: string | undefined) => void
 }>(set => ({
   setBounds: (bounds) => set({ bounds }),
   setSelectedArea: (selectedArea) => set({ selectedArea }),
   setSelectedBuilding: (building) => set({ selectedBuilding: building }),
-  setSelectedPointId: (pointId) => set({selectedPointId: pointId}),
+  setSelectedPointId: (pointId) => set({ selectedPointId: pointId }),
 }))
 
-const monthAgo = (n: number = 1) => {
-  const now = new Date()
-  now.setMonth(now.getMonth() - n)
-  return now
-}
-
-const colorFor = (x: Building) => {
-  switch (x.group) {
-    case 'Новостройки': return '#df11ff'
-    case 'Вторичное жилье': return '#0000ff'
-    case 'Дома, коттеджи': return '#ff0000'
-    case 'Зем. участки': return '#994009'
-    case 'Коммерческая': return '#ffa640'
-  }
-}
-
-const colorForPoints = (x : string) => {
+const colorFor = (x: FilterGroup) => {
   switch (x) {
     case 'Новостройки': return '#df11ff'
     case 'Вторичное жилье': return '#0000ff'
     case 'Дома, коттеджи': return '#ff0000'
     case 'Зем. участки': return '#994009'
     case 'Коммерческая': return '#ffa640'
-    default: return '#0000ff'
   }
 }
 
 const markerRadius = 5
 
-export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, points, onZoomChange, pointsCounter }:
+export default function Map({ center, zoom, buildings, clusters, onClickInfo, onMapMove, onZoomChange }:
   {
     center: [number, number],
     zoom: number,
-    buildings: Building[],
+    buildings: PointsTypeOpenApi[],
+    clusters: PointsCountTypeOpenApi[],
     onClickInfo?: () => void,
     onMapMove?: (center: [number, number]) => void,
-    points: PointsTypeOpenApi[],
     onZoomChange?: (zoom: number) => void,
-    pointsCounter: PointsCountTypeOpenApi[]})
-  {
+  }) {
   const mapState = useMap()
   const mapStateRef = useRef(mapState)
   const setSelectedArea = useMap(x => x.setSelectedArea)
@@ -263,10 +246,10 @@ export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, p
           'type': 'Feature',
           'geometry': {
             'type': 'Point',
-            'coordinates': [x.location.lng, x.location.lat]
+            'coordinates': [x.longitude, x.latitude]
           },
           'properties': {
-            'color': colorFor(x),
+            'color': colorFor(x.houseStatus),
             'originIndex': i
           }
         })
@@ -282,6 +265,7 @@ export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, p
         id: 'markers',
         type: 'circle',
         source: 'markers',
+        minzoom: 11,
         paint: {
           'circle-color': ['get', 'color'],
           'circle-radius': markerRadius,
@@ -306,6 +290,25 @@ export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, p
           'circle-stroke-width': 1,
           'circle-stroke-color': '#fff'
         }
+      })
+      map.addSource('clusters', {
+        type: 'geojson',
+        data: {
+          'type': 'FeatureCollection',
+          'features': []
+        }
+      })
+      map.addLayer({
+        id: 'clusters',
+        type: 'circle',
+        source: 'clusters',
+        maxzoom: 11,
+        paint: {
+          'circle-color': ['get', 'color'],
+          'circle-radius': ['get', 'radius'],
+          'circle-stroke-width': 1,
+          'circle-stroke-color': '#fff',
+        },
       })
       map.moveLayer('markers', 'selected-marker')
       map.on('click', 'markers', (e) => {
@@ -353,9 +356,9 @@ export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, p
         .on('click', 'colored-buildings', (e) => {
           const marker = e.features?.[0]?.properties
           if (!marker) return
-          const newMarkers = JSON.parse(marker.originIndexes).map((i: number) => buildingsRef.current[i]) as Building[]
-          const currentData = JSON.stringify(mapStateRef.current.selectedBuilding?.flatMap(x => [x.location.lat, x.location.lng]))
-          const newData = JSON.stringify(newMarkers.flatMap(x => [x.location.lat, x.location.lng]))
+          const newMarkers = (JSON.parse(marker.originIndexes) as number[]).map((i: number) => buildingsRef.current[i])
+          const currentData = JSON.stringify(mapStateRef.current.selectedBuilding?.flatMap(x => [x.latitude, x.longitude]))
+          const newData = JSON.stringify(newMarkers.flatMap(x => [x.latitude, x.longitude]))
           console.log(currentData)
           console.log(newData)
           if (currentData === newData) {
@@ -375,6 +378,27 @@ export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, p
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
+    if (!mapRef.current) return
+    const map = mapRef.current
+    map.getSource<GeoJSONSource>('clusters')?.setData({
+      'type': 'FeatureCollection',
+      'features': clusters.map(
+        x => ({
+          'type': 'Feature',
+          'geometry': {
+            'type': 'Point',
+            'coordinates': [x.longitude, x.latitude]
+          },
+          'properties': {
+            'color': colorFor(x.houseStatus),
+            'radius': clamp(x.counter * 0.01, 10, 20),
+          }
+        })
+      )
+    })
+  }, [clusters])
+
+  useEffect(() => {
     const map = mapRef.current
     if (!map) return
     const selectedMarker = map.getSource<GeoJSONSource>('selected-marker')
@@ -388,7 +412,7 @@ export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, p
           'type': 'Feature',
           'geometry': {
             'type': 'Point',
-            'coordinates': [x.location.lng, x.location.lat]
+            'coordinates': [x.longitude, x.latitude]
           },
           'properties': {
             'color': '#ff8000'
@@ -417,10 +441,10 @@ export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, p
           'type': 'Feature',
           'geometry': {
             'type': 'Point',
-            'coordinates': [x.location.lng, x.location.lat]
+            'coordinates': [x.longitude, x.latitude]
           },
           'properties': {
-            'color': colorFor(x),
+            'color': colorFor(x.houseStatus),
             'originIndex': i
           }
         })
@@ -470,7 +494,7 @@ export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, p
             coordinates: [point.longitude, point.latitude],
           },
           properties: {
-            color: colorForPoints(point.houseStatus),
+            color: colorFor(point.houseStatus),
             houseStatus: point.houseStatus,
             postDate: point.postDate,
             id: point.id,
@@ -501,9 +525,9 @@ export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, p
             coordinates: [point.longitude, point.latitude],
           },
           properties: {
-            color: colorForPoints(point.houseStatus),
+            color: colorFor(point.houseStatus),
             houseStatus: point.houseStatus,
-            radius: Math.max(10, point.counter * 0.01 > 20 ? 20 : point.counter * 0.01),
+            radius: clamp(point.counter * 0.01, 10, 20),
             counter: point.counter,
           },
         })),
@@ -561,5 +585,5 @@ export default function Map({ center, zoom, buildings, onClickInfo, onMapMove, p
     }
   }, [points, pointsCounter]);
 
-    return <div className="map" ref={mapContainer}></div>
+  return <div className="map" ref={mapContainer}></div>
 }
