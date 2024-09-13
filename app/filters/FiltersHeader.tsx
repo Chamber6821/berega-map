@@ -46,7 +46,7 @@ const SelectBody = styled.div`
   background: white;
   padding: 15px;
   border-radius: 8px;
-  border: 1px solid rgb(164, 170, 180);
+  border: 1px solid rgb(164, 170, 180); 
 
   & button {
     display: block;
@@ -74,12 +74,12 @@ const Options = styled.div`
 `
 
 const Option = styled.div`
-  @media(hover: hover){
-    &:hover{
-      color: rgb(0, 156, 26);
-      cursor: pointer;
-    }
-  }`
+@media(hover: hover){
+  &:hover{
+    color: rgb(0, 156, 26);
+    cursor: pointer;
+  }
+}`
 
 const SelectedOption = styled.div`
   color: #009C1A;
@@ -149,7 +149,7 @@ const InputGroup = styled.div`
 type State<T> = [T, (value: T) => void]
 
 const useInput = <T,>({ type, placeholder = '', validator = x => x as T }:
-                        { type: React.HTMLInputTypeAttribute, placeholder?: string, validator?: (value: string) => T | undefined }):
+  { type: React.HTMLInputTypeAttribute, placeholder?: string, validator?: (value: string) => T | undefined }):
   [State<T | undefined>, React.ReactElement] => {
   const [value, setValue] = useState<T>()
   const input =

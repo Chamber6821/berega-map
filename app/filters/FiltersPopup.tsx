@@ -27,17 +27,17 @@ const InputGroup = styled.div`
 `
 
 const ResetButton = styled.button`
-  margin: 0px 0px 0px 14px;
-  font-size: 12px;
-  font-weight: 600;
-  color: rgb(73, 73, 73);
-  opacity: 0.2;
-  cursor: pointer;
-  @media(max-width: 400px){
+    margin: 0px 0px 0px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgb(73, 73, 73);
+    opacity: 0.2;
+    cursor: pointer;
+    @media(max-width: 400px){
     &{
-      font-size: 10px
+    font-size: 10px
     }
-  }
+    }
 `
 
 const AllFiltersButton = PrimaryButton
@@ -88,7 +88,7 @@ const Filter = ({ name, children }: { name: string, children: any }) =>
 type State<T> = [T, (value: T) => void]
 
 const useInput = <T,>({ type, placeholder = '', validator = x => x as T }:
-                        { type: React.HTMLInputTypeAttribute, placeholder?: string, validator?: (value: string) => T | undefined }):
+  { type: React.HTMLInputTypeAttribute, placeholder?: string, validator?: (value: string) => T | undefined }):
   [State<T | undefined>, React.ReactElement] => {
   const [value, setValue] = useState<T>()
   const input =
