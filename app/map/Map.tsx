@@ -24,8 +24,7 @@ export type Marker = {
 export default function Map({
   center,
   zoom,
-  buildings,
-  clusters,
+  markers,
   onClickInfo = () => { },
   onMapMove = () => { },
   onZoomChange = () => { },
@@ -35,8 +34,7 @@ export default function Map({
 }: {
   center: [number, number],
   zoom: number,
-  buildings: PointsTypeOpenApi[],
-  clusters: PointsCountTypeOpenApi[],
+  markers: Marker[],
   onClickInfo?: () => void,
   onMapMove?: (center: [number, number]) => void,
   onZoomChange?: (zoom: number) => void,
