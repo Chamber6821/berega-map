@@ -1,22 +1,24 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { Building, fetchAllBuildings } from "./api/berega";
+import { useEffect, useMemo, useState } from "react";
+import { Building } from "./api/berega";
 import Cards from "./Cards";
 import { Map } from "./map";
 import Popup from "./Popup";
 import FiltersPopup from "./filters/FiltersPopup";
-import { useMap } from "./map/Map";
+import { Bounds, Marker, MarkerId } from "./map/Map";
 import styled from "styled-components";
 import { CaretBackOutline, CaretForwardOutline, FilterOutline } from "react-ionicons";
-import { LngLat } from "mapbox-gl";
+import { LngLat, LngLatBounds } from "mapbox-gl";
 import HelpPopup from "./HelpPopup";
 import FiltersHeader from "./filters/FiltersHeader";
 import FilterApi from "./filters/FilterApi";
-import { filterOf, useFilters } from "./filters/useFilters";
-import { fetchFilteredPoints, fetchPointsCounter, PointsCountTypeOpenApi, PointsTypeOpenApi } from "./api/openApi";
+import { FilterGroup, filterOf, useFilters } from "./filters/useFilters";
 import { useBuildings } from "./storages/useBuildings";
 import { useClusters } from './storages/useClusters';
+import { usePoints } from "./storages/usePoints";
+import Polygon from "./map/Polygon";
+import MapWithMarkers from "./map/MapWithMarkers";
 
 const ShowFiltersButton = styled.button`
   display: flex;
@@ -79,56 +81,24 @@ export default function Content() {
   const [showHelpPopup, setShowHelpPopup] = useState(false)
   const [showCards, setShowCards] = useState(false)
   const [showPreloader, setShowPreloader] = useState(true)
-  const popupBuilding = useMap(x => x.selectedBuilding)
-  const setPopupBuilding = useMap(x => x.setSelectedBuilding)
-  const setPoputBuildingFromPoints = useMap(x => x.setSelectedPointId)
-  const bounds = useMap(x => x.bounds)
-  const selectedArea = useMap(x => x.selectedArea)
-  const [mapCenter, setMapCenter] = useState<[number, number]>([41.65, 41.65]);
-  const [zoom, setZoom] = useState(10);
-  const [points, setPoints] = useState<PointsTypeOpenApi[]>([]);
-  const [pointsCounter, setPointsCounter] = useState<PointsCountTypeOpenApi[]>([]);
 
-  const buildings = useBuildings(x => x.buildings)
-  const pointsFromBuildings = useMemo(() =>
-    buildings.map((x): PointsTypeOpenApi => ({
-      id: x.page,
-      latitude: x.location.lat,
-      longitude: x.location.lng,
-      houseStatus: x.group
-    })), [buildings])
-  const load = useBuildings(x => x.loadFromBerega)
-  const filters = useFilters()
-  useEffect(() => load(filterOf(filters)), [load, filters])
+  const [popupBuildings, setPopupBuildings] = useState<Building[]>()
+
+  const [bounds, setBounds] = useState<Bounds>(new LngLatBounds())
+  const [selectedArea, setSelectedArea] = useState<Polygon>()
 
   useEffect(() => { setTimeout(() => setShowPreloader(false), 1000) }, [])
 
   useEffect(() => setShowCards(!!selectedArea), [selectedArea])
-  useEffect(() => selectedArea && setPopupBuilding(undefined), [selectedArea, setPopupBuilding])
+  useEffect(() => selectedArea && setPopupBuildings(undefined), [selectedArea, setPopupBuildings])
 
   useEffect(() => {
-    if (popupBuilding && popupBuilding.length > 1)
+    if (popupBuildings && popupBuildings.length > 1)
       setShowCards(true)
-  }, [popupBuilding])
+  }, [popupBuildings])
 
-  useEffect(() => {
-    filters.api === 'Внешнее' && zoom >= 11 && (async () => {
-      setPoints(await fetchFilteredPoints(mapCenter, 100000, filters));
-    })()
-  }, [filters, mapCenter, zoom]);
-
-  useEffect(() => {
-    filters.api === 'Внешнее' && (async () =>
-      setPointsCounter(await fetchPointsCounter(filters)))()
-  }, [filters]);
-
-  const handleMapMove = useCallback((center: [number, number]) => {
-    setMapCenter(center);
-  }, []);
-
-  const handleZoomChange = (newZoom: number) => {
-    setZoom(newZoom);
-  };
+  const handleMarkerSelected = (ids: MarkerId[]) => {
+  }
 
   return (
     <div style={{
@@ -152,14 +122,11 @@ export default function Content() {
       </div>
       <FilterApi />
       <MapAndCards>
-        <Map
-          center={[41.65, 41.65]}
-          zoom={zoom}
-          buildings={pointsFromBuildings}
-          clusters={pointsCounter}
+        <MapWithMarkers
           onClickInfo={() => setShowHelpPopup(true)}
-          onMapMove={handleMapMove}
-          onZoomChange={handleZoomChange}
+          onBoundsChanged={setBounds}
+          onSelectedAreaChanged={setSelectedArea}
+          onMarkerSelected={handleMarkerSelected}
         />
         <div
           style={{ position: 'relative' }}
@@ -196,8 +163,14 @@ export default function Content() {
         </div>
       </MapAndCards>
       {showFiltersPopup && <FiltersPopup onClose={() => setShowFiltersPopup(false)} />}
-      {popupBuilding && popupBuilding.length === 1 && <Popup building={popupBuilding[0]} onClose={() => { setPopupBuilding(undefined); setPoputBuildingFromPoints(undefined) }} />}
+      {
+        popupBuildings && popupBuildings.length === 1
+        && <Popup
+          building={popupBuildings[0]}
+          onClose={() => setPopupBuildings(undefined)}
+        />
+      }
       {showHelpPopup && <HelpPopup onClose={() => setShowHelpPopup(false)} />}
-    </div >
+    </div>
   )
 }
