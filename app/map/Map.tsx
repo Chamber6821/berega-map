@@ -1,7 +1,4 @@
-'use client'
-
 import { useEffect, useRef, useState } from "react";
-import { Building } from "../api/berega";
 import { PointsTypeOpenApi, fetchBuilding, PointsCountTypeOpenApi } from "../api/openApi";
 
 import mapbox, { GeoJSONSource, LngLatBounds, Map as MapboxMap, MapMouseEvent, MapTouchEvent, NavigationControl } from 'mapbox-gl'
@@ -9,52 +6,44 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import Polygon from "./Polygon";
 import Polyline from "./Polyline";
 import ButtonControl from "./ButtonControl";
-import { create } from "zustand";
 import ViewButtonControl from "./ViewButtonControl";
 import { clamp, inside } from "../utils";
 import debounce from "debounce";
 import intersect from "@turf/intersect";
-import { FilterGroup } from "../filters/useFilters";
 
 export type Bounds = LngLatBounds
-
-export const useMap = create<{
-  bounds?: Bounds, selectedArea?: Polygon,
-  selectedBuilding?: PointsTypeOpenApi[]
-  selectedPointId?: string
-  setBounds: (bounds?: Bounds) => void,
-  setSelectedArea: (selectedArea?: Polygon) => void
-  setSelectedBuilding: (building: PointsTypeOpenApi[] | undefined) => void
-  setSelectedPointId: (pointId: string | undefined) => void
-}>(set => ({
-  setBounds: (bounds) => set({ bounds }),
-  setSelectedArea: (selectedArea) => set({ selectedArea }),
-  setSelectedBuilding: (building) => set({ selectedBuilding: building }),
-  setSelectedPointId: (pointId) => set({ selectedPointId: pointId }),
-}))
-
-const colorFor = (x: FilterGroup) => {
-  switch (x) {
-    case 'Новостройки': return '#df11ff'
-    case 'Вторичное жилье': return '#0000ff'
-    case 'Дома, коттеджи': return '#ff0000'
-    case 'Зем. участки': return '#994009'
-    case 'Коммерческая': return '#ffa640'
-  }
+export type MarkerId = string
+export type Marker = {
+  id: MarkerId,
+  longitude: number,
+  latitude: number,
+  color: string,
+  radius: number,
 }
 
-const markerRadius = 5
-
-export default function Map({ center, zoom, buildings, clusters, onClickInfo, onMapMove, onZoomChange }:
-  {
-    center: [number, number],
-    zoom: number,
-    buildings: PointsTypeOpenApi[],
-    clusters: PointsCountTypeOpenApi[],
-    onClickInfo?: () => void,
-    onMapMove?: (center: [number, number]) => void,
-    onZoomChange?: (zoom: number) => void,
-  }) {
+export default function Map({
+  center,
+  zoom,
+  buildings,
+  clusters,
+  onClickInfo = () => { },
+  onMapMove = () => { },
+  onZoomChange = () => { },
+  onBoundsChanged = () => { },
+  onMarkerSelected = () => { },
+  onSelectedAreaChanged = () => { }
+}: {
+  center: [number, number],
+  zoom: number,
+  buildings: PointsTypeOpenApi[],
+  clusters: PointsCountTypeOpenApi[],
+  onClickInfo?: () => void,
+  onMapMove?: (center: [number, number]) => void,
+  onZoomChange?: (zoom: number) => void,
+  onBoundsChanged?: (bounds: Bounds) => void,
+  onMarkerSelected?: (ids: MarkerId[]) => void,
+  onSelectedAreaChanged?: (area: Polygon) => void,
+}) {
   const mapState = useMap()
   const mapStateRef = useRef(mapState)
   const setSelectedArea = useMap(x => x.setSelectedArea)
