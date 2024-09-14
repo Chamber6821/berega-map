@@ -7,12 +7,10 @@ export type ClustersStorage = {
   updateFor: (filters: Filters) => void
 }
 
-export const useClusters = create<ClustersStorage>(set => {
-  return {
-    clusters: [],
-    updateFor: async (filters: Filters) => {
-      const clusters = await fetchPointsCounter(filters)
-      set({ clusters })
-    }
+export const useClusters = create<ClustersStorage>(set => ({
+  clusters: [],
+  updateFor: async (filters: Filters) => {
+    const clusters = await fetchPointsCounter(filters)
+    set({ clusters })
   }
-})
+}))
