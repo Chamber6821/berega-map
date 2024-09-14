@@ -97,7 +97,7 @@ export default function Content() {
       setShowCards(true)
   }, [popupBuildings])
 
-  const handleMarkerSelected = (ids: MarkerId[]) => {
+  const handleMarkerSelected = (markers?: Marker[]) => {
   }
 
   return (
@@ -123,10 +123,11 @@ export default function Content() {
       <FilterApi />
       <MapAndCards>
         <MapWithMarkers
+          selectedMarkers={[]}
+          onMarkerSelected={handleMarkerSelected}
           onClickInfo={() => setShowHelpPopup(true)}
           onBoundsChanged={setBounds}
           onSelectedAreaChanged={setSelectedArea}
-          onMarkerSelected={handleMarkerSelected}
         />
         <div
           style={{ position: 'relative' }}

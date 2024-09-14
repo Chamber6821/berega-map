@@ -15,10 +15,11 @@ const colorMap: Record<FilterGroup, string> = {
 } as const
 
 export default function MapWithMarkers(props: {
+  selectedMarkers: Marker[],
+  onMarkerSelected: (markers?: Marker[]) => void
   onClickInfo: () => void,
   onBoundsChanged: (bounds: Bounds) => void,
-  onSelectedAreaChanged: (area: Polygon) => void,
-  onMarkerSelected: (ids: MarkerId[]) => void
+  onSelectedAreaChanged: (area?: Polygon) => void,
 }) {
   const [mapCenter, setMapCenter] = useState<[number, number]>([41.65, 41.65])
   const [zoom, setZoom] = useState(10)
@@ -80,6 +81,7 @@ export default function MapWithMarkers(props: {
     center={mapCenter}
     zoom={zoom}
     markers={markers}
+    selectedMarkers={props.selectedMarkers}
     onClickInfo={props.onClickInfo}
     onMapMove={setMapCenter}
     onZoomChange={setZoom}
