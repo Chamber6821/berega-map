@@ -15,7 +15,8 @@ import FiltersHeader from "./filters/FiltersHeader";
 import FilterApi from "./filters/FilterApi";
 import { filterOf, useFilters } from "./filters/useFilters";
 import { fetchFilteredPoints, fetchPointsCounter, PointsCountTypeOpenApi, PointsTypeOpenApi } from "./api/openApi";
-import { useBuildings } from "./useBuildings";
+import { useBuildings } from "./storages/useBuildings";
+import { useClusters } from './storages/useClusters';
 
 const ShowFiltersButton = styled.button`
   display: flex;

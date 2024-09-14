@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { Building } from "../api/berega";
+import {fetchBuilding} from "@/app/api/openApi";
 
 export type BuildingsStorage = {
   buildings: Building[],
