@@ -1,24 +1,20 @@
 'use client'
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Building } from "./api/berega";
 import Cards from "./Cards";
 import { Map } from "./map";
 import Popup from "./Popup";
 import FiltersPopup from "./filters/FiltersPopup";
-import { Bounds, Marker, MarkerId } from "./map/Map";
+import { Bounds, Marker } from "./map/Map";
 import styled from "styled-components";
 import { CaretBackOutline, CaretForwardOutline, FilterOutline } from "react-ionicons";
 import { LngLat, LngLatBounds } from "mapbox-gl";
 import HelpPopup from "./HelpPopup";
 import FiltersHeader from "./filters/FiltersHeader";
-import FilterApi from "./filters/FilterApi";
-import { FilterGroup, filterOf, useFilters } from "./filters/useFilters";
-import { useBuildings } from "./storages/useBuildings";
-import { useClusters } from './storages/useClusters';
-import { usePoints } from "./storages/usePoints";
 import Polygon from "./map/Polygon";
-import MapWithMarkers from "./map/MapWithMarkers";
+import { useMarkers } from "./hooks/useMarkers";
+import FilterApi from "./filters/FilterApi";
 
 const ShowFiltersButton = styled.button`
   display: flex;
@@ -87,6 +83,11 @@ export default function Content() {
   const [bounds, setBounds] = useState<Bounds>(new LngLatBounds())
   const [selectedArea, setSelectedArea] = useState<Polygon>()
 
+  const [mapCenter, setMapCenter] = useState<[number, number]>([41.65, 41.65])
+  const [zoom, setZoom] = useState(10)
+
+  const { markers, origin } = useMarkers(zoom, mapCenter)
+
   useEffect(() => { setTimeout(() => setShowPreloader(false), 1000) }, [])
 
   useEffect(() => setShowCards(!!selectedArea), [selectedArea])
@@ -122,12 +123,17 @@ export default function Content() {
       </div>
       <FilterApi />
       <MapAndCards>
-        <MapWithMarkers
+        <Map
+          center={mapCenter}
+          zoom={zoom}
+          markers={markers}
           selectedMarkers={[]}
           onMarkerSelected={handleMarkerSelected}
           onClickInfo={() => setShowHelpPopup(true)}
           onBoundsChanged={setBounds}
           onSelectedAreaChanged={setSelectedArea}
+          onMapMove={setMapCenter}
+          onZoomChange={setZoom}
         />
         <div
           style={{ position: 'relative' }}
