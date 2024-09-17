@@ -250,7 +250,6 @@ export default function Map({
         id: 'markers',
         type: 'circle',
         source: 'markers',
-        minzoom: 11,
         paint: {
           'circle-color': ['get', 'color'],
           'circle-radius': ['get', 'radius'],
