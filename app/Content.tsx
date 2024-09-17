@@ -147,16 +147,11 @@ export default function Content() {
   const loadMoreBuildings = useCallback(async () => {
     if (!hasMore || isLoading || !origin.elements.length) return;
     setIsLoading(true);
-    try {
-      const newBuildings = await fetchMoreBuildings(buildings.length);
-      setBuildings((prevBuildings) => [...prevBuildings, ...newBuildings]);
-      const newOffset = buildings.length + newBuildings.length;
-      setHasMore(newOffset < origin.elements.length);
-    } catch (ex) {
-      console.error('Ошибка подгрузки новых точек.');
-    } finally {
-      setIsLoading(false);
-    }
+    const newBuildings = await fetchMoreBuildings(buildings.length);
+    setBuildings((prevBuildings) => [...prevBuildings, ...newBuildings]);
+    const newOffset = buildings.length + newBuildings.length;
+    setHasMore(newOffset < origin.elements.length);
+    setIsLoading(false);
   }, [hasMore, isLoading, buildings, origin]);
 
   useEffect(() => {
