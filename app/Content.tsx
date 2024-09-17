@@ -108,6 +108,13 @@ export default function Content() {
   const [hasMore, setHasMore] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
 
+  const filteredBuildings = selectedArea
+    ? buildings.filter(building => {
+      const point = new LngLat(building.location.lng, building.location.lat);
+      return selectedArea.contains(point);
+    })
+    : buildings;
+
   const fetchMoreBuildings = async (offset: number): Promise<Building[]> => {
     const limit = 10;
     switch (origin.type) {
@@ -216,7 +223,7 @@ export default function Content() {
           </ShowCardsButton>
           {showCards && <div className="cards__wrapper" >
             <Cards
-              buildings={buildings}
+              buildings={filteredBuildings}
               hasMore={hasMore}
               showMore={loadMoreBuildings}
             />
