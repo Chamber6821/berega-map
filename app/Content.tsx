@@ -16,6 +16,8 @@ import Polygon from "./map/Polygon";
 import { useMarkers } from "./hooks/useMarkers";
 import FilterApi from "./filters/FilterApi";
 import {fetchBuilding} from "@/app/api/openApi";
+import {useBuildingMap} from "@/app/storages/useBuildingMap";
+import {useBuildings} from "@/app/storages/useBuildings";
 
 const ShowFiltersButton = styled.button`
   display: flex;
@@ -107,13 +109,23 @@ export default function Content() {
   const [isLoading, setIsLoading] = useState(false)
 
   const fetchMoreBuildings = async (offset: number): Promise<Building[]> => {
-    console.log(origin.type)
     const limit = 10
     switch(origin.type) {
       case 'Points': {
-        const newBuildingIds = origin.elements.slice(offset, offset + limit).map((point) => point.id)
-        const newBuildings = await Promise.all(newBuildingIds.map(fetchBuilding))
-        return newBuildings
+        const newBuildings: Building[] = [];
+        const newPoints = origin.elements.slice(offset, offset + limit);
+        for (const point of newPoints) {
+          const building = !useBuildingMap(x => x.forPoint(point)) ?
+            (() => {
+              useBuildingMap(x => x.loadForPoint(point))
+              return useBuildingMap(x => x.forPoint(point))
+            })()
+            : useBuildingMap(x => x.forPoint(point));
+          if (building) {
+            newBuildings.push(building);
+          }
+        }
+        return newBuildings;
       }
       case 'Berega': {
         return origin.elements
