@@ -109,19 +109,19 @@ export default function Content() {
   const [isLoading, setIsLoading] = useState(false)
 
   const fetchMoreBuildings = async (offset: number): Promise<Building[]> => {
-    const limit = 10
-    const { forPoint, loadForPoint } = useBuildingMap.getState()
-    switch(origin.type) {
+    const limit = 10;
+    switch (origin.type) {
       case 'Points': {
+        const { forPoint, loadForPoint } = useBuildingMap.getState?.();
         const newBuildings: Building[] = [];
         const newPoints = origin.elements.slice(offset, offset + limit);
         for (const point of newPoints) {
-          const building = !forPoint(point) ?
-            (() => {
+          const building = !forPoint(point)
+            ? (() => {
               loadForPoint(point)
               return forPoint(point)
-            })()
-            : forPoint(point)
+            })() :
+          forPoint(point);
           if (building) {
             newBuildings.push(building);
           }
@@ -129,35 +129,36 @@ export default function Content() {
         return newBuildings;
       }
       case 'Berega': {
-        return origin.elements
+        return origin.elements.slice(offset, offset + limit);
       }
       default: {
-        return []
+        return [];
       }
     }
-  }
+  };
 
   const loadMoreBuildings = useCallback(async () => {
-    if (!hasMore || isLoading || !origin.elements.length) return
-
-    setIsLoading(true)
+    if (!hasMore || isLoading || !origin.elements.length) return;
+    setIsLoading(true);
     try {
-      const newBuildings = await fetchMoreBuildings(buildings.length)
-      setBuildings((prevBuildings) => [...prevBuildings, ...newBuildings])
-      setHasMore(newBuildings.length > 0)
-    } catch(ex) {
-      console.error('Ошибка подгрузки новых точек.')
+      const newBuildings = await fetchMoreBuildings(buildings.length);
+      setBuildings((prevBuildings) => [...prevBuildings, ...newBuildings]);
+      const newOffset = buildings.length + newBuildings.length;
+      setHasMore(newOffset < origin.elements.length);
+    } catch (ex) {
+      console.error('Ошибка подгрузки новых точек.');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }, [hasMore, isLoading, buildings, origin]);
 
   useEffect(() => {
     setBuildings([]);
     if (origin.elements.length) {
+      setHasMore(true);
       loadMoreBuildings();
     }
-  }, [origin.elements]);
+  }, [origin.elements, origin.type]);
 
   return (
     <div style={{
