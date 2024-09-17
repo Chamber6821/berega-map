@@ -1,6 +1,6 @@
 'use client'
 
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import { Building } from "./api/berega";
 import Cards from "./Cards";
 import { Map } from "./map";
@@ -81,6 +81,8 @@ export default function Content() {
   const [showCards, setShowCards] = useState(false)
   const [showPreloader, setShowPreloader] = useState(true)
 
+  const mapRef = useRef(null);
+
   const [popupBuildings, setPopupBuildings] = useState<Building[]>()
 
   const [bounds, setBounds] = useState<Bounds>(new LngLatBounds())
@@ -102,6 +104,28 @@ export default function Content() {
   }, [popupBuildings])
 
   const handleMarkerSelected = (markers?: Marker[]) => {
+    if (!markers || markers.length === 0) return;
+    const selectedMarkerId = markers[0].id;
+    if (selectedMarkerId.startsWith('https')) {
+      const building = origin.elements.find(building => building.page === selectedMarkerId);
+      building && setPopupBuildings([building])
+      return;
+    } else if (selectedMarkerId.startsWith('cluster')) {
+      const match = selectedMarkerId.match(/cluster-([0-9.-]+)-([0-9.-]+)/);
+      if (match) {
+        const firstNumber = match[1];
+        const secondNumber = match[2];
+        // TODO Сделать flyTo к карте
+      }
+      return;
+    } else {
+      const { forPoint } = useBuildingMap.getState?.();
+      (async () => {
+        const building = await forPoint(selectedMarkerId);
+        building && setPopupBuildings([building]);
+      })();
+      return;
+    }
   }
 
   const [buildings, setBuildings] = useState<Building[]>([])
@@ -122,7 +146,7 @@ export default function Content() {
         const { forPoint } = useBuildingMap.getState?.();
         const newPoints = origin.elements.slice(offset, offset + limit);
         return await Promise.all(
-          newPoints.map(async point => await forPoint(point))
+          newPoints.map(async point => await forPoint(point.id))
         );
       }
       case 'Berega': {

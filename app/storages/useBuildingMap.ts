@@ -9,14 +9,14 @@ export type BuildingMapStorage = {
 
 export const useBuildingMap = create<BuildingMapStorage>((set, get) => ({
   map: {},
-  forPoint: async (point: PointsTypeOpenApi) => {
-    const cached = get().map[point.id]
+  forPoint: async (id: string) => {
+    const cached = get().map[id]
     if (cached) return cached
-    const building = await fetchBuilding(point.id)
+    const building = await fetchBuilding(id)
     set(x => ({
       map: {
         ...x.map,
-        [point.id]: building
+        [id]: building
       }
     }))
     return building
