@@ -107,7 +107,7 @@ export default function Content() {
     if (!markers || markers.length === 0) return;
     const selectedMarkerId = markers[0].id;
     if (selectedMarkerId.startsWith('https')) {
-      const building = origin.elements.find(building => building.page === selectedMarkerId);
+      const building = origin.elements.find((element): element is Building => 'page' in element && element.page === selectedMarkerId);
       building && setPopupBuildings([building])
       return;
     } else if (selectedMarkerId.startsWith('cluster')) {
@@ -115,7 +115,7 @@ export default function Content() {
       if (match) {
         const firstNumber = match[1];
         const secondNumber = match[2];
-        // TODO Сделать flyTo к карте
+        // TODO Сделать flyTo
       }
       return;
     } else {

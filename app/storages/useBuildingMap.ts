@@ -4,7 +4,7 @@ import { create } from 'zustand';
 
 export type BuildingMapStorage = {
   map: { [key: string]: Building },
-  forPoint: (point: PointsTypeOpenApi) => Promise<Building>,
+  forPoint: (id: string) => Promise<Building>,
 }
 
 export const useBuildingMap = create<BuildingMapStorage>((set, get) => ({
