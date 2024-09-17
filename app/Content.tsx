@@ -102,37 +102,43 @@ export default function Content() {
   const handleMarkerSelected = (markers?: Marker[]) => {
   }
 
-  const [buildings, setBuildings] = useState<Building[]>([]);
-  const [hasMore, setHasMore] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const loadMoreBuildings = useCallback(async () => {
-    if (!hasMore || isLoading || !origin.elements.length) return;
-
-    setIsLoading(true);
-    const newBuildings = await fetchMoreBuildings(buildings.length);
-    setBuildings((prevBuildings) => [...prevBuildings, ...newBuildings]);
-    setHasMore(newBuildings.length > 0);
-    setIsLoading(false);
-  }, [hasMore, isLoading, buildings, origin]);
+  const [buildings, setBuildings] = useState<Building[]>([])
+  const [hasMore, setHasMore] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
 
   const fetchMoreBuildings = async (offset: number): Promise<Building[]> => {
-    console.log(origin.type);
-    const limit = 10;
+    console.log(origin.type)
+    const limit = 10
     switch(origin.type) {
       case 'Points': {
-        const newBuildingIds = origin.elements.slice(offset, offset + limit).map((point) => point.id);
-        const newBuildings = await Promise.all(newBuildingIds.map(fetchBuilding));
-        return newBuildings;
+        const newBuildingIds = origin.elements.slice(offset, offset + limit).map((point) => point.id)
+        const newBuildings = await Promise.all(newBuildingIds.map(fetchBuilding))
+        return newBuildings
       }
       case 'Berega': {
-        return origin.elements;
+        return origin.elements
       }
       default: {
-        return [];
+        return []
       }
     }
-  };
+  }
+
+  const loadMoreBuildings = useCallback(async () => {
+    if (!hasMore || isLoading || !origin.elements.length) return
+
+    setIsLoading(true)
+    try {
+      const newBuildings = await fetchMoreBuildings(buildings.length)
+      setBuildings((prevBuildings) => [...prevBuildings, ...newBuildings])
+      setHasMore(newBuildings.length > 0)
+    } catch(ex) {
+      console.error('Ошибка подгрузки новых точек.')
+    } finally {
+      setIsLoading(false)
+    }
+    setIsLoading(false);
+  }, [hasMore, isLoading, buildings, origin]);
 
   useEffect(() => {
     setBuildings([]);
