@@ -121,10 +121,9 @@ export default function Content() {
       case 'Points': {
         const { forPoint } = useBuildingMap.getState?.();
         const newPoints = origin.elements.slice(offset, offset + limit);
-        const newBuildings = await Promise.all(
+        return await Promise.all(
           newPoints.map(async point => await forPoint(point))
         );
-        return newBuildings;
       }
       case 'Berega': {
         return origin.elements.slice(offset, offset + limit);
