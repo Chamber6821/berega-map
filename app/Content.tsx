@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from "react";
+import {useCallback, useEffect, useState} from "react";
 import { Building } from "./api/berega";
 import Cards from "./Cards";
 import { Map } from "./map";
@@ -15,6 +15,7 @@ import FiltersHeader from "./filters/FiltersHeader";
 import Polygon from "./map/Polygon";
 import { useMarkers } from "./hooks/useMarkers";
 import FilterApi from "./filters/FilterApi";
+import {fetchBuilding} from "@/app/api/openApi";
 
 const ShowFiltersButton = styled.button`
   display: flex;
@@ -101,6 +102,50 @@ export default function Content() {
   const handleMarkerSelected = (markers?: Marker[]) => {
   }
 
+  const [buildings, setBuildings] = useState<Building[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const loadMoreBuildings = useCallback(async () => {
+    if (!hasMore || isLoading || !origin.elements.length) return;
+
+    setIsLoading(true);
+    try {
+      const newBuildings = await fetchMoreBuildings(buildings.length);
+      setBuildings((prevBuildings) => [...prevBuildings, ...newBuildings]);
+      setHasMore(newBuildings.length > 0);
+    } catch (error) {
+      console.error("Ошибка при загрузке данных:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [hasMore, isLoading, buildings, origin]);
+
+  const fetchMoreBuildings = async (offset: number): Promise<Building[]> => {
+    console.log(origin.type);
+    const limit = 10;
+    switch(origin.type) {
+      case 'Points': {
+        const newBuildingIds = origin.elements.slice(offset, offset + limit).map((point) => point.id);
+        const newBuildings = await Promise.all(newBuildingIds.map(fetchBuilding));
+        return newBuildings;
+      }
+      case 'Berega': {
+        return origin.elements;
+      }
+      default: {
+        return [];
+      }
+    }
+  };
+
+  useEffect(() => {
+    setBuildings([]);
+    if (origin.elements.length) {
+      loadMoreBuildings();
+    }
+  }, [origin.elements]);
+
   return (
     <div style={{
       display: 'flex',
@@ -157,14 +202,9 @@ export default function Content() {
           </ShowCardsButton>
           {showCards && <div className="cards__wrapper" >
             <Cards
-              buildings={
-                popupBuilding && popupBuilding.length > 1
-                  ? popupBuilding
-                  : matchedBuildings
-                    .filter(x => bounds === undefined || bounds.contains(x.location))
-                    .filter(x => selectedArea === undefined || selectedArea.contains(new LngLat(x.location.lng, x.location.lat)))
-              }
-              points={points.filter(x => selectedArea === undefined || selectedArea.contains(new LngLat(x.longitude, x.latitude)))}
+              buildings={buildings}
+              hasMore={hasMore}
+              showMore={loadMoreBuildings}
             />
           </div>}
         </div>

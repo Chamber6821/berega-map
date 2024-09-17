@@ -1,6 +1,6 @@
 'use client'
 
-import { useBuildings } from "../useBuildings"
+import { useBuildings } from "./../storages/useBuildings"
 import { Building } from "./berega"
 
 export default function BeregaBuildginsInitializator({ buildings, children }: { buildings: Building[], children: any }) {
