@@ -119,19 +119,11 @@ export default function Content() {
     const limit = 10;
     switch (origin.type) {
       case 'Points': {
-        const { forPoint, loadForPoint } = useBuildingMap.getState?.();
-        const newBuildings: Building[] = [];
+        const { forPoint } = useBuildingMap.getState?.();
         const newPoints = origin.elements.slice(offset, offset + limit);
-        for (const point of newPoints) {
-          let building = forPoint(point);
-          if (!building) {
-            await loadForPoint(point);
-            building = forPoint(point);
-          }
-          if (building) {
-            newBuildings.push(building);
-          }
-        }
+        const newBuildings = await Promise.all(
+          newPoints.map(async point => await forPoint(point))
+        );
         return newBuildings;
       }
       case 'Berega': {
@@ -151,8 +143,6 @@ export default function Content() {
       setBuildings((prevBuildings) => [...prevBuildings, ...newBuildings]);
       const newOffset = buildings.length + newBuildings.length;
       setHasMore(newOffset < origin.elements.length);
-    } catch (ex) {
-      console.error('Ошибка подгрузки новых точек');
     } finally {
       setIsLoading(false);
     }
