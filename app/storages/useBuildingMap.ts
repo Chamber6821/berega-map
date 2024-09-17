@@ -4,14 +4,14 @@ import { create } from 'zustand';
 
 export type BuildingMapStorage = {
   map: { [key: string]: Building },
-  forPoint: (point: PointsTypeOpenApi) => Building | undefined,
-  loadForPoint: (point: PointsTypeOpenApi) => void,
+  forPoint: (point: PointsTypeOpenApi) => Promise<Building>,
 }
 
 export const useBuildingMap = create<BuildingMapStorage>((set, get) => ({
   map: {},
-  forPoint: (point: PointsTypeOpenApi) => get().map[point.id],
-  loadForPoint: async (point: PointsTypeOpenApi) => {
+  forPoint: async (point: PointsTypeOpenApi) => {
+    const cached = get().map[point.id]
+    if (cached) return cached
     const building = await fetchBuilding(point.id)
     set(x => ({
       map: {
@@ -19,5 +19,6 @@ export const useBuildingMap = create<BuildingMapStorage>((set, get) => ({
         [point.id]: building
       }
     }))
+    return building
   }
 }))
