@@ -110,15 +110,10 @@ export default function Content() {
     if (!hasMore || isLoading || !origin.elements.length) return;
 
     setIsLoading(true);
-    try {
-      const newBuildings = await fetchMoreBuildings(buildings.length);
-      setBuildings((prevBuildings) => [...prevBuildings, ...newBuildings]);
-      setHasMore(newBuildings.length > 0);
-    } catch (error) {
-      console.error("Ошибка при загрузке данных:", error);
-    } finally {
-      setIsLoading(false);
-    }
+    const newBuildings = await fetchMoreBuildings(buildings.length);
+    setBuildings((prevBuildings) => [...prevBuildings, ...newBuildings]);
+    setHasMore(newBuildings.length > 0);
+    setIsLoading(false);
   }, [hasMore, isLoading, buildings, origin]);
 
   const fetchMoreBuildings = async (offset: number): Promise<Building[]> => {
