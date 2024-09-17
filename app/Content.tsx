@@ -110,17 +110,18 @@ export default function Content() {
 
   const fetchMoreBuildings = async (offset: number): Promise<Building[]> => {
     const limit = 10
+    const { forPoint, loadForPoint } = useBuildingMap.getState()
     switch(origin.type) {
       case 'Points': {
         const newBuildings: Building[] = [];
         const newPoints = origin.elements.slice(offset, offset + limit);
         for (const point of newPoints) {
-          const building = !useBuildingMap(x => x.forPoint(point)) ?
+          const building = !forPoint(point) ?
             (() => {
-              useBuildingMap(x => x.loadForPoint(point))
-              return useBuildingMap(x => x.forPoint(point))
+              loadForPoint(point)
+              return forPoint(point)
             })()
-            : useBuildingMap(x => x.forPoint(point));
+            : forPoint(point)
           if (building) {
             newBuildings.push(building);
           }
@@ -149,7 +150,6 @@ export default function Content() {
     } finally {
       setIsLoading(false)
     }
-    setIsLoading(false);
   }, [hasMore, isLoading, buildings, origin]);
 
   useEffect(() => {
