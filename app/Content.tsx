@@ -123,12 +123,11 @@ export default function Content() {
         const newBuildings: Building[] = [];
         const newPoints = origin.elements.slice(offset, offset + limit);
         for (const point of newPoints) {
-          const building = !forPoint(point)
-            ? (() => {
-              loadForPoint(point)
-              return forPoint(point)
-            })() :
-          forPoint(point);
+          let building = forPoint(point);
+          if (!building) {
+            await loadForPoint(point);
+            building = forPoint(point);
+          }
           if (building) {
             newBuildings.push(building);
           }
@@ -145,18 +144,23 @@ export default function Content() {
   };
 
   const loadMoreBuildings = useCallback(async () => {
-    if (!hasMore || isLoading || !origin.elements.length) return;
+    if (!hasMore || isLoading || origin.elements.length === 0) return;
     setIsLoading(true);
-    const newBuildings = await fetchMoreBuildings(buildings.length);
-    setBuildings((prevBuildings) => [...prevBuildings, ...newBuildings]);
-    const newOffset = buildings.length + newBuildings.length;
-    setHasMore(newOffset < origin.elements.length);
-    setIsLoading(false);
+    try {
+      const newBuildings = await fetchMoreBuildings(buildings.length);
+      setBuildings((prevBuildings) => [...prevBuildings, ...newBuildings]);
+      const newOffset = buildings.length + newBuildings.length;
+      setHasMore(newOffset < origin.elements.length);
+    } catch (ex) {
+      console.error('Ошибка подгрузки новых точек');
+    } finally {
+      setIsLoading(false);
+    }
   }, [hasMore, isLoading, buildings, origin]);
 
   useEffect(() => {
     setBuildings([]);
-    if (origin.elements.length) {
+    if (origin.elements.length > 0) {
       setHasMore(true);
       loadMoreBuildings();
     }
