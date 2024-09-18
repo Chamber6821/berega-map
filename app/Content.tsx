@@ -113,9 +113,10 @@ export default function Content() {
     } else if (selectedMarkerId.startsWith('cluster')) {
       const match = selectedMarkerId.match(/cluster-([0-9.-]+)-([0-9.-]+)/);
       if (match) {
-        const firstNumber = match[1];
-        const secondNumber = match[2];
-        // TODO Сделать flyTo
+        const firstNumber = Number.parseFloat(match[1])
+        const secondNumber = Number.parseFloat(match[2])
+        setMapCenter([firstNumber, secondNumber])
+        setZoom(11)
       }
       return;
     } else {

@@ -403,5 +403,14 @@ export default function Map({
     return () => { map.off('zoomend', handleZoomChange) }
   }, [onZoomChange])
 
+  useEffect(() => {
+    if(mapRef.current) {
+      mapRef.current?.flyTo({
+        zoom: zoom,
+        essential: true
+      });
+    }
+  }, [zoom])
+
   return <div className="map" ref={mapContainer}></div>
 }
