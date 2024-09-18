@@ -1,23 +1,21 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Building } from "./api/berega";
-import Cards from "./Cards";
-import { Map } from "./map";
-import Popup from "./Popup";
-import FiltersPopup from "./filters/FiltersPopup";
-import { Bounds, Marker } from "./map/Map";
-import styled from "styled-components";
-import { CaretBackOutline, CaretForwardOutline, FilterOutline } from "react-ionicons";
-import { LngLat, LngLatBounds } from "mapbox-gl";
-import HelpPopup from "./HelpPopup";
-import FiltersHeader from "./filters/FiltersHeader";
-import Polygon from "./map/Polygon";
-import { OriginType, useMarkers } from "./hooks/useMarkers";
-import FilterApi from "./filters/FilterApi";
-import { fetchBuilding } from "@/app/api/openApi";
-import { useBuildingMap } from "@/app/storages/useBuildingMap";
-import { useBuildings } from "@/app/storages/useBuildings";
+import { useEffect, useState } from "react"
+import { Building } from "./api/berega"
+import Cards from "./Cards"
+import { Map } from "./map"
+import Popup from "./Popup"
+import FiltersPopup from "./filters/FiltersPopup"
+import { Bounds, Marker } from "./map/Map"
+import styled from "styled-components"
+import { CaretBackOutline, CaretForwardOutline, FilterOutline } from "react-ionicons"
+import { LngLat, LngLatBounds } from "mapbox-gl"
+import HelpPopup from "./HelpPopup"
+import FiltersHeader from "./filters/FiltersHeader"
+import Polygon from "./map/Polygon"
+import { OriginType, useMarkers } from "./hooks/useMarkers"
+import FilterApi from "./filters/FilterApi"
+import { useBuildingMap } from "@/app/storages/useBuildingMap"
 
 const ShowFiltersButton = styled.button`
   display: flex;
@@ -106,6 +104,65 @@ export default function Content() {
   const [popupBuildings, setPopupBuildings] = useState<Building[]>()
   const [selectedMarkers, setSelectedMarkers] = useState<Marker[]>([])
 
+  const [buildings, setBuildings] = useState<Building[]>([])
+  const [hasMore, setHasMore] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
+
+  const filteredBuildings = selectedArea
+    ? buildings.filter(building => {
+      const point = new LngLat(building.location.lng, building.location.lat)
+      return selectedArea.contains(point)
+    })
+    : buildings
+
+  const handleMarkerSelected = (markers?: Marker[]) => {
+    if (origin.type === 'Clusters' && markers) {
+      const cluster = markers[0]
+      setZoom(11)
+      setMapCenter([cluster.longitude, cluster.latitude])
+      return
+    }
+    if (!selectedMarkers || !markers) {
+      setSelectedMarkers(markers || [])
+      return
+    }
+    const currentIds = JSON.stringify(selectedMarkers.map(x => x.id).sort())
+    const newIds = JSON.stringify(markers.map(x => x.id).sort())
+    setSelectedMarkers(newIds === currentIds ? [] : markers)
+  }
+
+  const fetchMoreBuildings = async (offset: number): Promise<Building[]> => {
+    const limit = 10
+    switch (origin.type) {
+      case 'Points': {
+        const { forPoint } = useBuildingMap.getState?.()
+        const newPoints = origin.elements.slice(offset, offset + limit)
+        return await Promise.all(
+          newPoints.map(async point => await forPoint(point.id))
+        )
+      }
+      case 'Berega': {
+        return origin.elements.slice(offset, offset + limit)
+      }
+      default: {
+        return []
+      }
+    }
+  }
+
+  const loadMoreBuildings = async () => {
+    if (!hasMore || isLoading || origin.elements.length === 0) return
+    setIsLoading(true)
+    try {
+      const newBuildings = await fetchMoreBuildings(buildings.length)
+      setBuildings((prevBuildings) => [...prevBuildings, ...newBuildings])
+      const newOffset = buildings.length + newBuildings.length
+      setHasMore(newOffset < origin.elements.length)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   useEffect(() => {
     (async () => {
       setPopupBuildings(await buildingsForMarkers(origin, selectedMarkers))
@@ -126,73 +183,13 @@ export default function Content() {
       setShowCards(true)
   }, [popupBuildings])
 
-
-  const handleMarkerSelected = (markers?: Marker[]) => {
-    if (origin.type === 'Clusters' && markers) {
-      const cluster = markers[0]
-      setZoom(11)
-      setMapCenter([cluster.longitude, cluster.latitude])
-      return
-    }
-    if (!selectedMarkers || !markers) {
-      setSelectedMarkers(markers || [])
-      return
-    }
-    const currentIds = JSON.stringify(selectedMarkers.map(x => x.id).sort())
-    const newIds = JSON.stringify(markers.map(x => x.id).sort())
-    setSelectedMarkers(newIds === currentIds ? [] : markers)
-  }
-
-  const [buildings, setBuildings] = useState<Building[]>([])
-  const [hasMore, setHasMore] = useState(true)
-  const [isLoading, setIsLoading] = useState(false)
-
-  const filteredBuildings = selectedArea
-    ? buildings.filter(building => {
-      const point = new LngLat(building.location.lng, building.location.lat);
-      return selectedArea.contains(point);
-    })
-    : buildings;
-
-  const fetchMoreBuildings = async (offset: number): Promise<Building[]> => {
-    const limit = 10;
-    switch (origin.type) {
-      case 'Points': {
-        const { forPoint } = useBuildingMap.getState?.();
-        const newPoints = origin.elements.slice(offset, offset + limit);
-        return await Promise.all(
-          newPoints.map(async point => await forPoint(point.id))
-        );
-      }
-      case 'Berega': {
-        return origin.elements.slice(offset, offset + limit);
-      }
-      default: {
-        return [];
-      }
-    }
-  };
-
-  const loadMoreBuildings = useCallback(async () => {
-    if (!hasMore || isLoading || origin.elements.length === 0) return;
-    setIsLoading(true);
-    try {
-      const newBuildings = await fetchMoreBuildings(buildings.length);
-      setBuildings((prevBuildings) => [...prevBuildings, ...newBuildings]);
-      const newOffset = buildings.length + newBuildings.length;
-      setHasMore(newOffset < origin.elements.length);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [hasMore, isLoading, buildings, origin]);
-
   useEffect(() => {
-    setBuildings([]);
+    setBuildings([])
     if (origin.elements.length > 0) {
-      setHasMore(true);
-      loadMoreBuildings();
+      setHasMore(true)
+      loadMoreBuildings()
     }
-  }, [origin.elements, origin.type]);
+  }, [origin.elements, origin.type])
 
   return (
     <div style={{
