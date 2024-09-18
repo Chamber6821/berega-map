@@ -1,7 +1,7 @@
 import { FilterGroup, FilterStatus } from "../filters/useFilters";
 import { range } from "../utils";
 
-type DescriptionLine = [string] | [string, string]
+export type DescriptionLine = [string] | [string, string]
 type EntityType = "developer" | "features" | "residentialcomplex" | "secondhome"
 export type Building = {
   title: string,

@@ -1,19 +1,21 @@
 'use client'
 
-import { useEffect, useState } from "react";
-import { Building } from "./api/berega";
-import Cards from "./Cards";
-import { Map } from "./map";
-import Popup from "./Popup";
-import FiltersPopup from "./filters/FiltersPopup";
-import { useMap } from "./map/Map";
-import styled from "styled-components";
-import { CaretBackOutline, CaretForwardOutline, FilterOutline } from "react-ionicons";
-import { LngLat } from "mapbox-gl";
-import HelpPopup from "./HelpPopup";
-import FiltersHeader from "./filters/FiltersHeader";
-import { filterOf, useFilters } from "./filters/useFilters";
-import { useBuildings } from "./useBuildings";
+import { useEffect, useState } from "react"
+import { Building } from "./api/berega"
+import Cards from "./Cards"
+import { Map } from "./map"
+import Popup from "./Popup"
+import FiltersPopup from "./filters/FiltersPopup"
+import { Bounds, Marker } from "./map/Map"
+import styled from "styled-components"
+import { CaretBackOutline, CaretForwardOutline, FilterOutline } from "react-ionicons"
+import { LngLat, LngLatBounds } from "mapbox-gl"
+import HelpPopup from "./HelpPopup"
+import FiltersHeader from "./filters/FiltersHeader"
+import Polygon from "./map/Polygon"
+import { OriginType, useMarkers } from "./hooks/useMarkers"
+import FilterApi from "./filters/FilterApi"
+import { useBuildingMap } from "@/app/storages/useBuildingMap"
 
 const ShowFiltersButton = styled.button`
   display: flex;
@@ -71,33 +73,123 @@ const MapAndCards = styled.div`
   }
 `
 
+const buildingsForMarkers = async (origin: OriginType, markers: Marker[]) => {
+  switch (origin.type) {
+    case "Berega": {
+      const pages = markers.map(x => x.id)
+      return origin.elements.filter(x => pages.includes(x.page))
+    }
+    case "Points": {
+      const { forPoint } = useBuildingMap.getState()
+      return await Promise.all(markers.map(x => forPoint(x.id)))
+    }
+    case "Clusters": return []
+  }
+}
+
 export default function Content() {
-  const buildings = useBuildings(x => x.buildings)
   const [showFiltersPopup, setShowFiltersPopup] = useState(false)
   const [showHelpPopup, setShowHelpPopup] = useState(false)
   const [showCards, setShowCards] = useState(false)
   const [showPreloader, setShowPreloader] = useState(true)
-  const popupBuilding = useMap(x => x.selectedBuilding)
-  const setPopupBuilding = useMap(x => x.setSelectedBuilding)
-  const bounds = useMap(x => x.bounds)
-  const selectedArea = useMap(x => x.selectedArea)
-  const filters = useFilters()
-  const matchedBuildings = buildings.filter(filterOf(filters))
 
-  const load = useBuildings(x => x.loadFromBerega)
-  useEffect(() => load(), [load])
+  const [bounds, setBounds] = useState<Bounds>(new LngLatBounds())
+  const [selectedArea, setSelectedArea] = useState<Polygon>()
+
+  const [mapCenter, setMapCenter] = useState<[number, number]>([41.65, 41.65])
+  const [zoom, setZoom] = useState(10)
+
+  const { markers, origin } = useMarkers(zoom, mapCenter)
+
+  const [popupBuildings, setPopupBuildings] = useState<Building[]>()
+  const [selectedMarkers, setSelectedMarkers] = useState<Marker[]>([])
+
+  const [buildings, setBuildings] = useState<Building[]>([])
+  const [hasMore, setHasMore] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
+
+  const filteredBuildings = selectedArea
+    ? buildings.filter(building => {
+      const point = new LngLat(building.location.lng, building.location.lat)
+      return selectedArea.contains(point)
+    })
+    : buildings
+
+  const handleMarkerSelected = (markers?: Marker[]) => {
+    if (origin.type === 'Clusters' && markers) {
+      const cluster = markers[0]
+      setZoom(11)
+      setMapCenter([cluster.longitude, cluster.latitude])
+      return
+    }
+    if (!selectedMarkers || !markers) {
+      setSelectedMarkers(markers || [])
+      return
+    }
+    const currentIds = JSON.stringify(selectedMarkers.map(x => x.id).sort())
+    const newIds = JSON.stringify(markers.map(x => x.id).sort())
+    setSelectedMarkers(newIds === currentIds ? [] : markers)
+  }
+
+  const fetchMoreBuildings = async (offset: number): Promise<Building[]> => {
+    const limit = 10
+    switch (origin.type) {
+      case 'Points': {
+        const { forPoint } = useBuildingMap.getState?.()
+        const newPoints = origin.elements.slice(offset, offset + limit)
+        return await Promise.all(
+          newPoints.map(async point => await forPoint(point.id))
+        )
+      }
+      case 'Berega': {
+        return origin.elements.slice(offset, offset + limit)
+      }
+      default: {
+        return []
+      }
+    }
+  }
+
+  const loadMoreBuildings = async () => {
+    if (!hasMore || isLoading || origin.elements.length === 0) return
+    setIsLoading(true)
+    try {
+      const newBuildings = await fetchMoreBuildings(buildings.length)
+      setBuildings((prevBuildings) => [...prevBuildings, ...newBuildings])
+      const newOffset = buildings.length + newBuildings.length
+      setHasMore(newOffset < origin.elements.length)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    (async () => {
+      setPopupBuildings(await buildingsForMarkers(origin, selectedMarkers))
+    })()
+  }, [selectedMarkers])
+
+  useEffect(() => {
+    setSelectedMarkers([])
+  }, [markers.length])
+
+  useEffect(() => { setTimeout(() => setShowPreloader(false), 1000) }, [])
 
   useEffect(() => setShowCards(!!selectedArea), [selectedArea])
-  useEffect(() => selectedArea && setPopupBuilding(undefined), [selectedArea, setPopupBuilding])
+  useEffect(() => selectedArea && setPopupBuildings(undefined), [selectedArea, setPopupBuildings])
 
   useEffect(() => {
-    if (popupBuilding && popupBuilding.length > 1)
+    if (popupBuildings && popupBuildings.length > 1)
       setShowCards(true)
-  }, [popupBuilding])
+  }, [popupBuildings])
 
   useEffect(() => {
-    setTimeout(() => setShowPreloader(false), 1000)
-  }, [])
+    setBuildings([])
+    if (origin.elements.length > 0) {
+      setHasMore(true)
+      loadMoreBuildings()
+    }
+  }, [origin.elements, origin.type])
 
   return (
     <div style={{
@@ -119,12 +211,19 @@ export default function Content() {
           Фильтры
         </ShowFiltersButton>
       </div>
+      <FilterApi />
       <MapAndCards>
         <Map
-          center={[41.65, 41.65]}
-          zoom={12}
-          buildings={matchedBuildings}
+          center={mapCenter}
+          zoom={zoom}
+          markers={markers}
+          selectedMarkers={selectedMarkers}
+          onMarkerSelected={handleMarkerSelected}
           onClickInfo={() => setShowHelpPopup(true)}
+          onBoundsChanged={setBounds}
+          onSelectedAreaChanged={setSelectedArea}
+          onMapMove={setMapCenter}
+          onZoomChange={setZoom}
         />
         <div
           style={{ position: 'relative' }}
@@ -147,20 +246,31 @@ export default function Content() {
             </div>
           </ShowCardsButton>
           {showCards && <div className="cards__wrapper" >
-            <Cards buildings={
-              popupBuilding && popupBuilding.length > 1
-                ? popupBuilding
-                : matchedBuildings
-                  .filter(x => bounds === undefined || bounds.contains(x.location))
-                  .filter(x => selectedArea === undefined || selectedArea.contains(new LngLat(x.location.lng, x.location.lat)))
+            {
+              popupBuildings
+                ? <Cards
+                  buildings={popupBuildings}
+                  hasMore={false}
+                  showMore={() => { }}
+                />
+                : <Cards
+                  buildings={filteredBuildings}
+                  hasMore={hasMore}
+                  showMore={loadMoreBuildings}
+                />
             }
-            />
           </div>}
         </div>
       </MapAndCards>
       {showFiltersPopup && <FiltersPopup onClose={() => setShowFiltersPopup(false)} />}
-      {popupBuilding && popupBuilding.length === 1 && <Popup building={popupBuilding[0]} onClose={() => setPopupBuilding(undefined)} />}
+      {
+        popupBuildings && popupBuildings.length === 1
+        && <Popup
+          building={popupBuildings[0]}
+          onClose={() => setSelectedMarkers([])}
+        />
+      }
       {showHelpPopup && <HelpPopup onClose={() => setShowHelpPopup(false)} />}
-    </div >
+    </div>
   )
 }
