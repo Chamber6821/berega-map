@@ -16,7 +16,8 @@ import { Bounds, Marker } from "./map/Map";
 import { useBuildingMap } from "./storages/useBuildingMap";
 import Polygon from "./map/Polygon";
 import FilterApi from "./filters/FilterApi";
-import ChatBot from "./components/chat/ChatBot";
+import useAssistant from "./hooks/useAssistant";
+import AssistantChat from "./components/chat/AssitantChat";
 
 const ShowFiltersButton = styled.button`
   display: flex;
@@ -108,6 +109,8 @@ export default function Content() {
   const [buildings, setBuildings] = useState<Building[]>([])
   const [hasMore, setHasMore] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
+
+  const assistant = useAssistant()
 
   const filteredBuildings = selectedArea
     ? buildings.filter(building => {
@@ -272,7 +275,7 @@ export default function Content() {
         />
       }
       {showHelpPopup && <HelpPopup onClose={() => setShowHelpPopup(false)} />}
-      <ChatBot />
+      <AssistantChat assistant={assistant} />
     </div>
   )
 }
