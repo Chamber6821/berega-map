@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 
 export type MessageType = {
   author: 'user' | 'bot',
@@ -16,6 +16,7 @@ export default function useAssistant(): AssistantType {
   const [loading, setLoading] = useState(false)
 
   const ask = useCallback(async (message: string) => {
+    setDialog(x => [...x, { author: 'user', text: message }])
     setLoading(true)
     try {
       const response = await fetch('http://198.199.64.195:7771/filter_data', {
@@ -31,7 +32,7 @@ export default function useAssistant(): AssistantType {
         })
       })
       const answer = await response.json()
-      setDialog([...dialog, { author: 'bot', text: answer.text }])
+      setDialog(x => [...x, { author: 'bot' as const, text: answer.text }])
     } finally {
       setLoading(false)
     }
