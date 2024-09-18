@@ -57,6 +57,9 @@ export default function Map({
   const markersRef = useRef(markers)
   markersRef.current = markers
 
+  const onMarkerSelectedRef = useRef(onMarkerSelected)
+  onMarkerSelectedRef.current = onMarkerSelected
+
   const updateBuildings = (map: MapboxMap) => {
     const coloredBuildingsSource = map.getSource('colored-buildings') as GeoJSONSource
     const simpleBuildingsSource = map.getSource('simple-buildings') as GeoJSONSource
@@ -278,7 +281,7 @@ export default function Map({
       map.moveLayer('markers', 'selected-marker')
       map.on('click', 'markers', (e) => {
         const marker = e.features?.[0]?.properties as MarkerProps | undefined
-        marker && onMarkerSelected([markersRef.current[marker.originIndex]])
+        marker && onMarkerSelectedRef.current([markersRef.current[marker.originIndex]])
       })
       map
         .on('mouseenter', 'markers', () => ['view', 'filtered'].includes(modeRef.current) && (map.getCanvas().style.cursor = 'pointer'))
@@ -324,7 +327,7 @@ export default function Map({
           const newMarkers = (JSON.parse(marker.originIndexes) as number[]).map((i: number) => markersRef.current[i])
           const currentData = JSON.stringify(selectedMarkers)
           const newData = JSON.stringify(newMarkers)
-          onMarkerSelected(currentData === newData ? undefined : newMarkers)
+          onMarkerSelectedRef.current(currentData === newData ? undefined : newMarkers)
         })
       const update = updateBuildings(map)
       map
@@ -404,7 +407,7 @@ export default function Map({
   }, [onZoomChange])
 
   useEffect(() => {
-    if(mapRef.current) {
+    if (mapRef.current) {
       mapRef.current?.flyTo({
         zoom: zoom,
         essential: true
