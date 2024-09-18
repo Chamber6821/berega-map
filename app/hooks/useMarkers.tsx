@@ -23,18 +23,21 @@ const originType = (zoom: number, api: FilterApi) => api === 'Встроенно
     ? 'Points'
     : 'Clusters'
 
+export type OriginType = {
+  type: 'Berega'
+  elements: Building[]
+} | {
+  type: 'Points'
+  elements: PointsTypeOpenApi[]
+} | {
+  type: 'Clusters'
+  elements: PointsCountTypeOpenApi[]
+}
+
+
 export const useMarkers = (zoom: number, mapCenter: [number, number]): {
   markers: Marker[]
-  origin: {
-    type: 'Berega'
-    elements: Building[]
-  } | {
-    type: 'Points'
-    elements: PointsTypeOpenApi[]
-  } | {
-    type: 'Clusters'
-    elements: PointsCountTypeOpenApi[]
-  }
+  origin: OriginType
 } => {
   const filters = useFilters()
 
