@@ -112,6 +112,10 @@ export default function Content() {
     })()
   }, [selectedMarkers])
 
+  useEffect(() => {
+    setSelectedMarkers([])
+  }, [markers.length])
+
   useEffect(() => { setTimeout(() => setShowPreloader(false), 1000) }, [])
 
   useEffect(() => setShowCards(!!selectedArea), [selectedArea])
