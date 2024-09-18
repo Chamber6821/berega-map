@@ -110,7 +110,7 @@ export default function Content() {
     (async () => {
       setPopupBuildings(await buildingsForMarkers(origin, selectedMarkers))
     })()
-  }, [origin, selectedMarkers])
+  }, [selectedMarkers])
 
   useEffect(() => { setTimeout(() => setShowPreloader(false), 1000) }, [])
 
