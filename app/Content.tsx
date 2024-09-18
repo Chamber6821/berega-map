@@ -1,6 +1,6 @@
 'use client'
 
-import {useCallback, useEffect, useRef, useState} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Building } from "./api/berega";
 import Cards from "./Cards";
 import { Map } from "./map";
@@ -13,11 +13,11 @@ import { LngLat, LngLatBounds } from "mapbox-gl";
 import HelpPopup from "./HelpPopup";
 import FiltersHeader from "./filters/FiltersHeader";
 import Polygon from "./map/Polygon";
-import { useMarkers } from "./hooks/useMarkers";
+import { OriginType, useMarkers } from "./hooks/useMarkers";
 import FilterApi from "./filters/FilterApi";
-import {fetchBuilding} from "@/app/api/openApi";
-import {useBuildingMap} from "@/app/storages/useBuildingMap";
-import {useBuildings} from "@/app/storages/useBuildings";
+import { fetchBuilding } from "@/app/api/openApi";
+import { useBuildingMap } from "@/app/storages/useBuildingMap";
+import { useBuildings } from "@/app/storages/useBuildings";
 
 const ShowFiltersButton = styled.button`
   display: flex;
@@ -75,15 +75,25 @@ const MapAndCards = styled.div`
   }
 `
 
+const buildingsForMarkers = async (origin: OriginType, markers: Marker[]) => {
+  switch (origin.type) {
+    case "Berega": {
+      const pages = markers.map(x => x.id)
+      return origin.elements.filter(x => pages.includes(x.page))
+    }
+    case "Points": {
+      const { forPoint } = useBuildingMap.getState()
+      return await Promise.all(markers.map(x => forPoint(x.id)))
+    }
+    case "Clusters": return []
+  }
+}
+
 export default function Content() {
   const [showFiltersPopup, setShowFiltersPopup] = useState(false)
   const [showHelpPopup, setShowHelpPopup] = useState(false)
   const [showCards, setShowCards] = useState(false)
   const [showPreloader, setShowPreloader] = useState(true)
-
-  const mapRef = useRef(null);
-
-  const [popupBuildings, setPopupBuildings] = useState<Building[]>()
 
   const [bounds, setBounds] = useState<Bounds>(new LngLatBounds())
   const [selectedArea, setSelectedArea] = useState<Polygon>()
@@ -92,6 +102,15 @@ export default function Content() {
   const [zoom, setZoom] = useState(10)
 
   const { markers, origin } = useMarkers(zoom, mapCenter)
+
+  const [popupBuildings, setPopupBuildings] = useState<Building[]>()
+  const [selectedMarkers, setSelectedMarkers] = useState<Marker[]>([])
+
+  useEffect(() => {
+    (async () => {
+      setPopupBuildings(await buildingsForMarkers(origin, selectedMarkers))
+    })()
+  }, [origin, selectedMarkers])
 
   useEffect(() => { setTimeout(() => setShowPreloader(false), 1000) }, [])
 
@@ -103,30 +122,15 @@ export default function Content() {
       setShowCards(true)
   }, [popupBuildings])
 
+
   const handleMarkerSelected = (markers?: Marker[]) => {
-    if (!markers || markers.length === 0) return;
-    const selectedMarkerId = markers[0].id;
-    if (selectedMarkerId.startsWith('https')) {
-      const building = origin.elements.find((element): element is Building => 'page' in element && element.page === selectedMarkerId);
-      building && setPopupBuildings([building])
-      return;
-    } else if (selectedMarkerId.startsWith('cluster')) {
-      const match = selectedMarkerId.match(/cluster-([0-9.-]+)-([0-9.-]+)/);
-      if (match) {
-        const firstNumber = Number.parseFloat(match[1])
-        const secondNumber = Number.parseFloat(match[2])
-        setMapCenter([firstNumber, secondNumber])
-        setZoom(11)
-      }
-      return;
-    } else {
-      const { forPoint } = useBuildingMap.getState?.();
-      (async () => {
-        const building = await forPoint(selectedMarkerId);
-        building && setPopupBuildings([building]);
-      })();
-      return;
+    if (!selectedMarkers || !markers) {
+      setSelectedMarkers(markers || [])
+      return
     }
+    const currentIds = JSON.stringify(selectedMarkers.map(x => x.id).sort())
+    const newIds = JSON.stringify(markers.map(x => x.id).sort())
+    setSelectedMarkers(newIds === currentIds ? [] : markers)
   }
 
   const [buildings, setBuildings] = useState<Building[]>([])
@@ -206,7 +210,7 @@ export default function Content() {
           center={mapCenter}
           zoom={zoom}
           markers={markers}
-          selectedMarkers={[]}
+          selectedMarkers={selectedMarkers}
           onMarkerSelected={handleMarkerSelected}
           onClickInfo={() => setShowHelpPopup(true)}
           onBoundsChanged={setBounds}
@@ -235,11 +239,19 @@ export default function Content() {
             </div>
           </ShowCardsButton>
           {showCards && <div className="cards__wrapper" >
-            <Cards
-              buildings={filteredBuildings}
-              hasMore={hasMore}
-              showMore={loadMoreBuildings}
-            />
+            {
+              popupBuildings
+                ? <Cards
+                  buildings={popupBuildings}
+                  hasMore={false}
+                  showMore={() => { }}
+                />
+                : <Cards
+                  buildings={filteredBuildings}
+                  hasMore={hasMore}
+                  showMore={loadMoreBuildings}
+                />
+            }
           </div>}
         </div>
       </MapAndCards>
@@ -248,7 +260,7 @@ export default function Content() {
         popupBuildings && popupBuildings.length === 1
         && <Popup
           building={popupBuildings[0]}
-          onClose={() => setPopupBuildings(undefined)}
+          onClose={() => setSelectedMarkers([])}
         />
       }
       {showHelpPopup && <HelpPopup onClose={() => setShowHelpPopup(false)} />}
