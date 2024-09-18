@@ -407,13 +407,21 @@ export default function Map({
   }, [onZoomChange])
 
   useEffect(() => {
-    if (mapRef.current) {
-      mapRef.current?.flyTo({
-        zoom: zoom,
-        essential: true
-      });
-    }
-  }, [zoom])
+    const map = mapRef.current
+    if (!map) return
+    const currentZoom = map.getZoom()
+    const currentCenter = map.getCenter()
+    if (Math.abs(zoom - currentZoom) < 0.1
+      && Math.abs(center[0] - currentCenter.lng) < 0.001
+      && Math.abs(center[1] - currentCenter.lat) < 0.001) return
+    console.log('FLY')
+    mapRef.current?.flyTo({
+      zoom: zoom,
+      center: center,
+      essential: true,
+
+    })
+  }, [zoom, center])
 
   return <div className="map" ref={mapContainer}></div>
 }

@@ -124,6 +124,12 @@ export default function Content() {
 
 
   const handleMarkerSelected = (markers?: Marker[]) => {
+    if (origin.type === 'Clusters' && markers) {
+      const cluster = markers[0]
+      setZoom(11)
+      setMapCenter([cluster.longitude, cluster.latitude])
+      return
+    }
     if (!selectedMarkers || !markers) {
       setSelectedMarkers(markers || [])
       return
