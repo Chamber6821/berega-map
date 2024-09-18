@@ -18,6 +18,7 @@ import Polygon from "./map/Polygon";
 import FilterApi from "./filters/FilterApi";
 import useAssistant from "./hooks/useAssistant";
 import AssistantChat from "./components/chat/AssitantChat";
+import { useFilters } from "./filters/useFilters";
 
 const ShowFiltersButton = styled.button`
   display: flex;
@@ -94,6 +95,7 @@ export default function Content() {
   const [showHelpPopup, setShowHelpPopup] = useState(false)
   const [showCards, setShowCards] = useState(false)
   const [showPreloader, setShowPreloader] = useState(true)
+  const [showAssistant, setShowAssistant] = useState(false)
 
   const [bounds, setBounds] = useState<Bounds>(new LngLatBounds())
   const [selectedArea, setSelectedArea] = useState<Polygon>()
@@ -111,6 +113,7 @@ export default function Content() {
   const [isLoading, setIsLoading] = useState(false)
 
   const assistant = useAssistant()
+  const filters = useFilters()
 
   const filteredBuildings = selectedArea
     ? buildings.filter(building => {
@@ -195,6 +198,8 @@ export default function Content() {
     }
   }, [origin.elements, origin.type])
 
+  useEffect(() => { filters.api !== 'Внешнее' && setShowAssistant(false) }, [filters.api])
+
   return (
     <div style={{
       display: 'flex',
@@ -214,6 +219,12 @@ export default function Content() {
             color={'#00000'} />
           Фильтры
         </ShowFiltersButton>
+        {
+          filters.api === 'Внешнее' &&
+          <ShowFiltersButton onClick={() => setShowAssistant(!showAssistant)}>
+            AI
+          </ShowFiltersButton>
+        }
       </div>
       <FilterApi />
       <MapAndCards>
@@ -275,7 +286,7 @@ export default function Content() {
         />
       }
       {showHelpPopup && <HelpPopup onClose={() => setShowHelpPopup(false)} />}
-      <AssistantChat assistant={assistant} />
+      {showAssistant && <AssistantChat assistant={assistant} onClose={() => setShowAssistant(false)} />}
     </div>
   )
 }
