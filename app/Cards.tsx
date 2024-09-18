@@ -3,7 +3,7 @@ import Card from "./Card";
 import { Building } from "./api/berega";
 
 export default function Cards({ buildings, hasMore = false, showMore }:
-  { buildings: Building[], hasMore?: boolean, showMore: () => void }) {
+  { buildings: Building[], hasMore?: boolean, showMore?: () => void }) {
   const endOfCards = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
