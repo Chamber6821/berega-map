@@ -215,7 +215,7 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
   const resetRooms = groupArrayOf(['Дома, коттеджи', 'Зем. участки', 'Коммерческая']).includes(group)
   const resetStatus = groupArrayOf(['Зем. участки']).includes(group)
   const resetFrame = groupArrayOf(['Зем. участки']).includes(group)
-  const resetAgricultures = group == 'Зем. участки'
+  const resetAgricultures = group != 'Зем. участки'
   const resetFloor = groupArrayOf(['Дома, коттеджи', 'Зем. участки']).includes(group)
   const handleClose = () => {
     setShowAllFilters(false)
