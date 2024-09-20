@@ -127,41 +127,48 @@ const useRangeInput = (): [State<Range>, React.ReactElement] => {
   }], group]
 }
 
-const useVariantInput = <T extends string,>(variants: T[]): [State<T[]>, React.ReactElement] => {
-  const [selected, setSelected] = useState<T[]>([])
-  const group =
+const useVariantInput = <T extends string,>(variants: T[], api?: string): [State<T[]>, React.ReactElement] => {
+  const [selected, setSelected] = useState<T[]>([]);
+  const handleSelect = (x: T) => {
+    if (api === "Внешнее") {
+      setSelected(selected.includes(x) ? [] : [x]);
+    } else {
+      setSelected(
+        selected.includes(x)
+          ? selected.filter(y => y !== x)
+          : [...selected, x]
+      );
+    }
+  };
+  const group = (
     <div className="input-container">
       <InputGroup>
-        {
-          selected.length === 0
-            ? <PressedVariantButton>
-              Не важно
+        {selected.length === 0 ? (
+          <PressedVariantButton onClick={() => setSelected([])}>
+            Не важно
+          </PressedVariantButton>
+        ) : (
+          <VariantButton onClick={() => setSelected([])}>
+            Не важно
+          </VariantButton>
+        )}
+        {variants.map(x =>
+          selected.includes(x) ? (
+            <PressedVariantButton key={x} onClick={() => handleSelect(x)}>
+              {x}
             </PressedVariantButton>
-            : <VariantButton onClick={() => setSelected([])}>
-              Не важно
+          ) : (
+            <VariantButton key={x} onClick={() => handleSelect(x)}>
+              {x}
             </VariantButton>
-        }
-        {
-          variants.map(x =>
-            selected.includes(x)
-              ? <PressedVariantButton
-                key={x}
-                onClick={() => setSelected(selected.filter(y => y !== x))}
-              >
-                {x}
-              </PressedVariantButton>
-              : <VariantButton
-                key={x}
-                onClick={() => setSelected([...selected, x])}
-              >
-                {x}
-              </VariantButton>
           )
-        }
+        )}
       </InputGroup>
     </div>
-  return [[selected, setSelected], group]
-}
+  );
+  return [[selected, setSelected], group];
+};
+
 
 const useInputText = (): [State<string>, React.ReactElement] => {
   const [[text, setText], input] = useInput<string>({ type: 'text' })
@@ -191,10 +198,12 @@ const monthAgo = (n: number = 1) => {
 }
 
 export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => void }) {
+  const filters = useFilters()
   const [[country, setCountry], CountryInput] = useInputText()
   const [[city, setCity], CityInput] = useInputText()
   const [[group, setGroup], GroupInput] = useSingleVariantInput([...FilterGroups])
-  const [[rooms, setRooms], RoomsInput] = useVariantInput([...FilterRooms])
+  const [[rooms, setRooms], RoomsInput] = useVariantInput(filters.api === 'Внешнее' ?
+    FilterRooms.filter(x => x !== 'Студия') : FilterRooms, filters.api)
   const [[status, setStatus], StatusInput] = useVariantInput([...FilterStatuses])
   const [[frame, setFrame], FrameInput] = useVariantInput([...FilterFrames])
   const [[agricultures, setAgricultures], AgriculturesInput] = useVariantInput(['Сельхоз', 'Не сельхоз'])
@@ -203,7 +212,6 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
   const [[floorRange, setFloor], FloorInput] = useRangeInput()
   const [[areaRange, setArea], AreaInput] = useRangeInput()
   const [showAllFilters, setShowAllFilters] = useState(false)
-  const filters = useFilters()
   const resetRooms = groupArrayOf(['Дома, коттеджи', 'Зем. участки', 'Коммерческая']).includes(group)
   const resetStatus = groupArrayOf(['Зем. участки']).includes(group)
   const resetFrame = groupArrayOf(['Зем. участки']).includes(group)

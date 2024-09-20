@@ -179,30 +179,37 @@ const useRangeInput = (prefix: string, postfix: string): [State<Range>, React.Re
   }], group]
 }
 
-const useVariantInput = <T extends string,>(variants: T[]): [State<T[]>, React.ReactElement] => {
-  const [selected, setSelected] = useState<T[]>([])
-  const group =
+const useVariantInput = <T extends string,>(variants: T[], api?: string): [State<T[]>, React.ReactElement] => {
+  const [selected, setSelected] = useState<T[]>([]);
+  const handleSelect = (x: T) => {
+    if (api === "Внешнее") {
+      setSelected(selected.includes(x) ? [] : [x]);
+    } else {
+      setSelected(
+        selected.includes(x)
+          ? selected.filter(y => y !== x)
+          : [...selected, x]
+      );
+    }
+  };
+  const group = (
     <VariantGroup>
-      {
-        variants.map(x =>
-          selected.includes(x)
-            ? <PressedVariant
-              key={x}
-              onClick={() => setSelected(selected.filter(y => y !== x))}
-            >
-              {x}
-            </PressedVariant>
-            : <Variant
-              key={x}
-              onClick={() => setSelected([...selected, x])}
-            >
-              {x}
-            </Variant>
+      {variants.map(x =>
+        selected.includes(x) ? (
+          <PressedVariant key={x} onClick={() => handleSelect(x)}>
+            {x}
+          </PressedVariant>
+        ) : (
+          <Variant key={x} onClick={() => handleSelect(x)}>
+            {x}
+          </Variant>
         )
-      }
+      )}
     </VariantGroup>
-  return [[selected, setSelected], group]
-}
+  );
+  return [[selected, setSelected], group];
+};
+
 
 const useOptions = <T,>(label: string, variants: T[]): [State<T[]>, React.ReactElement] => {
   const [opened, setOpened] = useState(false)
@@ -237,7 +244,7 @@ export default function FiltersHeader() {
   const filters = useFilters()
   const [[price, setPrice], PriceInput] = useRangeInput('Цена', '$')
   const [[area, setArea], AreaInput] = useRangeInput('Площадь', 'м²')
-  const [[rooms, setRooms], RoomsInput] = useVariantInput([...FilterRooms])
+  const [[rooms, setRooms], RoomsInput] = useVariantInput(filters.api === 'Внешнее' ? FilterRooms.filter(x => x !== 'Студия') : FilterRooms, filters.api);
   const [[types, setTypes], TypesInput] = useOptions('Тип недвижимости', [...FilterGroups])
   const [[agriculturals, setAgriculturals], AgriculturalsInput] = useVariantInput(['Сельхоз', 'Не сельхоз'] as const)
   useEffect(() => {
