@@ -31,8 +31,8 @@ const LoaderContainer = styled.div`
 const LoaderBar = styled.hr<{ delay: string; backgroundColor: string }>`
   border: 0;
   margin: 0;
-  width: 40%;
-  height: 40%;
+  width: 20%;
+  height: 20%;
   position: absolute;
   border-radius: 50%;
   background: ${({ backgroundColor }) => backgroundColor};

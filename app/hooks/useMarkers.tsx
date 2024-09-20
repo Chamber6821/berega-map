@@ -35,7 +35,7 @@ export type OriginType = {
 }
 
 
-export const useMarkers = (zoom: number, mapCenter: [number, number]): {
+export const useMarkers = (zoom: number, mapCenter: [number, number], setShowFilterLoading: (loading: boolean) => void): {
   markers: Marker[]
   origin: OriginType
 } => {
@@ -72,15 +72,27 @@ export const useMarkers = (zoom: number, mapCenter: [number, number]): {
   const updateBeregaBuildings = useBuildings(x => x.loadFromBerega)
 
   useEffect(() => {
-    filters.api === 'Внешнее' && zoom >= 11 && updatePoints(filters, mapCenter)
+    filters.api === 'Внешнее' && zoom >= 11 && (async () => {
+      setShowFilterLoading(true)
+      await updatePoints(filters, mapCenter)
+      setShowFilterLoading(false)
+    })()
   }, [updatePoints, filters, mapCenter, zoom])
 
   useEffect(() => {
-    filters.api === 'Внешнее' && updateClusters(filters)
+    filters.api === 'Внешнее' && (async () => {
+      setShowFilterLoading(true)
+      await updateClusters(filters)
+      setShowFilterLoading(false)
+    })()
   }, [updateClusters, filters])
 
   useEffect(() => {
-    filters.api === 'Встроенное' && updateBeregaBuildings(filterOf(filters))
+    filters.api === 'Встроенное' && (async () => {
+      setShowFilterLoading(true);
+      await updateBeregaBuildings(filterOf(filters))
+      setShowFilterLoading(false);
+    })()
   }, [updateBeregaBuildings, filters])
 
   switch (originType(zoom, filters.api)) {

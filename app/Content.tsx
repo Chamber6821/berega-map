@@ -8,6 +8,7 @@ import Popup from "./Popup"
 import FiltersPopup from "./filters/FiltersPopup"
 import { Bounds, Marker } from "./map/Map"
 import styled from "styled-components"
+import {useFilters} from "./filters/useFilters";
 import { CaretBackOutline, CaretForwardOutline, FilterOutline } from "react-ionicons"
 import { LngLat, LngLatBounds } from "mapbox-gl"
 import HelpPopup from "./HelpPopup"
@@ -101,7 +102,7 @@ export default function Content() {
   const [mapCenter, setMapCenter] = useState<[number, number]>([41.65, 41.65])
   const [zoom, setZoom] = useState(10)
 
-  const { markers, origin } = useMarkers(zoom, mapCenter)
+  const { markers, origin } = useMarkers(zoom, mapCenter, setShowFilterLoading);
 
   const [popupBuildings, setPopupBuildings] = useState<Building[]>()
   const [selectedMarkers, setSelectedMarkers] = useState<Marker[]>([])
@@ -165,6 +166,10 @@ export default function Content() {
     }
   }
 
+  const handleShowFiltersLoading = () => {
+    setShowFilterLoading(true);
+  }
+
   useEffect(() => {
     (async () => {
       setPopupBuildings(await buildingsForMarkers(origin, selectedMarkers))
@@ -213,7 +218,7 @@ export default function Content() {
           Фильтры
         </ShowFiltersButton>
       </div>
-      <FilterApi />
+      <FilterApi handleShowFiltersLoading={handleShowFiltersLoading} />
       {showFilterLoading && <FiltersLoading/>}
       <MapAndCards>
         <Map
