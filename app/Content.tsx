@@ -166,10 +166,6 @@ export default function Content() {
     }
   }
 
-  const handleShowFiltersLoading = () => {
-    setShowFilterLoading(true);
-  }
-
   useEffect(() => {
     (async () => {
       setPopupBuildings(await buildingsForMarkers(origin, selectedMarkers))
@@ -218,7 +214,7 @@ export default function Content() {
           Фильтры
         </ShowFiltersButton>
       </div>
-      <FilterApi handleShowFiltersLoading={handleShowFiltersLoading} />
+      <FilterApi />
       {showFilterLoading && <FiltersLoading/>}
       <MapAndCards>
         <Map
