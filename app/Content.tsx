@@ -219,13 +219,20 @@ export default function Content() {
             color={'#00000'} />
           Фильтры
         </ShowFiltersButton>
-        {
-          filters.api === 'Внешнее' &&
-          <ShowFiltersButton onClick={() => setShowAssistant(!showAssistant)}>
-            AI
-          </ShowFiltersButton>
-        }
       </div>
+      {
+        filters.api === 'Внешнее' &&
+        <ShowFiltersButton
+          style={{
+            position: 'absolute',
+            top: '70px',
+            right: '255px'
+          }}
+          onClick={() => setShowAssistant(!showAssistant)}
+        >
+          AI
+        </ShowFiltersButton>
+      }
       <FilterApi />
       <MapAndCards>
         <Map
