@@ -46,6 +46,7 @@ flex-grow: 1;
 justify-self: stretch;
 box-shadow: -1px -1px 2px 0px #00000040, 1px 1px 2px 0px #00000040;
 border-radius: 5px;
+padding: 3px 8px;
 `
 
 const SendButton = styled.button`
