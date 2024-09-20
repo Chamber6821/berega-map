@@ -139,7 +139,7 @@ export default function Chat(
           onClick={handleSubmit}
           disabled={inputDisabled}
         >
-          <SendOutline color={'#fff'} width="10px" height="10px" />
+          <SendOutline color={'#fff'} width="14px" height="14px" />
         </SendButton>
       </InputGroup>
     </Paper>
