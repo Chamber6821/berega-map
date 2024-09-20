@@ -180,35 +180,41 @@ const useRangeInput = (prefix: string, postfix: string): [State<Range>, React.Re
 }
 
 const useVariantInput = <T extends string,>(variants: T[], api?: string): [State<T[]>, React.ReactElement] => {
-  const [selected, setSelected] = useState<T[]>([]);
-  const handleSelect = (x: T) => {
-    if (api === "Внешнее") {
-      setSelected(selected.includes(x) ? [] : [x]);
+  const [selected, setSelected] = useState<T[]>([])
+  const handleSelect = (variant: T) => {
+    if (api === 'Внешнее') {
+      setSelected([variant])
     } else {
-      setSelected(
-        selected.includes(x)
-          ? selected.filter(y => y !== x)
-          : [...selected, x]
-      );
+      if (selected.includes(variant)) {
+        setSelected(selected.filter(y => y !== variant))
+      } else {
+        setSelected([...selected, variant])
+      }
     }
-  };
-  const group = (
+  }
+  const group =
     <VariantGroup>
-      {variants.map(x =>
-        selected.includes(x) ? (
-          <PressedVariant key={x} onClick={() => handleSelect(x)}>
-            {x}
-          </PressedVariant>
-        ) : (
-          <Variant key={x} onClick={() => handleSelect(x)}>
-            {x}
-          </Variant>
+      {
+        variants.map(x =>
+          selected.includes(x)
+            ? <PressedVariant
+              key={x}
+              onClick={() => handleSelect(x)}
+            >
+              {x}
+            </PressedVariant>
+            : <Variant
+              key={x}
+              onClick={() => handleSelect(x)}
+            >
+              {x}
+            </Variant>
         )
-      )}
+      }
     </VariantGroup>
-  );
-  return [[selected, setSelected], group];
-};
+  return [[selected, setSelected], group]
+}
+
 
 
 const useOptions = <T,>(label: string, variants: T[]): [State<T[]>, React.ReactElement] => {
@@ -257,7 +263,7 @@ export default function FiltersHeader() {
       groups: types,
       agriculturals: resetAgriculturals ? [] : agriculturals.map(x => x === 'Сельхоз' ? true : false)
     })
-  }, [...price, ...area, rooms.length, ...types, types.length, agriculturals.length])
+  }, [...price, ...area, ...rooms, ...types, types.length, agriculturals.length])
   useEffect(() => {
     console.log('filters', filters)
     setPrice(filters.priceRange)
