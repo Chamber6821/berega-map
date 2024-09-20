@@ -8,7 +8,7 @@ padding: 7px 12px;
 max-width: 200px;
 text-wrap: wrap;
 overflow-wrap: break-word;
-font-size: 10px;
+font-size: 14px;
 color: #FFFFFF;
 `
 
