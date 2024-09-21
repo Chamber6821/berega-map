@@ -1,13 +1,22 @@
 import { CloseOutline, SendOutline } from "react-ionicons"
 import styled from "styled-components"
 import Logo from "../Logo"
-import { CSSProperties, useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 const Popup = styled.div`
 position: absolute;
 top: 50%;
 transform: translateY(-50%);
 margin: 10px;
+
+@media(max-width: 720px) {
+  top: auto;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  transform: none;
+  margin: 0;
+}
 `
 
 const Paper = styled.div`
@@ -17,6 +26,12 @@ position: relative;
 z-index: 9999;
 border-radius: 12px;
 border-top-right-radius: 0;
+
+@media(max-width: 720px) {
+  border-radius: 12px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
 `
 
 const CloseButton = styled.button`
@@ -32,6 +47,10 @@ justify-content: center;
 align-items: center;
 border-top-right-radius: 8px;
 border-bottom-right-radius: 8px;
+
+@media(max-width: 720px) {
+  transform: none;
+}
 `
 
 const InputGroup = styled.form`
