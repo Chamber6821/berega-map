@@ -1,21 +1,24 @@
 'use client'
 
-import { useEffect, useState } from "react"
-import { Building } from "./api/berega"
-import Cards from "./Cards"
-import { Map } from "./map"
-import Popup from "./Popup"
-import FiltersPopup from "./filters/FiltersPopup"
-import { Bounds, Marker } from "./map/Map"
-import styled from "styled-components"
-import { CaretBackOutline, CaretForwardOutline, FilterOutline } from "react-ionicons"
-import { LngLat, LngLatBounds } from "mapbox-gl"
-import HelpPopup from "./HelpPopup"
-import FiltersHeader from "./filters/FiltersHeader"
-import Polygon from "./map/Polygon"
-import { OriginType, useMarkers } from "./hooks/useMarkers"
-import FilterApi from "./filters/FilterApi"
-import { useBuildingMap } from "@/app/storages/useBuildingMap"
+import { useEffect, useState } from "react";
+import { Building } from "./api/berega";
+import Cards from "./Cards";
+import { Map } from "./map";
+import Popup from "./Popup";
+import FiltersPopup from "./filters/FiltersPopup";
+import styled from "styled-components";
+import { CaretBackOutline, CaretForwardOutline, FilterOutline } from "react-ionicons";
+import { LngLat, LngLatBounds } from "mapbox-gl";
+import HelpPopup from "./HelpPopup";
+import FiltersHeader from "./filters/FiltersHeader";
+import { OriginType, useMarkers } from "./hooks/useMarkers";
+import { Bounds, Marker } from "./map/Map";
+import { useBuildingMap } from "./storages/useBuildingMap";
+import Polygon from "./map/Polygon";
+import FilterApi from "./filters/FilterApi";
+import useAssistant from "./hooks/useAssistant";
+import AssistantChat from "./components/chat/AssitantChat";
+import { useFilters } from "./filters/useFilters";
 
 const ShowFiltersButton = styled.button`
   display: flex;
@@ -92,6 +95,7 @@ export default function Content() {
   const [showHelpPopup, setShowHelpPopup] = useState(false)
   const [showCards, setShowCards] = useState(false)
   const [showPreloader, setShowPreloader] = useState(true)
+  const [showAssistant, setShowAssistant] = useState(false)
 
   const [bounds, setBounds] = useState<Bounds>(new LngLatBounds())
   const [selectedArea, setSelectedArea] = useState<Polygon>()
@@ -107,6 +111,9 @@ export default function Content() {
   const [buildings, setBuildings] = useState<Building[]>([])
   const [hasMore, setHasMore] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
+
+  const assistant = useAssistant()
+  const filters = useFilters()
 
   const filteredBuildings = selectedArea
     ? buildings.filter(building => {
@@ -191,6 +198,8 @@ export default function Content() {
     }
   }, [origin.elements, origin.type])
 
+  useEffect(() => { filters.api !== 'Внешнее' && setShowAssistant(false) }, [filters.api])
+
   return (
     <div style={{
       display: 'flex',
@@ -211,6 +220,19 @@ export default function Content() {
           Фильтры
         </ShowFiltersButton>
       </div>
+      {
+        filters.api === 'Внешнее' &&
+        <ShowFiltersButton
+          style={{
+            position: 'absolute',
+            top: '70px',
+            left: '255px'
+          }}
+          onClick={() => setShowAssistant(!showAssistant)}
+        >
+          AI
+        </ShowFiltersButton>
+      }
       <FilterApi />
       <MapAndCards>
         <Map
@@ -271,6 +293,7 @@ export default function Content() {
         />
       }
       {showHelpPopup && <HelpPopup onClose={() => setShowHelpPopup(false)} />}
+      {showAssistant && <AssistantChat assistant={assistant} onClose={() => setShowAssistant(false)} />}
     </div>
   )
 }
