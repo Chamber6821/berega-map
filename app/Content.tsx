@@ -247,7 +247,7 @@ export default function Content() {
           </ShowCardsButton>
           {showCards && <div className="cards__wrapper" >
             {
-              popupBuildings
+              popupBuildings && popupBuildings.length > 1
                 ? <Cards
                   buildings={popupBuildings}
                   hasMore={false}
