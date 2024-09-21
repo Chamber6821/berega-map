@@ -8,7 +8,7 @@ const spin = keyframes`
   75% { transform: translate(0, 160%); }
 `;
 
-const LoaderOverlay = styled.div<>`
+const LoaderOverlay = styled.div`
   position: absolute;
   top: 0;
   left: 0;
