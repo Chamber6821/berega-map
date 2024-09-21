@@ -226,7 +226,7 @@ export default function Content() {
           style={{
             position: 'absolute',
             top: '70px',
-            right: '255px'
+            left: '255px'
           }}
           onClick={() => setShowAssistant(!showAssistant)}
         >
