@@ -183,7 +183,11 @@ const useVariantInput = <T extends string,>(variants: T[], api?: string): [State
   const [selected, setSelected] = useState<T[]>([])
   const handleSelect = (variant: T) => {
     if (api === 'Внешнее') {
-      setSelected([variant])
+      if (selected.includes(variant)) {
+        setSelected([])
+      } else {
+        setSelected([variant])
+      }
     } else {
       if (selected.includes(variant)) {
         setSelected(selected.filter(y => y !== variant))

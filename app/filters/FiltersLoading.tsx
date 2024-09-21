@@ -1,5 +1,5 @@
 import React from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 
 const spin = keyframes`
   0%, 100% { transform: translate(0); }
@@ -8,18 +8,17 @@ const spin = keyframes`
   75% { transform: translate(0, 160%); }
 `;
 
-const LoaderOverlay = styled.div`
+const LoaderOverlay = styled.div<>`
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(255, 255, 255, 0.6);
   z-index: 2000;
   display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: all;
+  pointer-events: none;
 `;
 
 const LoaderContainer = styled.div`
@@ -51,4 +50,4 @@ export default function FiltersLoading() {
       </LoaderContainer>
     </LoaderOverlay>
   );
-};
+}

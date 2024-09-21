@@ -215,7 +215,7 @@ export default function Content() {
         </ShowFiltersButton>
       </div>
       <FilterApi />
-      {showFilterLoading && <FiltersLoading/>}
+      {showFilterLoading && <FiltersLoading />}
       <MapAndCards>
         <Map
           center={mapCenter}
