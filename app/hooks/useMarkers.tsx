@@ -38,11 +38,11 @@ export type OriginType = {
 export const useMarkers = (zoom: number, mapCenter: [number, number]): {
   markers: Marker[],
   origin: OriginType,
-  isLoading: boolean
+  isLoadingFilters: boolean
 } => {
   const filters = useFilters()
 
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingFilters, setIsLoadingFilters] = useState(false)
 
   const points = usePoints(x => x.points)
   const parserMarkers = points.map((x): Marker => ({
@@ -76,25 +76,25 @@ export const useMarkers = (zoom: number, mapCenter: [number, number]): {
 
   useEffect(() => {
     filters.api === 'Внешнее' && zoom >= 11 && (async () => {
-      setIsLoading(true)
+      setIsLoadingFilters(true)
       await updatePoints(filters, mapCenter)
-      setIsLoading(false)
+      setIsLoadingFilters(false)
     })()
   }, [updatePoints, filters, mapCenter, zoom])
 
   useEffect(() => {
     filters.api === 'Внешнее' && (async () => {
-      setIsLoading(true)
+      setIsLoadingFilters(true)
       await updateClusters(filters)
-      setIsLoading(false)
+      setIsLoadingFilters(false)
     })()
   }, [updateClusters, filters])
 
   useEffect(() => {
     filters.api === 'Встроенное' && (async () => {
-      setIsLoading(true)
+      setIsLoadingFilters(true)
       await updateBeregaBuildings(filterOf(filters))
-      setIsLoading(false)
+      setIsLoadingFilters(false)
     })()
   }, [updateBeregaBuildings, filters])
 
@@ -103,19 +103,19 @@ export const useMarkers = (zoom: number, mapCenter: [number, number]): {
       return {
         markers: beregaMarkers,
         origin: { type: 'Berega', elements: buildings },
-        isLoading
+        isLoadingFilters
       }
     case "Points":
       return {
         markers: parserMarkers,
         origin: { type: 'Points', elements: points },
-        isLoading
+        isLoadingFilters
       }
     case "Clusters":
       return {
         markers: clusterMarkers,
         origin: { type: 'Clusters', elements: clusters },
-        isLoading
+        isLoadingFilters
       }
   }
 }
