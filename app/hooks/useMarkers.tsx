@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useEffect } from "react"
+import {useMemo, useEffect, useState} from "react"
 import { Building } from "../api/berega"
 import { PointsTypeOpenApi, PointsCountTypeOpenApi } from "../api/openApi"
 import { FilterGroup, FilterApi, useFilters, filterOf } from "../filters/useFilters"
@@ -35,11 +35,14 @@ export type OriginType = {
 }
 
 
-export const useMarkers = (zoom: number, mapCenter: [number, number], setShowFilterLoading: (loading: boolean) => void): {
-  markers: Marker[]
-  origin: OriginType
+export const useMarkers = (zoom: number, mapCenter: [number, number]): {
+  markers: Marker[],
+  origin: OriginType,
+  isLoading: boolean
 } => {
   const filters = useFilters()
+
+  const [isLoading, setIsLoading] = useState(false)
 
   const points = usePoints(x => x.points)
   const parserMarkers = points.map((x): Marker => ({
@@ -73,41 +76,46 @@ export const useMarkers = (zoom: number, mapCenter: [number, number], setShowFil
 
   useEffect(() => {
     filters.api === 'Внешнее' && zoom >= 11 && (async () => {
-      setShowFilterLoading(true)
+      setIsLoading(true)
       await updatePoints(filters, mapCenter)
-      setShowFilterLoading(false)
+      setIsLoading(false)
     })()
   }, [updatePoints, filters, mapCenter, zoom])
 
   useEffect(() => {
     filters.api === 'Внешнее' && (async () => {
-      setShowFilterLoading(true)
+      setIsLoading(true)
       await updateClusters(filters)
-      setShowFilterLoading(false)
+      setIsLoading(false)
     })()
   }, [updateClusters, filters])
 
   useEffect(() => {
     filters.api === 'Встроенное' && (async () => {
-      setShowFilterLoading(true);
+      setIsLoading(true)
       await updateBeregaBuildings(filterOf(filters))
-      setShowFilterLoading(false);
+      setIsLoading(false)
     })()
   }, [updateBeregaBuildings, filters])
 
   switch (originType(zoom, filters.api)) {
-    case "Berega": return {
-      markers: beregaMarkers,
-      origin: { type: 'Berega', elements: buildings }
-    }
-    case "Points": return {
-      markers: parserMarkers,
-      origin: { type: 'Points', elements: points }
-    }
-    case "Clusters": return {
-      markers: clusterMarkers,
-      origin: { type: 'Clusters', elements: clusters }
-    }
+    case "Berega":
+      return {
+        markers: beregaMarkers,
+        origin: { type: 'Berega', elements: buildings },
+        isLoading
+      }
+    case "Points":
+      return {
+        markers: parserMarkers,
+        origin: { type: 'Points', elements: points },
+        isLoading
+      }
+    case "Clusters":
+      return {
+        markers: clusterMarkers,
+        origin: { type: 'Clusters', elements: clusters },
+        isLoading
+      }
   }
 }
-

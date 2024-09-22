@@ -94,7 +94,6 @@ export default function Content() {
   const [showHelpPopup, setShowHelpPopup] = useState(false)
   const [showCards, setShowCards] = useState(false)
   const [showPreloader, setShowPreloader] = useState(true)
-  const [showFilterLoading, setShowFilterLoading] = useState(false);
 
   const [bounds, setBounds] = useState<Bounds>(new LngLatBounds())
   const [selectedArea, setSelectedArea] = useState<Polygon>()
@@ -102,7 +101,7 @@ export default function Content() {
   const [mapCenter, setMapCenter] = useState<[number, number]>([41.65, 41.65])
   const [zoom, setZoom] = useState(10)
 
-  const { markers, origin } = useMarkers(zoom, mapCenter, setShowFilterLoading);
+  const { markers, origin , isLoadingFilters } = useMarkers(zoom, mapCenter);
 
   const [popupBuildings, setPopupBuildings] = useState<Building[]>()
   const [selectedMarkers, setSelectedMarkers] = useState<Marker[]>([])
@@ -215,7 +214,7 @@ export default function Content() {
         </ShowFiltersButton>
       </div>
       <FilterApi />
-      {showFilterLoading && <FiltersLoading />}
+      {isLoadingFilters && <FiltersLoading />}
       <MapAndCards>
         <Map
           center={mapCenter}
