@@ -25,6 +25,10 @@ const LoaderContainer = styled.div`
   position: relative;
   width: 100px;
   height: 100px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
 `;
 
 const LoaderBar = styled.hr<{ delay: string; backgroundColor: string }>`
