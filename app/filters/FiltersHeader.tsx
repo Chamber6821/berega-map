@@ -183,17 +183,9 @@ const useVariantInput = <T extends string,>(variants: T[], api?: string): [State
   const [selected, setSelected] = useState<T[]>([])
   const handleSelect = (variant: T) => {
     if (api === 'Внешнее') {
-      if (selected.includes(variant)) {
-        setSelected([])
-      } else {
-        setSelected([variant])
-      }
+      selected.includes(variant) ? setSelected([]) : setSelected([variant])
     } else {
-      if (selected.includes(variant)) {
-        setSelected(selected.filter(y => y !== variant))
-      } else {
-        setSelected([...selected, variant])
-      }
+      selected.includes(variant) ? setSelected(selected.filter(y => y !== variant)) : setSelected([...selected, variant])
     }
   }
   const group =
@@ -218,8 +210,6 @@ const useVariantInput = <T extends string,>(variants: T[], api?: string): [State
     </VariantGroup>
   return [[selected, setSelected], group]
 }
-
-
 
 const useOptions = <T,>(label: string, variants: T[]): [State<T[]>, React.ReactElement] => {
   const [opened, setOpened] = useState(false)

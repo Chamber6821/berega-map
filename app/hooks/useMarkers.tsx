@@ -38,11 +38,11 @@ export type OriginType = {
 export const useMarkers = (zoom: number, mapCenter: [number, number]): {
   markers: Marker[],
   origin: OriginType,
-  isLoadingFilters: boolean
+  loading: boolean
 } => {
   const filters = useFilters()
 
-  const [isLoadingFilters, setIsLoadingFilters] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const points = usePoints(x => x.points)
   const parserMarkers = points.map((x): Marker => ({
@@ -76,25 +76,25 @@ export const useMarkers = (zoom: number, mapCenter: [number, number]): {
 
   useEffect(() => {
     filters.api === 'Внешнее' && zoom >= 11 && (async () => {
-      setIsLoadingFilters(true)
+      setLoading(true)
       await updatePoints(filters, mapCenter)
-      setIsLoadingFilters(false)
+      setLoading(false)
     })()
   }, [updatePoints, filters, mapCenter, zoom])
 
   useEffect(() => {
     filters.api === 'Внешнее' && (async () => {
-      setIsLoadingFilters(true)
+      setLoading(true)
       await updateClusters(filters)
-      setIsLoadingFilters(false)
+      setLoading(false)
     })()
   }, [updateClusters, filters])
 
   useEffect(() => {
     filters.api === 'Встроенное' && (async () => {
-      setIsLoadingFilters(true)
+      setLoading(true)
       await updateBeregaBuildings(filterOf(filters))
-      setIsLoadingFilters(false)
+      setLoading(false)
     })()
   }, [updateBeregaBuildings, filters])
 
@@ -103,19 +103,19 @@ export const useMarkers = (zoom: number, mapCenter: [number, number]): {
       return {
         markers: beregaMarkers,
         origin: { type: 'Berega', elements: buildings },
-        isLoadingFilters
+        loading
       }
     case "Points":
       return {
         markers: parserMarkers,
         origin: { type: 'Points', elements: points },
-        isLoadingFilters
+        loading
       }
     case "Clusters":
       return {
         markers: clusterMarkers,
         origin: { type: 'Clusters', elements: clusters },
-        isLoadingFilters
+        loading
       }
   }
 }

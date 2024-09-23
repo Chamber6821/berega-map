@@ -101,7 +101,7 @@ export default function Content() {
   const [mapCenter, setMapCenter] = useState<[number, number]>([41.65, 41.65])
   const [zoom, setZoom] = useState(10)
 
-  const { markers, origin , isLoadingFilters } = useMarkers(zoom, mapCenter);
+  const { markers, origin , loading } = useMarkers(zoom, mapCenter);
 
   const [popupBuildings, setPopupBuildings] = useState<Building[]>()
   const [selectedMarkers, setSelectedMarkers] = useState<Marker[]>([])
@@ -214,7 +214,7 @@ export default function Content() {
         </ShowFiltersButton>
       </div>
       <FilterApi />
-      {isLoadingFilters && <FiltersLoading />}
+      {loading && <FiltersLoading />}
       <MapAndCards>
         <Map
           center={mapCenter}
