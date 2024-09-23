@@ -127,6 +127,12 @@ const useRangeInput = (): [State<Range>, React.ReactElement] => {
   }], group]
 }
 
+const useVariantInputWithApiOptions = <T extends string,>(variants: T[], api?: string): [State<T[]>, React.ReactElement] => {
+  const [[selected, setSelected], Input] = useVariantInput(variants)
+  useEffect(() => { api === 'Внешнее' && selected.length > 1 && setSelected(selected.splice(-1)) }, [selected, setSelected])
+  return [[selected, setSelected], Input];
+}
+
 const useVariantInput = <T extends string,>(variants: T[], api?: string): [State<T[]>, React.ReactElement] => {
   const [selected, setSelected] = useState<T[]>([])
   useEffect(() => { api === 'Внешнее' && selected.length > 1 && setSelected(selected.splice(-1)) }, [selected, setSelected])
@@ -196,7 +202,7 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
   const [[country, setCountry], CountryInput] = useInputText()
   const [[city, setCity], CityInput] = useInputText()
   const [[group, setGroup], GroupInput] = useSingleVariantInput([...FilterGroups])
-  const [[rooms, setRooms], RoomsInput] = useVariantInput(filters.api === 'Внешнее' ?
+  const [[rooms, setRooms], RoomsInput] = useVariantInputWithApiOptions(filters.api === 'Внешнее' ?
     FilterRooms.filter(x => x !== 'Студия') : [...FilterRooms], filters.api)
   const [[status, setStatus], StatusInput] = useVariantInput([...FilterStatuses])
   const [[frame, setFrame], FrameInput] = useVariantInput([...FilterFrames])
