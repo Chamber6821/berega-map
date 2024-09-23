@@ -186,7 +186,7 @@ const useVariantInput = <T extends string,>(variants: T[], api?: string): [State
     <VariantGroup>
       {
         variants.map(x =>
-          selected?.includes(x)
+          selected.includes(x)
             ? <PressedVariant
               key={x}
               onClick={() => setSelected(selected.filter(y => y !== x))}
