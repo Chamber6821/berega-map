@@ -181,27 +181,21 @@ const useRangeInput = (prefix: string, postfix: string): [State<Range>, React.Re
 
 const useVariantInput = <T extends string,>(variants: T[], api?: string): [State<T[]>, React.ReactElement] => {
   const [selected, setSelected] = useState<T[]>([])
-  const handleSelect = (variant: T) => {
-    if (api === 'Внешнее') {
-      selected.includes(variant) ? setSelected([]) : setSelected([variant])
-    } else {
-      selected.includes(variant) ? setSelected(selected.filter(y => y !== variant)) : setSelected([...selected, variant])
-    }
-  }
+  useEffect(() => { api === 'Внешнее' && selected.length > 1 && setSelected(selected.splice(-1)) }, [selected, setSelected])
   const group =
     <VariantGroup>
       {
         variants.map(x =>
-          selected.includes(x)
+          selected?.includes(x)
             ? <PressedVariant
               key={x}
-              onClick={() => handleSelect(x)}
+              onClick={() => setSelected(selected.filter(y => y !== x))}
             >
               {x}
             </PressedVariant>
             : <Variant
               key={x}
-              onClick={() => handleSelect(x)}
+              onClick={() => setSelected([...selected, x])}
             >
               {x}
             </Variant>
@@ -257,7 +251,7 @@ export default function FiltersHeader() {
       groups: types,
       agriculturals: resetAgriculturals ? [] : agriculturals.map(x => x === 'Сельхоз' ? true : false)
     })
-  }, [...price, ...area, ...rooms, ...types, types.length, agriculturals.length])
+  }, [...price, ...area, rooms.length, ...types, types.length, agriculturals.length])
   useEffect(() => {
     console.log('filters', filters)
     setPrice(filters.priceRange)

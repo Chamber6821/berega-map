@@ -127,8 +127,9 @@ const useRangeInput = (): [State<Range>, React.ReactElement] => {
   }], group]
 }
 
-const useVariantInput = <T extends string,>(variants: T[]): [State<T[]>, React.ReactElement] => {
+const useVariantInput = <T extends string,>(variants: T[], api?: string): [State<T[]>, React.ReactElement] => {
   const [selected, setSelected] = useState<T[]>([])
+  useEffect(() => { api === 'Внешнее' && selected.length > 1 && setSelected(selected.splice(-1)) }, [selected, setSelected])
   const group =
     <div className="input-container">
       <InputGroup>
@@ -191,10 +192,12 @@ const monthAgo = (n: number = 1) => {
 }
 
 export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => void }) {
+  const filters = useFilters()
   const [[country, setCountry], CountryInput] = useInputText()
   const [[city, setCity], CityInput] = useInputText()
   const [[group, setGroup], GroupInput] = useSingleVariantInput([...FilterGroups])
-  const [[rooms, setRooms], RoomsInput] = useVariantInput([...FilterRooms])
+  const [[rooms, setRooms], RoomsInput] = useVariantInput(filters.api === 'Внешнее' ?
+    FilterRooms.filter(x => x !== 'Студия') : [...FilterRooms], filters.api)
   const [[status, setStatus], StatusInput] = useVariantInput([...FilterStatuses])
   const [[frame, setFrame], FrameInput] = useVariantInput([...FilterFrames])
   const [[agricultures, setAgricultures], AgriculturesInput] = useVariantInput(['Сельхоз', 'Не сельхоз'])
@@ -203,11 +206,10 @@ export default function FiltersPopup({ onClose = () => { } }: { onClose?: () => 
   const [[floorRange, setFloor], FloorInput] = useRangeInput()
   const [[areaRange, setArea], AreaInput] = useRangeInput()
   const [showAllFilters, setShowAllFilters] = useState(false)
-  const filters = useFilters()
   const resetRooms = groupArrayOf(['Дома, коттеджи', 'Зем. участки', 'Коммерческая']).includes(group)
   const resetStatus = groupArrayOf(['Зем. участки']).includes(group)
   const resetFrame = groupArrayOf(['Зем. участки']).includes(group)
-  const resetAgricultures = group == 'Зем. участки'
+  const resetAgricultures = group != 'Зем. участки'
   const resetFloor = groupArrayOf(['Дома, коттеджи', 'Зем. участки']).includes(group)
   const handleClose = () => {
     setShowAllFilters(false)
