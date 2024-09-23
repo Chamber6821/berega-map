@@ -179,6 +179,11 @@ const useRangeInput = (prefix: string, postfix: string): [State<Range>, React.Re
   }], group]
 }
 
+const useVariantInputWithApiOptions = <T extends string,>(variants: T[], api?: string): [State<T[]>, React.ReactElement] => {
+  const [[selected, setSelected], Input] = useVariantInput(variants)
+  useEffect(() => { api === 'Внешнее' && selected.length > 1 && setSelected(selected.splice(-1)) }, [selected, setSelected])
+  return [[selected, setSelected], Input];
+}
 const useVariantInput = <T extends string,>(variants: T[]): [State<T[]>, React.ReactElement] => {
   const [selected, setSelected] = useState<T[]>([])
   const group =
@@ -237,7 +242,7 @@ export default function FiltersHeader() {
   const filters = useFilters()
   const [[price, setPrice], PriceInput] = useRangeInput('Цена', '$')
   const [[area, setArea], AreaInput] = useRangeInput('Площадь', 'м²')
-  const [[rooms, setRooms], RoomsInput] = useVariantInput([...FilterRooms])
+  const [[rooms, setRooms], RoomsInput] = useVariantInputWithApiOptions(filters.api === 'Внешнее' ? FilterRooms.filter(x => x !== 'Студия') : FilterRooms, filters.api);
   const [[types, setTypes], TypesInput] = useOptions('Тип недвижимости', [...FilterGroups])
   const [[agriculturals, setAgriculturals], AgriculturalsInput] = useVariantInput(['Сельхоз', 'Не сельхоз'] as const)
   useEffect(() => {

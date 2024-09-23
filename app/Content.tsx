@@ -8,6 +8,7 @@ import Popup from "./Popup"
 import FiltersPopup from "./filters/FiltersPopup"
 import { Bounds, Marker } from "./map/Map"
 import styled from "styled-components"
+import {useFilters} from "./filters/useFilters";
 import { CaretBackOutline, CaretForwardOutline, FilterOutline } from "react-ionicons"
 import { LngLat, LngLatBounds } from "mapbox-gl"
 import HelpPopup from "./HelpPopup"
@@ -16,6 +17,7 @@ import Polygon from "./map/Polygon"
 import { OriginType, useMarkers } from "./hooks/useMarkers"
 import FilterApi from "./filters/FilterApi"
 import { useBuildingMap } from "@/app/storages/useBuildingMap"
+import FiltersLoading from "./filters/FiltersLoading";
 
 const ShowFiltersButton = styled.button`
   display: flex;
@@ -99,7 +101,7 @@ export default function Content() {
   const [mapCenter, setMapCenter] = useState<[number, number]>([41.65, 41.65])
   const [zoom, setZoom] = useState(10)
 
-  const { markers, origin } = useMarkers(zoom, mapCenter)
+  const { markers, origin , loading } = useMarkers(zoom, mapCenter);
 
   const [popupBuildings, setPopupBuildings] = useState<Building[]>()
   const [selectedMarkers, setSelectedMarkers] = useState<Marker[]>([])
@@ -212,6 +214,7 @@ export default function Content() {
         </ShowFiltersButton>
       </div>
       <FilterApi />
+      {loading && <FiltersLoading />}
       <MapAndCards>
         <Map
           center={mapCenter}

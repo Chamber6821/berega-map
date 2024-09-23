@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useEffect } from "react"
+import {useMemo, useEffect, useState} from "react"
 import { Building } from "../api/berega"
 import { PointsTypeOpenApi, PointsCountTypeOpenApi } from "../api/openApi"
 import { FilterGroup, FilterApi, useFilters, filterOf } from "../filters/useFilters"
@@ -36,10 +36,13 @@ export type OriginType = {
 
 
 export const useMarkers = (zoom: number, mapCenter: [number, number]): {
-  markers: Marker[]
-  origin: OriginType
+  markers: Marker[],
+  origin: OriginType,
+  loading: boolean
 } => {
   const filters = useFilters()
+
+  const [loading, setLoading] = useState(false)
 
   const points = usePoints(x => x.points)
   const parserMarkers = points.map((x): Marker => ({
@@ -72,30 +75,47 @@ export const useMarkers = (zoom: number, mapCenter: [number, number]): {
   const updateBeregaBuildings = useBuildings(x => x.loadFromBerega)
 
   useEffect(() => {
-    filters.api === 'Внешнее' && zoom >= 11 && updatePoints(filters, mapCenter)
+    filters.api === 'Внешнее' && zoom >= 11 && (async () => {
+      setLoading(true)
+      await updatePoints(filters, mapCenter)
+      setLoading(false)
+    })()
   }, [updatePoints, filters, mapCenter, zoom])
 
   useEffect(() => {
-    filters.api === 'Внешнее' && updateClusters(filters)
+    filters.api === 'Внешнее' && (async () => {
+      setLoading(true)
+      await updateClusters(filters)
+      setLoading(false)
+    })()
   }, [updateClusters, filters])
 
   useEffect(() => {
-    filters.api === 'Встроенное' && updateBeregaBuildings(filterOf(filters))
+    filters.api === 'Встроенное' && (async () => {
+      setLoading(true)
+      await updateBeregaBuildings(filterOf(filters))
+      setLoading(false)
+    })()
   }, [updateBeregaBuildings, filters])
 
   switch (originType(zoom, filters.api)) {
-    case "Berega": return {
-      markers: beregaMarkers,
-      origin: { type: 'Berega', elements: buildings }
-    }
-    case "Points": return {
-      markers: parserMarkers,
-      origin: { type: 'Points', elements: points }
-    }
-    case "Clusters": return {
-      markers: clusterMarkers,
-      origin: { type: 'Clusters', elements: clusters }
-    }
+    case "Berega":
+      return {
+        markers: beregaMarkers,
+        origin: { type: 'Berega', elements: buildings },
+        loading
+      }
+    case "Points":
+      return {
+        markers: parserMarkers,
+        origin: { type: 'Points', elements: points },
+        loading
+      }
+    case "Clusters":
+      return {
+        markers: clusterMarkers,
+        origin: { type: 'Clusters', elements: clusters },
+        loading
+      }
   }
 }
-
