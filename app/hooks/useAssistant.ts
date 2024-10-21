@@ -19,7 +19,7 @@ export default function useAssistant(): AssistantType {
     setDialog(x => [...x, { author: 'user', text: message }])
     setLoading(true)
     try {
-      const response = await fetch('http://198.199.64.195:7771/filter_data', {
+      const response = await fetch('https://berega.city/filter_data', {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
