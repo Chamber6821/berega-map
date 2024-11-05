@@ -33,7 +33,8 @@ export type Filters = {
   priceRange: Range,
   floorRange: Range,
   areaRange: Range,
-  api: FilterApi
+  api: FilterApi,
+  searchParams?: URLSearchParams
 }
 
 const matchByVariants = <T,>(variants: T[], value?: T) => variants.length === 0 || value !== undefined && variants.includes(value)

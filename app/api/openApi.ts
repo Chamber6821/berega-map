@@ -142,6 +142,8 @@ const urlForFilteredPoints = (
     page: '0',
     size: size.toString(),
   });
+  if (filters.searchParams)
+    return `${baseOpenApiUrl()}/filter?${params}&${filters.searchParams}`;
   if (filters.priceRange[0]) params.append('minPriceUsd', filters.priceRange[0].toString());
   if (filters.priceRange[1]) params.append('maxPriceUsd', filters.priceRange[1].toString());
   if (filters.areaRange[0]) params.append('minArea', filters.areaRange[0].toString());

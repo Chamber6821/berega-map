@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
+import { useFilters } from "../filters/useFilters"
 
 export type MessageType = {
   author: 'user' | 'bot',
@@ -14,6 +15,7 @@ export type AssistantType = {
 export default function useAssistant(): AssistantType {
   const [dialog, setDialog] = useState<MessageType[]>([])
   const [loading, setLoading] = useState(false)
+  const setFilters = useFilters(x => x.set)
 
   const ask = useCallback(async (message: string) => {
     setDialog(x => [...x, { author: 'user', text: message }])
@@ -33,6 +35,8 @@ export default function useAssistant(): AssistantType {
       })
       const answer = await response.json()
       setDialog(x => [...x, { author: 'bot' as const, text: answer.text }])
+      if (answer.request_params) setFilters({ searchParams: new URLSearchParams(answer.request_params) })
+      else setFilters({ searchParams: undefined })
     } finally {
       setLoading(false)
     }
