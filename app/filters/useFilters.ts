@@ -33,7 +33,9 @@ export type Filters = {
   priceRange: Range,
   floorRange: Range,
   areaRange: Range,
-  api: FilterApi
+  api: FilterApi,
+  searchParams?: URLSearchParams,
+  parse: (query: URLSearchParams) => void
 }
 
 const matchByVariants = <T,>(variants: T[], value?: T) => variants.length === 0 || value !== undefined && variants.includes(value)
@@ -69,4 +71,24 @@ export const useFilters = create<Filters & {
   areaRange: [undefined, undefined],
   api: 'Встроенное',
   set,
+  parse: query => {
+    const chain = <F, T>(x: F | undefined | null, m: (x: F) => T): T | undefined => x ? m(x) : undefined
+    set({
+      priceRange: [chain(query.get('minPriceUsd'), Number), chain(query.get('maxPriceUsd'), Number)],
+      areaRange: [chain(query.get('minArea'), Number), chain(query.get('maxArea'), Number)],
+      floorRange: [chain(query.get('minFloor'), Number), chain(query.get('maxFloor'), Number)],
+      rooms: query.getAll('rooms'),
+      groups: query.getAll('houseStatus')
+        .map(x => ((<Record<string, FilterGroup | undefined>>{
+          'New building': 'Новостройки',
+          'Old building': 'Вторичное жилье',
+          'Finished': 'Дома, коттеджи',
+          'Investment / for construction': 'Зем. участки',
+          'Commercial': 'Коммерческая',
+        })[x]))
+        .filter(x => x !== undefined),
+      frame: query.get('frame')?.split(',') || [],
+      createdAfter: chain(query.get('startPostDate'), x => new Date(x))
+    })
+  }
 }))
