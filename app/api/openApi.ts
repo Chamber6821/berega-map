@@ -1,5 +1,5 @@
 import { Building, DescriptionLine } from "./berega";
-import { FilterGroup, Filters } from "../filters/useFilters";
+import { FilterGroup, Filters, FilterStatus } from "../filters/useFilters";
 
 export type PointsTypeOpenApi = {
   id: string;
@@ -78,14 +78,14 @@ export type BuildingTypeOpenApi = {
 
 const baseOpenApiUrl = () => "https://berega.tech/api/real-estate";
 
-const radiusKm =  10;
+const radiusKm = 10;
 
 const popularPlaces = [
-  {centerLatitude: 41.7151, centerLongitude: 44.8271}, // Тбилиси
-  {centerLatitude: 42.2679, centerLongitude: 42.6946}, // Кутаиси
-  {centerLatitude: 41.6168, centerLongitude: 41.6367}, // Батуми
-  {centerLatitude: 41.5400, centerLongitude: 45.0000}, // Рустави
-  {centerLatitude: 42.5088, centerLongitude: 41.8709}  // Зугдиди
+  { centerLatitude: 41.7151, centerLongitude: 44.8271 }, // Тбилиси
+  { centerLatitude: 42.2679, centerLongitude: 42.6946 }, // Кутаиси
+  { centerLatitude: 41.6168, centerLongitude: 41.6367 }, // Батуми
+  { centerLatitude: 41.5400, centerLongitude: 45.0000 }, // Рустави
+  { centerLatitude: 42.5088, centerLongitude: 41.8709 }  // Зугдиди
 ]
 
 export const convertBuilding = async (building: BuildingTypeOpenApi): Promise<Building> => {
@@ -130,116 +130,70 @@ export const convertBuilding = async (building: BuildingTypeOpenApi): Promise<Bu
   };
 }
 
+const filtersAsQuery = (filters: Filters): URLSearchParams => {
+  if (filters.searchParams)
+    return filters.searchParams
+  return new URLSearchParams(([
+    ['minPriceUsd', filters.priceRange[0]],
+    ['maxPriceUsd', filters.priceRange[1]],
+    ['minArea', filters.areaRange[0]],
+    ['maxArea', filters.areaRange[1]],
+    ['minFloor', filters.floorRange[0]],
+    ['maxFloor', filters.floorRange[1]],
+    ...filters.rooms.map(x => ['rooms', x]),
+    ...filters.groups.map(x => (<Record<FilterGroup, string>>{
+      'Новостройки': 'New building',
+      'Вторичное жилье': 'Old building',
+      'Дома, коттеджи': 'Finished',
+      'Зем. участки': 'Investment / for construction',
+      'Коммерческая': 'Commercial',
+    })[x]).map(x => ['houseStatus', x]),
+    ...filters.status.map(x => (<Record<FilterStatus, string>>{
+      'Новостройки': 'New building',
+      'Вторичное жилье': 'Old building',
+    })[x]).map(x => ['houseStatus', x]),
+    ['frame', filters.frame.join(',')],
+    ['createdAfter', filters.createdAfter && new Date(filters.createdAfter).toISOString().replace('Z', '+04:00')]
+  ] as const)
+    .filter(x => x[1])
+    .map(x => [x[0], `${x[1]}`])
+  )
+}
+
 const urlForFilteredPoints = (
   center: [number, number],
   size: number,
   filters: Filters
-) => {
-  const params = new URLSearchParams({
+) =>
+  `${baseOpenApiUrl()}/filter?${new URLSearchParams({
     centerLatitude: center[1].toString(),
     centerLongitude: center[0].toString(),
     radiusKm: radiusKm.toString(),
     page: '0',
     size: size.toString(),
-  });
-  if (filters.searchParams)
-    return `${baseOpenApiUrl()}/filter?${params}&${filters.searchParams}`;
-  if (filters.priceRange[0]) params.append('minPriceUsd', filters.priceRange[0].toString());
-  if (filters.priceRange[1]) params.append('maxPriceUsd', filters.priceRange[1].toString());
-  if (filters.areaRange[0]) params.append('minArea', filters.areaRange[0].toString());
-  if (filters.areaRange[1]) params.append('maxArea', filters.areaRange[1].toString());
-  if (filters.floorRange[0]) params.append('minFloor', filters.floorRange[0].toString());
-  if (filters.floorRange[1]) params.append('maxFloor', filters.floorRange[1].toString());
-  if (filters.rooms.length > 0) {
-    filters.rooms.map((item) => {
-      params.append('rooms', item.toString());
-    })
-  }
-  if (filters.groups.includes('Новостройки') || filters.status.includes('Новостройки')) {
-    params.append('houseStatus', 'New building');
-  }
-  if (filters.groups.includes('Вторичное жилье') || filters.status.includes('Вторичное жильё')) {
-    params.append('houseStatus', 'Old building');
-  }
-  if (filters.groups.includes('Дома, коттеджи')) {
-    params.append('houseStatus', 'Finished');
-  }
-  if (filters.groups.includes('Зем. участки')) {
-    params.append('houseStatus', 'Investment / for construction');
-  }
-  if (filters.groups.includes('Коммерческая')) {
-    params.append('houseStatus', 'Commercial');
-  }
-  if (filters.frame.length > 0) params.append('frame', filters.frame.join(','));
-  if (filters.createdAfter) {
-    params.append('startPostDate', new Date(filters.createdAfter).toISOString().replace('Z', '+04:00'));
-  }
-  return `${baseOpenApiUrl()}/filter?${params.toString()}`;
-};
+  })}&${filtersAsQuery(filters)}`
 
 export const fetchPointsCounter = async (
   filters: Filters
-): Promise<PointsCountTypeOpenApi[]>  => {
-  const params = new URLSearchParams({
-    radiusKm: '5',
-  });
-  const houseStatus: string[] = [];
-  if (filters.priceRange[0]) params.append('minPriceUsd', filters.priceRange[0].toString());
-  if (filters.priceRange[1]) params.append('maxPriceUsd', filters.priceRange[1].toString());
-  if (filters.areaRange[0]) params.append('minArea', filters.areaRange[0].toString());
-  if (filters.areaRange[1]) params.append('maxArea', filters.areaRange[1].toString());
-  if (filters.floorRange[0]) params.append('minFloor', filters.floorRange[0].toString());
-  if (filters.floorRange[1]) params.append('maxFloor', filters.floorRange[1].toString());
-  if (filters.rooms.length > 0) {
-    filters.rooms.forEach((room) => {
-      params.append('rooms', room.toString());
-    });
-  }
-  if (filters.groups.includes('Новостройки') || filters.status.includes('Новостройки')) {
-    params.append('houseStatus', 'New building');
-    houseStatus.push('Новостройки');
-  }
-  if (filters.groups.includes('Вторичное жилье') || filters.status.includes('Вторичное жильё')) {
-    params.append('houseStatus', 'Old building');
-    houseStatus.push('Вторичное жилье');
-  }
-  if (filters.groups.includes('Дома, коттеджи')) {
-    params.append('houseStatus', 'Finished');
-    houseStatus.push('Дома, коттеджи');
-  }
-  if (filters.groups.includes('Зем. участки')) {
-    params.append('houseStatus', 'Investment / for construction');
-    houseStatus.push('Зем. участки');
-  }
-  if (filters.groups.includes('Коммерческая')) {
-    params.append('houseStatus', 'Commercial');
-    houseStatus.push('Коммерческая');
-  }
-  if (filters.frame.length > 0) {
-    params.append('frame', filters.frame.join(','));
-  }
-  if (filters.createdAfter) {
-    params.append('startPostDate', new Date(filters.createdAfter).toISOString().replace('Z', '+04:00'));
-  }
-  const fetchPromises = popularPlaces.map(async (place) => {
-    const centerParams = new URLSearchParams(params.toString());
-    centerParams.append('centerLatitude', place.centerLatitude.toString());
-    centerParams.append('centerLongitude', place.centerLongitude.toString());
-    const response = await fetch(`${baseOpenApiUrl()}/count?${centerParams.toString()}`, { cache: 'no-store' });
-    const data: number = await response.json();
-    if (data > 0) {
-      return {
-        counter: data,
-        latitude: place.centerLatitude,
-        longitude: place.centerLongitude,
-        houseStatus: houseStatus[0],
-      } as PointsCountTypeOpenApi;
+): Promise<PointsCountTypeOpenApi[]> => {
+  const houseStatus = [...filters.groups, ...filters.status]
+  const params = filtersAsQuery(filters)
+  return (await Promise.all(popularPlaces.map(async place =>
+    <PointsCountTypeOpenApi>{
+      counter: await (
+        await fetch(
+          `${baseOpenApiUrl()}/count?${new URLSearchParams({
+            centerLatitude: place.centerLatitude.toString(),
+            centerLongitude: place.centerLongitude.toString()
+          })}&${new URLSearchParams({ radiusKm: '5' })}&${params}`,
+          { cache: 'no-store' }
+        )
+      ).json(),
+      latitude: place.centerLatitude,
+      longitude: place.centerLongitude,
+      houseStatus: houseStatus[0],
     }
-    return null;
-  });
-  const results = await Promise.all(fetchPromises);
-  const pointsCount = results.filter((result) => result !== null) as PointsCountTypeOpenApi[];
-  return pointsCount;
+  ))).filter(x => x.counter > 0)
 }
 
 export const fetchFilteredPoints = async (
@@ -249,7 +203,7 @@ export const fetchFilteredPoints = async (
 ): Promise<PointsTypeOpenApi[]> => {
   const url = urlForFilteredPoints(center, size, filters);
   const response = await fetch(url, { cache: 'no-store' });
-  const points : PointsTypeOpenApi[] = await response.json();
+  const points: PointsTypeOpenApi[] = await response.json();
   return points.map((point) => {
     const houseStatus = filters.groups[0];
     return {
@@ -263,6 +217,6 @@ export const fetchBuildingById = async (id: string): Promise<BuildingTypeOpenApi
   return (await fetch(`${baseOpenApiUrl()}/${id}`, { cache: 'no-store' })).json();
 };
 
-export const fetchBuilding = async (id : string) : Promise<Building> => {
+export const fetchBuilding = async (id: string): Promise<Building> => {
   return await convertBuilding(await fetchBuildingById(id));
 }
