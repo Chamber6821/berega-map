@@ -13,7 +13,12 @@ export type AssistantType = {
 }
 
 export default function useAssistant(): AssistantType {
-  const [dialog, setDialog] = useState<MessageType[]>([])
+  const [dialog, setDialog] = useState<MessageType[]>([
+    {
+      author: 'bot',
+      text: 'Введите ваши пожелания и я вам подскажу что к чему'
+    }
+  ])
   const [loading, setLoading] = useState(false)
   const setFilters = useFilters(x => x.set)
   const parseFilters = useFilters(x => x.parse)
