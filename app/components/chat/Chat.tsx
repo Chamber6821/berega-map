@@ -81,7 +81,7 @@ flex-direction: column;
 gap: 20px;
 width: 100%;
 height: 300px;
-overflow: scroll;
+overflow-y: auto;
 margin-top: 10px;
 margin-bottom: 20px;
 `
